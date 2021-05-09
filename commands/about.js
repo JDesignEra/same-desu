@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
 
 export const name = "about";
-export function execute(client, message, args) {
+export const execute = async (client, message, args) => {
   const embed = new MessageEmbed()
     .setColor("#2576A3")
     .setTitle("サメです、here is more info about creator!")

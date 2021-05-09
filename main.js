@@ -2,22 +2,33 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import fs from "fs";
 import { Client, Collection } from "discord.js";
+import { getAllGreetings } from "./databases/greetingsDb";
 
 dotenv.config();
 
 const client = new Client();
-client.commands = new Collection();
-
-fs.readdirSync("./commands/").filter(file => file.endsWith(".js")).map(file => {
-  const cmd = require(`./commands/${file}`);
-
-  client.commands.set(cmd.name, cmd);
-});
 
 client.once("ready", () => {
   console.log(`${chalk.blue(client.user.tag)} is ${chalk.green("ONLINE")}.\n`);
+  client.user.setActivity(process.env.STATUS);
 
-  client.user.setActivity("help for commands");
+  // Set bot commands
+  client.commands = new Collection();
+  
+  fs.readdirSync("./commands/").filter(file => file.endsWith(".js")).map(file => {
+    const cmd = require(`./commands/${file}`);
+    client.commands.set(cmd.name, cmd);
+  });
+
+  // Sync DB
+  fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(file => {
+    const db = require(`./databases/${file}`);
+    db.execute();
+    
+    (async () => {
+      await db.init();
+    })();
+  });
 });
 
 client.on("message", message => {

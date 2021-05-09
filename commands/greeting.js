@@ -1,23 +1,14 @@
+import { getAllGreetings } from "../databases/greetingsDb";
+
 export const name = "hello";
-export function execute(client, message, args) {
-  const greetingWords = [
-    "bonjour",
-    "domo",
-    "hello",
-    "hey",
-    "hi",
-    "howdy",
-    "sup",
-    "greeting",
-    "greetings",
-    "ども",
-    "こんにちわ"
-  ];
+export const execute = async (client, message, args) => {
+  const data = await getAllGreetings();
+  const greetingWords = data.filter(greeting => greeting.state);
 
-  if (greetingWords.some(word => message.content.includes(word))) {
-    const greeting = greetingWords.filter(word => message.content.includes(word)).pop();
+  if (greetingWords.some(word => message.content.includes(word.greeting))) {
+    const greeting = greetingWords.filter(word => message.content.includes(word.greeting)).pop().greeting;
 
-    message.channel.send(`${greeting[0].toUpperCase() + greeting.substring(1)} ${message.author.toString()}, 鮫です。 <a:guraWave:840734876964749342>`);
+    message.channel.send(`${greeting.toUpperCase() + greeting.substring(1)} ${message.author.toString()}, 鮫です。 <a:guraWave:840734876964749342>`);
 
     return true;
   }

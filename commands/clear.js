@@ -1,7 +1,7 @@
 import chalk from "chalk";
 
 export const name = "clear";
-export function execute(client, message, args) {
+export const execute = async (client, message, args) => {
   if (message.member.hasPermission("ADMINISTRATOR")) {
     let amt = args.length > 1 && args[1] ? args[1] : null;
 
@@ -46,8 +46,8 @@ export function execute(client, message, args) {
   }
   else {
     message.channel.send(`
-      ${message.author.toString()}　申し訳ありませんが、その許可はありません。
-      ${message.author.toString()} Sorry, you do not have that permission.
+      ${message.author.toString()} 申し訳ありませんが、その許可はありません。
+      Sorry, you do not have that permission.
     `.replace(/  +/g, ''));
   }
 }

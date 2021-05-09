@@ -12,7 +12,9 @@
   "dependencies": {
     "chalk": "^4.1.1",
     "discord.js": "^12.5.3",
-    "dotenv": "^9.0.0",
-    "esm": "^3.2.25"
+    "dotenv": "^9.0.1",
+    "esm": "^3.2.25",
+    "sequelize": "^6.6.2",
+    "sqlite3": "^5.0.2"
   }
 }
