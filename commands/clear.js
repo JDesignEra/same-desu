@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 export const name = "clear";
 export function execute(client, message, args) {
   if (message.member.hasPermission("ADMINISTRATOR")) {
@@ -9,7 +11,11 @@ export function execute(client, message, args) {
           let deleted;
   
           do {
-            deleted = await message.channel.bulkDelete(100);
+            try {
+              deleted = await message.channel.bulkDelete(100);
+            } catch (err) {
+              console.log(chalk.red("err"));
+            }
           } while(deleted.size != 0);
         })();
         break;
@@ -23,7 +29,11 @@ export function execute(client, message, args) {
               let deleted;
 
               do {
-                deleted = await message.channel.bulkDelete(amt);
+                try {
+                  deleted = await message.channel.bulkDelete(amt);
+                } catch (err) {
+                  console.log(chalk.red("err"));
+                }
               } while(deleted.size != 0);
             }
             else {
