@@ -24,7 +24,8 @@ export function execute(client, message, args) {
         `.replace(/  +/g, ''),
         inline: true
       },
-    );
+    )
+    .setFooter("Powered on AWS EC2.");
 
     message.channel.send(embed);
 }
