@@ -1,0 +1,18 @@
+{
+  "name": "same-desu",
+  "version": "1.0.0",
+  "description": "JDεꜱɪɢɴ™#1111 personal Discord bot.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node -r esm main"
+  },
+  "author": "JDesign",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "discord.js": "^12.5.3",
+    "dotenv": "^9.0.0",
+    "esm": "^3.2.25"
+  }
+}
