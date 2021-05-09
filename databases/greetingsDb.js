@@ -28,6 +28,10 @@ export const execute = () => {
   Greetings.sync();
 }
 
+export const getAllGreetings = async () => {
+  return await Greetings.findAll({ raw: true });
+}
+
 export const init = async () => {
   try {
     await Greetings.bulkCreate([
@@ -82,8 +86,4 @@ export const init = async () => {
       console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
     }
   }
-}
-
-export const getAllGreetings = async () => {
-  return await Greetings.findAll({ raw: true });
 }

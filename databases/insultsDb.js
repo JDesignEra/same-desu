@@ -28,6 +28,10 @@ export const execute = () => {
   Insults.sync();
 }
 
+export const getAllInsults = async () => {
+  return await Insults.findAll({ raw: true });
+}
+
 export const init = async () => {
   try {
     await Insults.bulkCreate([
@@ -74,8 +78,4 @@ export const init = async () => {
       console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
     }
   }
-}
-
-export const getAllInsults = async () => {
-  return await Insults.findAll({ raw: true });
 }
