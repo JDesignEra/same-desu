@@ -25,9 +25,9 @@ client.once("ready", () => {
     const db = require(`./databases/${file}`);
     db.execute();
     
-    (async () => {
-      await db.init();
-    })();
+    // (async () => {
+    //   await db.init();
+    // })();
   });
 });
 
