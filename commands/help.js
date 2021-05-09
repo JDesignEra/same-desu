@@ -25,7 +25,7 @@ export function execute(client, message, args) {
         inline: true
       },
     )
-    .setFooter("Powered on AWS EC2.");
+    .setFooter("Living in AWS EC2.");
 
     message.channel.send(embed);
 }
