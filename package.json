@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "JDεꜱɪɢɴ™#1111 personal Discord bot.",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node -r esm main"
+    "start": "node main"
   },
   "author": "JDesign",
   "license": "ISC",
@@ -13,7 +14,6 @@
     "chalk": "^4.1.1",
     "discord.js": "^12.5.3",
     "dotenv": "^9.0.1",
-    "esm": "^3.2.25",
     "sequelize": "^6.6.2",
     "sqlite3": "^5.0.2"
   }

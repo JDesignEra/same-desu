@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import fs from "fs";
 import { Client, Collection } from "discord.js";
-import { getAllGreetings } from "./databases/greetingsDb";
 
 dotenv.config();
 
@@ -15,19 +14,19 @@ client.once("ready", () => {
   // Set bot commands
   client.commands = new Collection();
   
-  fs.readdirSync("./commands/").filter(file => file.endsWith(".js")).map(file => {
-    const cmd = require(`./commands/${file}`);
+  fs.readdirSync("./commands/").filter(file => file.endsWith(".js")).map(async file => {
+    const cmd = await import(`./commands/${file}`);
     client.commands.set(cmd.name, cmd);
   });
 
   // Sync DB
-  fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(file => {
-    const db = require(`./databases/${file}`);
+  fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async file => {
+    const db = await import(`./databases/${file}`);
     db.execute();
     
-    // (async () => {
-    //   await db.init();
-    // })();
+    (async () => {
+      await db.init();
+    })();
   });
 });
 

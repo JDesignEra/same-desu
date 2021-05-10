@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
 import chalk from "chalk";
-import { DataTypes, Sequelize } from "sequelize";
+import Sequelize from "sequelize";
 
 dotenv.config();
 
 const name = "insultsDb";
-const sequelize = new Sequelize(process.env.DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+const sequelize = new Sequelize.Sequelize(process.env.DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
   host: "localhost",
   dialect: "sqlite",
   logging: false,
@@ -13,12 +13,12 @@ const sequelize = new Sequelize(process.env.DATABASE, process.env.DB_USERNAME, p
 });
 const Insults = sequelize.define("insults", {
   "insult": {
-    type: DataTypes.STRING,
+    type: Sequelize.DataTypes.STRING,
     unique: true,
     allowNull: false
   },
   "state": {
-    type: DataTypes.BOOLEAN,
+    type: Sequelize.DataTypes.BOOLEAN,
     defaultValue: false,
     allowNull: false
   }

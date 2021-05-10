@@ -3,7 +3,7 @@ import chalk from "chalk";
 export const name = "clear";
 export const execute = async (client, message, args) => {
   if (message.member.hasPermission("ADMINISTRATOR")) {
-    let amt = args.length > 1 && args[1] ? args[1] : null;
+    let amt = args[1] ?? null;
 
     switch (amt) {
       case "all":
