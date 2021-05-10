@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import trimExtraSpace from "../utils/trimExtraSpace.js";
 
 export const name = "clear";
 export const execute = async (client, message, args) => {
@@ -13,8 +14,9 @@ export const execute = async (client, message, args) => {
           do {
             try {
               deleted = await message.channel.bulkDelete(100);
-            } catch (err) {
-              console.log(chalk.red("err"));
+            }
+            catch (e) {
+              console.log(chalk.red(`${e.name}: ${e.message}\n`));
             }
           } while(deleted.size != 0);
         })();
@@ -31,8 +33,9 @@ export const execute = async (client, message, args) => {
               do {
                 try {
                   deleted = await message.channel.bulkDelete(amt);
-                } catch (err) {
-                  console.log(chalk.red("err"));
+                }
+                catch (e) {
+                  console.log(chalk.red(`${e.name}: ${e.message}\n`));
                 }
               } while(deleted.size != 0);
             }
@@ -45,9 +48,9 @@ export const execute = async (client, message, args) => {
     }
   }
   else {
-    message.channel.send(`
+    message.channel.send(trimExtraSpace(`
       ${message.author.toString()} 申し訳ありませんが、その許可はありません。
       Sorry, you do not have that permission.
-    `.replace(/  +/g, ''));
+    `));
   }
 }

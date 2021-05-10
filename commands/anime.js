@@ -1,5 +1,7 @@
 import chalk from "chalk";
+import { MessageEmbed } from "discord.js";
 import puppeteer from 'puppeteer';
+import trimExtraSpace from "../utils/trimExtraSpace.js";
 
 export const name = "anime";
 export const execute = async (client, message, args) => {
@@ -10,7 +12,7 @@ export const execute = async (client, message, args) => {
     case "latest":
       try {
         const puppeteerOpt = {
-          headless: false,
+          headless: true,
           defaultViewport: null,
           ignoreHTTPSErrors: true,
           args: [
@@ -58,20 +60,23 @@ export const execute = async (client, message, args) => {
             "--disable-offer-store-unmasked-wallet-cards"
           ]
         };
+
+        message.channel.send(`${message.author.toString()} please wait, I am retrieving it now.`);
         
         const browser = await puppeteer.launch(puppeteerOpt);
         const page = await browser.newPage();
         await page.goto(`${url}/updated`);
-
         await page.waitForNavigation();
+
         const animeLatest = await page.$$eval("ul.anime-list > li", (el) => {
           const list = [];
           
           el.forEach(el => {
             list.push({
-              names: el.querySelector("a.name").innerText,
-              links: el.querySelector("a.name").href,
-              images: el.querySelector("a.poster > img").src
+              name: el.querySelector("a.name")?.innerText,
+              episode: el.querySelector("a.poster > div.tag.ep")?.innerText,
+              link: el.querySelector("a.name")?.href,
+              image: el.querySelector("a.poster > img")?.src
             });
           });
           
@@ -79,10 +84,29 @@ export const execute = async (client, message, args) => {
         });
         
         await browser.close();
+
+        const embed = new MessageEmbed()
+          .setColor("#5a2e98")
+          .setTitle("Latest Episodes on 9Anime")
+          .setURL(`${url}/updated`)
+          .setDescription(trimExtraSpace(`
+            ${message.author.toString()}, here are the latest episodes on 9Anime.
+          `))
+          .addFields(animeLatest.map(anime => {
+            return {
+              name: `${anime.name}`,
+              value: `[${anime.episode}](${anime.link})`,
+              inline: true
+            }
+          }))
+          .setTimestamp();
+
+        message.channel.send(embed);
       }
       catch (e) {
         console.log(chalk.red("Failed to get anime."));
-        console.log(chalk.red(e.message));
+        console.log(chalk.red(`${e.name}: ${e.message}\n`));
+        message.channel.send(`${message.author.toString()}`);
       }
       break;
   

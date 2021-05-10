@@ -33,7 +33,7 @@ export const getAllGreetings = async () => {
 }
 
 export const init = async () => {
-  try {
+  try {    
     await Greetings.bulkCreate([
       {
         greeting: "bonjour",
@@ -84,6 +84,7 @@ export const init = async () => {
   catch (e) {
     if (e.name !== "SequelizeUniqueConstraintError") {
       console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
+      console.log(chalk.red(`${e.name}: ${e.message}\n`));
     }
   }
 }

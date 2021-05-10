@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import fs from "fs";
 import { Client, Collection } from "discord.js";
+import trimExtraSpace from "./utils/trimExtraSpace.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ client.once("ready", () => {
     const db = await import(`./databases/${file}`);
     db.execute();
     
+    // Create or Re-create tables.
     (async () => {
       await db.init();
     })();
@@ -31,7 +33,7 @@ client.once("ready", () => {
 });
 
 client.on("message", message => {
-  if (message.author.bot || message.content.includes("@here") || message.content.includes("@everyone")) return;
+  if (message.author.bot || message.content.includes("@here") || message.content.includes("@everyone") || message.author.bot) return;
 
   if (message.mentions.has(client.user.id)) {
     const args = message.content.split(" ").slice(1);
@@ -43,10 +45,10 @@ client.on("message", message => {
     }
     else {
       if (!client.commands.get("hello").execute(client, message, args)) {
-        message.channel.send(`
+        message.channel.send(trimExtraSpace(`
           **どうも ${message.author.toString()}, サメです。**
           How may I help you?\n<a:guraShy:840735051305713697>
-        `.replace(/  +/g, ''));
+        `));
       }
     }
   }
