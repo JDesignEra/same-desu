@@ -1,6 +1,6 @@
 {
   "name": "same-desu",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "JDεꜱɪɢɴ™#1111 personal Discord bot.",
   "main": "main.js",
   "type": "module",
@@ -13,7 +13,7 @@
   "dependencies": {
     "chalk": "^4.1.1",
     "discord.js": "^12.5.3",
-    "dotenv": "^9.0.1",
+    "dotenv": "^9.0.2",
     "puppeteer": "^9.1.1",
     "puppeteer-core": "^9.1.1",
     "puppeteer-extra": "^3.1.18",

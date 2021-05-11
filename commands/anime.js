@@ -174,7 +174,7 @@ export const execute = async (client, message, args) => {
             list.push({
               image: td[0]?.querySelector("div.picSurround > a.hoverinfo_trigger > img")?.src?.replace(/(\/r\/\d*x\d*)/gi, ""),
               name: td[1]?.querySelector("a.hoverinfo_trigger > strong")?.innerText,
-              summary: td[1]?.querySelector("div.pt4")?.innerText,
+              summary: td[1]?.querySelector("div.pt4")?.innerText.slice(0, -10),
               link: td[1]?.querySelector("a.hoverinfo_trigger").href,
               type: td[2]?.innerText,
               episodes: td[3]?.innerText,
