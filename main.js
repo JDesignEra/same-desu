@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import fs from "fs";
 import { Client, Collection } from "discord.js";
-import trimExtraSpace from "./utils/trimExtraSpace.js";
+import trimExtraSpaces from "./utils/trimExtraSpaces.js";
 
 dotenv.config();
 
@@ -45,13 +45,12 @@ client.on("message", async message => {
 
     const possibleArgs = msg.split(" ").filter(arg => arg.trim() !== "");
     let idx;
-    
-    possibleArgs.forEach((arg, i) => {
-      if (commands.indexOf(arg) > -1) {
+
+    for (let i = 0; i < possibleArgs.length && idx == null; i++) {
+      if (commands.indexOf(possibleArgs[i]) > -1) {
         idx = i;
-        return;
       }
-    });
+    }
     
     if (idx != null && idx > -1) args = possibleArgs.slice(idx);
     
@@ -60,7 +59,7 @@ client.on("message", async message => {
     }
     else {
       if (!await client.commands.get("hello").execute(client, message, args)) {
-        message.channel.send(trimExtraSpace(`
+        message.channel.send(trimExtraSpaces(`
           **どうも ${message.author.toString()}, サメです。**
           How may I help you?\n${client.emojis.cache.find(emoji => emoji.name === "guraShy")}
         `));

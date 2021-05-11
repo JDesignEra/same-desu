@@ -19,7 +19,7 @@ const Insults = sequelize.define("insults", {
   },
   "state": {
     type: Sequelize.DataTypes.BOOLEAN,
-    defaultValue: false,
+    defaultValue: true,
     allowNull: false
   }
 }, { timestamps: false });
@@ -35,42 +35,16 @@ export const getAllInsults = async () => {
 export const init = async () => {
   try {
     await Insults.bulkCreate([
-      {
-        insult: "FAQ <user>!",
-        state: true
-      },
-      {
-        insult: "FAQ you <user>!",
-        state: true
-      },
-      {
-        insult: "F*ck you <user>!",
-        state: true
-      },
-      {
-        insult: "Are you fucking kidding me <user>!?",
-        state: true
-      },
-      {
-        insult: "Stay home dayo <user>!",
-        state: true
-      },
-      {
-        insult: "You're too small <user>.",
-        state: true
-      },
-      {
-        insult: "Stop it <user>, eeewwww.",
-        state: true
-      },
-      {
-        insult: "<user> weirdo, or dare I say ばか。",
-        state: true
-      },
-      {
-        insult: "<user>、ボコボコにするよ、まじで。",
-        state: true
-      }
+      { insult: "FAQ <user>!" },
+      { insult: "FAQ you <user>!" },
+      { insult: "<user>, Pol... Poltato? You are a Poltato PC. I am beef PC." },
+      { insult: "F*ck you <user>!" },
+      { insult: "Are you fucking kidding me <user>!?" },
+      { insult: "Stay home dayo <user>!" },
+      { insult: "You're too small <user>." },
+      { insult: "Stop it <user>, eeewwww." },
+      { insult: "<user> weirdo, or dare I say ばか。" },
+      { insult: "<user>、ボコボコにするよ、まじで。" }
     ]);
   }
   catch (e) {
