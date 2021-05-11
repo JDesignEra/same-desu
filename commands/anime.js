@@ -10,6 +10,8 @@ export const execute = async (client, message, args) => {
 
   switch (cmd) {
     case "latest":
+      message.delete();
+      
       try {
         const puppeteerOpt = {
           headless: true,
@@ -84,33 +86,90 @@ export const execute = async (client, message, args) => {
         });
         
         await browser.close();
+        
+        const DURATION = 180000;
+        const embedMsgs = [
+          new MessageEmbed()
+            .setColor("#5a2e98")
+            .setTitle("Latest Episodes on 9Anime")
+            .setURL(`${url}/updated`)
+            .setDescription(trimExtraSpace(`
+              ${message.author.toString()}, here are the latest episodes on 9Anime.
 
-        const embed = new MessageEmbed()
-          .setColor("#5a2e98")
-          .setTitle("Latest Episodes on 9Anime")
-          .setURL(`${url}/updated`)
-          .setDescription(trimExtraSpace(`
-            ${message.author.toString()}, here are the latest episodes on 9Anime.
-          `))
-          .addFields(animeLatest.map(anime => {
-            return {
-              name: `${anime.name}`,
-              value: `[${anime.episode}](${anime.link})`,
-              inline: true
+              You can react with the reaction below to navigate through the list of latest episodes with an image of that anime.
+
+              **Note:** This embed message will be deleted after **${Math.floor(DURATION / 60000)}** minute.
+            `))
+            .setFooter(`Living in AWS EC2  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
+            .setTimestamp()
+            .addFields(animeLatest.map(anime => {
+              return {
+                name: `${anime.name}`,
+                value: `[${anime.episode}](${anime.link})`,
+                inline: true
+              }
+            }))
+        ];
+
+        animeLatest.forEach(anime => {
+          embedMsgs.push(
+            new MessageEmbed()
+            .setColor("#5a2e98")
+            .setTitle(anime.name)
+            .setURL(anime.link)
+            .setDescription(`[${anime.episode}](${anime.link})`)
+            .setImage(anime.image)
+            .setFooter(`Living in AWS EC2  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
+            .setTimestamp()
+          );
+        });
+
+        message.channel.send(embedMsgs[0]).then(async msg => {
+          await msg.react("⬅️");
+          await msg.react("➡️");
+      
+          let currentPage = 0;
+          const filter = (reaction, user) => (reaction.emoji.name === "⬅️" || reaction.emoji.name === "➡️") && !user.bot && user.id === message.author.id;
+          const collector = msg.createReactionCollector(filter, { time: DURATION, dispose: true });
+          
+          collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
+          collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
+      
+          collector.on("end", () => {
+            try {
+              msg.delete();
+              console.log(chalk.yellow("Embed latest anime message deleted.\n"));
             }
-          }))
-          .setTimestamp();
-
-        message.channel.send(embed);
+            catch (e) {
+              console.log(chalk.yellow("Embed message might have been delete already."));
+              console.log(chalk.yellow(`${e.name}: ${e.message}\n`));
+            }
+          });
+        });
       }
       catch (e) {
-        console.log(chalk.red("Failed to get anime."));
+        console.log(chalk.red("Failed to get latest anime."));
         console.log(chalk.red(`${e.name}: ${e.message}\n`));
-        message.channel.send(`${message.author.toString()}`);
+        message.channel.send(`${message.author.toString()} I fail to get latest episodes of anime, please try again later.`);
       }
       break;
   
     default:
       break;
   }
+}
+
+const updateEmbedPage = (msg, embedMsgs, currentPage, reaction) => {
+  let page = currentPage;
+
+  if (reaction.emoji.name === "⬅️" && page > 0) {
+    page--;
+    msg.edit(embedMsgs[page]);
+  }
+  else if (reaction.emoji.name === "➡️" && page < embedMsgs.length - 1) {
+    page++;
+    msg.edit(embedMsgs[page]);
+  }
+  
+  return page;
 }
