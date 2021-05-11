@@ -6,6 +6,7 @@ import trimExtraSpace from "./utils/trimExtraSpace.js";
 
 dotenv.config();
 
+const maxArgs = 2;
 const client = new Client();
 
 client.once("ready", () => {
@@ -25,26 +26,38 @@ client.once("ready", () => {
     const db = await import(`./databases/${file}`);
     db.execute();
     
-    // Create or Re-create tables.
-    (async () => {
-      await db.init();
-    })();
+    // Create database.
+    // (async () => {
+    //   await db.init();
+    // })();
   });
 });
 
-client.on("message", message => {
+client.on("message", async message => {
   if (message.author.bot || message.content.includes("@here") || message.content.includes("@everyone") || message.author.bot) return;
 
   if (message.mentions.has(client.user.id)) {
-    const args = message.content.split(" ").slice(1);
-    const cmd = args[0] ? args[0].toLowerCase() : null;
-    console.log(message.content);
+    const commands = client.commands.map(cmd => cmd.name);
+    const msg = message.content.replace(/\s?<@!\w*>\s?/gm, "");
+    let args = [];
 
-    if (client.commands.has(cmd)) {
-      client.commands.get(cmd).execute(client, message, args);
+    const possibleArgs = msg.split(" ").filter(arg => arg.trim() !== "");
+    let idx;
+    
+    possibleArgs.forEach((arg, i) => {
+      if (commands.indexOf(arg) > -1) {
+        idx = i;
+        return;
+      }
+    });
+    
+    if (idx != null && idx > -1) args = possibleArgs.slice(idx, idx + maxArgs);
+    
+    if (args.length > 0 && client.commands.filter(cmd => cmd.name === args[0])) {
+      client.commands.get(args[0])?.execute(client, message, args);
     }
     else {
-      if (!client.commands.get("hello").execute(client, message, args)) {
+      if (!await client.commands.get("hello").execute(client, message, args)) {
         message.channel.send(trimExtraSpace(`
           **どうも ${message.author.toString()}, サメです。**
           How may I help you?\n<a:guraShy:840735051305713697>
