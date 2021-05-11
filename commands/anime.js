@@ -100,7 +100,7 @@ export const execute = async (client, message, args) => {
 
               You can react with the reaction below to navigate through the list of latest episodes with an image of that anime.
 
-              **Note:** This embed message will be deleted after **${Math.floor(DURATION / 60000)}** minute.
+              **Note:** You will not be able too interact with this embed message after **${Math.floor(DURATION / 60000)}** minute.
             `))
             .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
             .setTimestamp()
@@ -113,7 +113,7 @@ export const execute = async (client, message, args) => {
             }))
         ];
 
-        animeLatest.forEach(anime => {
+        animeLatest.forEach((anime, i) => {
           embedMsgs.push(
             new MessageEmbed()
             .setColor("#5a2e98")
@@ -121,7 +121,7 @@ export const execute = async (client, message, args) => {
             .setURL(anime.link)
             .setDescription(`[${anime.episode}](${anime.link})`)
             .setImage(anime.image)
-            .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
+            .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page ${i + 2} / ${animeLatest.length + 1}`, client.user.avatarURL())
             .setTimestamp()
           );
         });
@@ -136,17 +136,6 @@ export const execute = async (client, message, args) => {
           
           collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
           collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-      
-          collector.on("end", () => {
-            try {
-              msg.delete();
-              console.log(chalk.yellow("Embed latest anime message deleted.\n"));
-            }
-            catch (e) {
-              console.log(chalk.yellow("Embed message might have been delete already."));
-              console.log(chalk.yellow(`${e.name}: ${e.message}\n`));
-            }
-          });
         });
       }
       catch (e) {
@@ -195,7 +184,7 @@ export const execute = async (client, message, args) => {
 
               You can react with the reaction below to navigate through the list of results with an image of that anime.
 
-              **Note:** This embed message will be deleted after **${Math.floor(DURATION / 60000)}** minute.
+              **Note:** You will not be able too interact with this embed message after **${Math.floor(DURATION / 60000)}** minute.
             `))
             .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${searchList.length + 1}`, client.user.avatarURL())
             .setTimestamp()
@@ -245,17 +234,6 @@ export const execute = async (client, message, args) => {
           
           collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
           collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-      
-          collector.on("end", () => {
-            try {
-              msg.delete();
-              console.log(chalk.yellow("Embed search anime message deleted.\n"));
-            }
-            catch (e) {
-              console.log(chalk.yellow("Embed message might have been delete already."));
-              console.log(chalk.yellow(`${e.name}: ${e.message}\n`));
-            }
-          });
         });
       }
       catch (e) {
