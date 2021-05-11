@@ -61,9 +61,7 @@ export const execute = async (client, message, args) => {
 
   message.delete();
   message.channel.send(`${message.author.toString()} please wait, I am retrieving it now.`).then(msg => {
-    setTimeout(() => {
-      msg.delete();
-    }, 30000)
+    msg?.delete({ timeout: 30000});
   });
   
   const browser = await puppeteer.launch(puppeteerOpt);
@@ -104,7 +102,7 @@ export const execute = async (client, message, args) => {
 
               **Note:** This embed message will be deleted after **${Math.floor(DURATION / 60000)}** minute.
             `))
-            .setFooter(`Living in GCP CE  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
+            .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
             .setTimestamp()
             .addFields(animeLatest.map(anime => {
               return {
@@ -123,7 +121,7 @@ export const execute = async (client, message, args) => {
             .setURL(anime.link)
             .setDescription(`[${anime.episode}](${anime.link})`)
             .setImage(anime.image)
-            .setFooter(`Living in GCP CE  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
+            .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
             .setTimestamp()
           );
         });
@@ -199,7 +197,7 @@ export const execute = async (client, message, args) => {
 
               **Note:** This embed message will be deleted after **${Math.floor(DURATION / 60000)}** minute.
             `))
-            .setFooter(`Living in GCP CE  \u2022  Page 1 / ${searchList.length + 1}`, client.user.avatarURL())
+            .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${searchList.length + 1}`, client.user.avatarURL())
             .setTimestamp()
             .addFields(searchList.map(anime => {
               return {
@@ -232,7 +230,7 @@ export const execute = async (client, message, args) => {
               **Score:** ${anime.score}
             `))
             .setImage(anime.image)
-            .setFooter(`Living in GCP CE  \u2022  Page ${i + 2} / ${searchList.length + 1}`, client.user.avatarURL())
+            .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page ${i + 2} / ${searchList.length + 1}`, client.user.avatarURL())
             .setTimestamp()
           );
         });

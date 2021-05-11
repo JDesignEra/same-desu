@@ -13,7 +13,7 @@ export const execute = async (client, message, args) => {
     new MessageEmbed()
       .setColor("#2576A3")
       .setTitle("COMMANDS")
-      .setFooter(`Living in GCP CE  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
+      .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
       .setDescription(trimExtraSpace(`
         Use \`help <Command Name>\` for more information about that command.
@@ -39,7 +39,7 @@ export const execute = async (client, message, args) => {
       new MessageEmbed()
         .setColor("#2576A3")
         .setTitle(cmd.command.toUpperCase())
-        .setFooter(`Living in GCP CE  \u2022  Page ${i + 2} / ${data.length + 1}`, client.user.avatarURL())
+        .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page ${i + 2} / ${data.length + 1}`, client.user.avatarURL())
         .setTimestamp()
         .setDescription(trimExtraSpace(`
           ${cmd.description}
@@ -80,7 +80,7 @@ export const execute = async (client, message, args) => {
     const embed = new MessageEmbed()
       .setColor("#2576A3")
       .setTitle(detailedHelpCmd.command.toUpperCase())
-      .setFooter(`Living in GCP CE ${data.length + 1}`, client.user.avatarURL())
+      .setFooter(`Living in ${process.env.HOST_PLATFORM} ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
       .setDescription(trimExtraSpace(`
         ${detailedHelpCmd.description}
