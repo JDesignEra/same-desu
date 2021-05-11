@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import trimExtraSpace from "../utils/trimExtraSpace.js";
+import trimExtraSpaces from "../utils/trimExtraSpaces.js";
 
 export const name = "clear";
 export const execute = async (client, message, args) => {
@@ -48,7 +48,7 @@ export const execute = async (client, message, args) => {
     }
   }
   else {
-    message.channel.send(trimExtraSpace(`
+    message.channel.send(trimExtraSpaces(`
       ${message.author.toString()} 申し訳ありませんが、その許可はありません。
       Sorry, you do not have that permission.
     `));

@@ -1,13 +1,13 @@
 import chalk from "chalk";
 import { getAllCommands } from "./../databases/commandsDb.js";
 import { MessageEmbed } from "discord.js";
-import trimExtraSpace from "../utils/trimExtraSpace.js";
+import trimExtraSpaces from "../utils/trimExtraSpaces.js";
 
 export const name = "help";
 export const execute = async (client, message, args) => {
   const DURATION = 60000;
   const data = await getAllCommands();
-  let detailedHelpCmd;
+  let detailedHelpCmd = false;
 
   const embedMsgs = [
     new MessageEmbed()
@@ -15,7 +15,7 @@ export const execute = async (client, message, args) => {
       .setTitle("COMMANDS")
       .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
-      .setDescription(trimExtraSpace(`
+      .setDescription(trimExtraSpaces(`
         Use \`help <Command Name>\` for more information about that command.
 
         You can also navigate with the reaction below to navigate through the list of commands for more information.
@@ -41,7 +41,7 @@ export const execute = async (client, message, args) => {
         .setTitle(cmd.command.toUpperCase())
         .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page ${i + 2} / ${data.length + 1}`, client.user.avatarURL())
         .setTimestamp()
-        .setDescription(trimExtraSpace(`
+        .setDescription(trimExtraSpaces(`
           ${cmd.description}
 
           **Usage**
@@ -74,6 +74,10 @@ export const execute = async (client, message, args) => {
           console.log(chalk.yellow(`${e.name}: ${e.message}\n`));
         }
       });
+    }).catch(e => {
+      console.log(chalk.red("Failed to send message"));
+      console.log(chalk.red(`${e.name}: ${e.message}\n`));
+      message.channel.send(`${message.author.toString()}, this is embarrassing. But it seems that you have stumble upon a bug. Please let <@156834654140235776> know so he can fix me up.`);
     });
   }
   else {
@@ -82,7 +86,7 @@ export const execute = async (client, message, args) => {
       .setTitle(detailedHelpCmd.command.toUpperCase())
       .setFooter(`Living in ${process.env.HOST_PLATFORM} ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
-      .setDescription(trimExtraSpace(`
+      .setDescription(trimExtraSpaces(`
         ${detailedHelpCmd.description}
 
         **Usage**

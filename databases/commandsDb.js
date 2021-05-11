@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import chalk from "chalk";
 import Sequelize from "sequelize";
+import trimExtraSpaces from "../utils/trimExtraSpaces.js";
 
 dotenv.config();
 
@@ -53,11 +54,18 @@ export const init = async () => {
       },
       {
         command: "anime",
-        description: "I will retrieve anime related information for you.",
+        description: trimExtraSpaces(`
+          I will retrieve anime related information for you.
+
+          \`anime season\` - Accepts 2 optional parameters, if both parameters are provided, I get a list of anime from that season. If either parameters are not provided I will get the current season's anime.
+
+          \`anime <name>\` - The name parameter can have spaces in between.
+        `),
         admin: false,
         usage: [
-          "`anime latest` - I will retrieve the latest anime episodes on 9Anime.",
-          "`anime <name>` - I will provide a list of anime that matches that name."
+          "`anime latest`                   - I will retrieve the latest anime episodes on 9Anime.",
+          "`anime season <year>? <season>?` - I will provide a list of anime for that season.",
+          "`anime <name>`                   - I will provide a list of anime that matches that name.",
         ].join("::")
       },
       {
