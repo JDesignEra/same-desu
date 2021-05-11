@@ -55,7 +55,10 @@ export const init = async () => {
         command: "anime",
         description: "I will retrieve anime related information for you.",
         admin: false,
-        usage: "`anime latest` - I will retrieve the latest anime episodes on 9Anime."
+        usage: [
+          "`anime latest` - I will retrieve the latest anime episodes on 9Anime.",
+          "`anime <name>` - I will provide a list of anime that matches that name."
+        ].join("::")
       },
       {
         command: "hello",

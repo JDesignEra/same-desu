@@ -38,8 +38,10 @@ client.on("message", async message => {
 
   if (message.mentions.has(client.user.id)) {
     const commands = client.commands.map(cmd => cmd.name);
-    const msg = message.content.replace(/\s?<@!\w*>\s?/gm, "");
+    const msg = message.content.slice(client.user.id.length + 4);
     let args = [];
+
+    console.log(message.content);
 
     const possibleArgs = msg.split(" ").filter(arg => arg.trim() !== "");
     let idx;
@@ -51,7 +53,7 @@ client.on("message", async message => {
       }
     });
     
-    if (idx != null && idx > -1) args = possibleArgs.slice(idx, idx + maxArgs);
+    if (idx != null && idx > -1) args = possibleArgs.slice(idx);
     
     if (args.length > 0 && client.commands.filter(cmd => cmd.name === args[0])) {
       client.commands.get(args[0])?.execute(client, message, args);
