@@ -20,7 +20,7 @@ export const execute = async (client, message, args) => {
 
         You can also navigate with the reaction below to navigate through the list of commands for more information.
 
-        **Note:** The help menu will be deleted after **${Math.floor(DURATION / 60000)}** minute.
+        **Note:** This embed message will be deleted after **${Math.floor(DURATION / 60000)}** minute.
 
         **Commands**
         ${data.map(cmd => {
@@ -51,7 +51,8 @@ export const execute = async (client, message, args) => {
   });
 
   if (!detailedHelpCmd) {
-    message.channel.send(embedMsgs[0]).then(async msg => {      
+    message.delete();
+    message.channel.send(embedMsgs[0]).then(async msg => {
       await msg.react("⬅️");
       await msg.react("➡️");
   
@@ -59,8 +60,8 @@ export const execute = async (client, message, args) => {
       const filter = (reaction, user) => (reaction.emoji.name === "⬅️" || reaction.emoji.name === "➡️") && !user.bot && user.id === message.author.id;
       const collector = msg.createReactionCollector(filter, { time: DURATION, dispose: true });
       
-      collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction, user));
-      collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction, user));
+      collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
+      collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
   
       collector.on("end", () => {
         try {
@@ -75,6 +76,7 @@ export const execute = async (client, message, args) => {
     });
   }
   else {
+    message.delete();
     const embed = new MessageEmbed()
       .setColor("#2576A3")
       .setTitle(detailedHelpCmd.command.toUpperCase())
@@ -91,7 +93,7 @@ export const execute = async (client, message, args) => {
   }
 }
 
-const updateEmbedPage = (msg, embedMsgs, currentPage, reaction, user) => {
+const updateEmbedPage = (msg, embedMsgs, currentPage, reaction) => {
   let page = currentPage;
 
   if (reaction.emoji.name === "⬅️" && page > 0) {

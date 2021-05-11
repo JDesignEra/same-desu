@@ -60,7 +60,7 @@ client.on("message", async message => {
       if (!await client.commands.get("hello").execute(client, message, args)) {
         message.channel.send(trimExtraSpace(`
           **どうも ${message.author.toString()}, サメです。**
-          How may I help you?\n<a:guraShy:840735051305713697>
+          How may I help you?\n${client.emojis.cache.find(emoji => emoji.name === "guraShy")}
         `));
       }
     }

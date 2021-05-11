@@ -22,6 +22,11 @@ const Commands = sequelize.define("commands", {
     defaultValue: false,
     allowNull: false
   },
+  "admin": {
+    type: Sequelize.DataTypes.BOOLEAN,
+    defaultValue: false,
+    allowNull: false
+  },
   "usage": {
     type: Sequelize.DataTypes.STRING,
     defaultValue: null,
@@ -43,21 +48,25 @@ export const init = async () => {
       {
         command: "about",
         description: "I will provide you with information about my creator.",
-        usage: "`about`",
+        admin: false,
+        usage: "`about`"
       },
       {
         command: "anime",
         description: "I will retrieve anime related information for you.",
+        admin: false,
         usage: "`anime latest` - I will retrieve the latest anime episodes on 9Anime."
       },
       {
         command: "hello",
         description: "I shall greet you.",
+        admin: false,
         usage: "`hello`"
       },
       {
         command: "insult",
         description: "I shall insult someone for you or yourself.",
+        admin: false,
         usage: [
           "`insult`       - I will insult you.",
           "`insult @user` - I will insult that person."
@@ -66,6 +75,7 @@ export const init = async () => {
       {
         command: "clear",
         description: "I shall clean the chat for you. This is an **administrator** only command.",
+        admin: true,
         usage: [
           "`clear <all>` - I will clear all messages in that channel.",
           "`clear <int>` - I will will clear that last x number of messages from that channel."

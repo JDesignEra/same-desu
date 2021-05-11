@@ -8,7 +8,7 @@ export const execute = async (client, message, args) => {
   if (args.length > 0 && greetingWords?.some(word => message.content.includes(word.greeting))) {
     const greeting = greetingWords?.filter(word => message.content.includes(word?.greeting)).pop()?.greeting;
 
-    message.channel.send(`${greeting[0]?.toUpperCase() + greeting?.substring(1)} ${message.author.toString()}, 鮫です。 <a:guraWave:840734876964749342>`);
+    message.channel.send(`${greeting[0]?.toUpperCase() + greeting?.substring(1)} ${message.author.toString()}, 鮫です。 ${client.emojis.cache.find(emoji => emoji.name === "guraWave")}`);
 
     return true;
   }
