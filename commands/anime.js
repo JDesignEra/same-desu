@@ -113,7 +113,7 @@ export const execute = async (client, message, args) => {
             }))
         ];
 
-        animeLatest.forEach(anime => {
+        animeLatest.forEach((anime, i) => {
           embedMsgs.push(
             new MessageEmbed()
             .setColor("#5a2e98")
@@ -121,7 +121,7 @@ export const execute = async (client, message, args) => {
             .setURL(anime.link)
             .setDescription(`[${anime.episode}](${anime.link})`)
             .setImage(anime.image)
-            .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
+            .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page ${i + 2} / ${animeLatest.length + 1}`, client.user.avatarURL())
             .setTimestamp()
           );
         });
