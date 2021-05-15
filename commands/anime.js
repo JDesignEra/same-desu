@@ -4,16 +4,62 @@ import { MessageEmbed } from "discord.js";
 import moment from "moment";
 import puppeteer from 'puppeteer';
 import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import wsReply from "../addons/wsReply.js";
+import embedPageReaction from "../addons/embedPageReaction.js";
+import wsEditReplyEmbedPage from "../addons/wsEditReplyEmbedPage.js";
+import wsPatch from "../addons/wsPatch.js";
 
 export const name = "anime";
-export const execute = async (client, message, args) => {
-  const DURATION = 180000;
+export const description = "I will retrieve anime related information for you.";
+export const options = [
+  {
+    name: "search",
+    description: "I will provide you a list of anime that matches the title.",
+    type: 1,
+    options: [
+      {
+        name: "title",
+        description: "Give me an anime title or a title that is close enough.",
+        type: 3,
+        required: true
+      }
+    ]
+  },
+  {
+    name: "season",
+    description: "I will show you a list of anime from that year and season.",
+    type: 1,
+    options: [
+      {
+        name: "year",
+        description: "Give me the year.",
+        type: 4
+      },
+      {
+        name: "season",
+        description: "Give me the season. Valid options are (winter | spring | summer | fall).",
+        type: 3
+      }
+    ]
+  },
+  {
+    name: "latest",
+    description: "I will get the latest anime episodes on 9Anime.",
+    type: 1
+  }
+];
+
+export const execute = async (client, message, args, isWs = false) => {
+  const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
+  const authorId = message.author?.id ?? message.member?.user?.id;
+
+  const duration = 180000;
   const nineAnimeUrl = "https://9anime.to";
   const jikanUrl = "https://api.jikan.moe/v3";
   const malUrl = "https://myanimelist.net";
-  const argument = args[1];
+  const argument = args[0] ?? null;
 
-  if (args.length > 1) {
+  if (args.length > 0) {
     const puppeteerOpt = {
       headless: true,
       defaultViewport: null,
@@ -63,11 +109,17 @@ export const execute = async (client, message, args) => {
         "--disable-offer-store-unmasked-wallet-cards"
       ]
     };
-
-    message.delete();
-    message.channel.send(`${message.author.toString()} please wait, I am retrieving it now.`).then(msg => {
-      msg?.delete({ timeout: 30000});
-    });
+    
+    if (isWs) {
+      await wsReply(client, message, `${tagUser} please wait, I am retrieving it now.`, null, 5);
+    }
+    else {
+      message.delete();
+      
+      message.channel.send(`${tagUser} please wait, I am retrieving it now.`).then(msg => {
+        msg?.delete({ timeout: 30000});
+      });
+    }
     
     const browser = await puppeteer.launch(puppeteerOpt);
     const page = await browser.newPage();
@@ -101,11 +153,11 @@ export const execute = async (client, message, args) => {
               .setTitle("Latest Episodes on 9Anime")
               .setURL(`${nineAnimeUrl}/updated`)
               .setDescription(trimExtraSpaces(`
-                ${message.author.toString()}, here are the latest episodes on 9Anime.
+                ${tagUser}, here are the latest episodes on 9Anime.
 
                 You can react with the reaction below to navigate through the list of latest episodes with an image of that anime.
 
-                **Note:** You will not be able to interact with this embed message after **${Math.floor(DURATION / 60000)}** minute.
+                **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
               `))
               .addFields(animeLatest.map(anime => {
                 return {
@@ -131,40 +183,43 @@ export const execute = async (client, message, args) => {
             );
           });
 
-          message.channel.send(embedMsgs[0]).then(async msg => {
-            await msg.react("⬅️");
-            await msg.react("➡️");
-        
-            let currentPage = 0;
-            const filter = (reaction, user) => (reaction.emoji.name === "⬅️" || reaction.emoji.name === "➡️") && !user.bot && user.id === message.author.id;
-            const collector = msg.createReactionCollector(filter, { time: DURATION, dispose: true });
-            
-            collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-            collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-          }).catch(e => {
-            console.log(chalk.red("Failed to send message"));
-            console.log(chalk.red(`${e.name}: ${e.message}\n`));
-            message.channel.send(`${message.author.toString()}, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
-          });
+          if (isWs) {
+            await wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+          }
+          else {
+            message.channel.send(embedMsgs[0]).then(async msg => {
+              await embedPageReaction(authorId, duration, embedMsgs, msg);
+            }).catch(e => {
+              console.log(chalk.red("\nFailed to send message"));
+              console.log(chalk.red(`${e.name}: ${e.message}`));
+              message.channel.send(`${tagUser}, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
+            });
+          }
         }
         catch (e) {
-          console.log(chalk.red("Failed to get latest anime."));
-          console.log(chalk.red(`${e.name}: ${e.message}\n`));
-          message.channel.send(`${message.author.toString()}, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
+          console.log(chalk.red("\nFailed to get latest anime."));
+          console.log(chalk.red(`${e.name}: ${e.message}`));
+          
+          if (isWs) {
+            wsPatch(client, message, `${tagUser}, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
+          }
+          else {
+            message.channel.send(`${tagUser}, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
+          }
         }
         break;
 
       // Anime from that season
       case "season":
-        if (args.length > 1) {
+        if (args.length > 0) {
           const duration = 300000;
           let year;
           let season;
 
-          if (!isNaN(args[3])) year = `/${args[3]}/`;
           if (!isNaN(args[2])) year = `/${args[2]}/`;
-          if (args[3]?.indexOf(/\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi) > -1) season = args[3];
-          if (args[2]?.indexOf(/\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi) > -1) season = args[2];
+          if (!isNaN(args[1])) year = `/${args[1]}/`;
+          if (typeof(args[2]) === "string" && args[2]?.indexOf(/\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi) > -1) season = args[2];
+          if (typeof(args[1]) === "string" && args[1]?.indexOf(/\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi) > -1) season = args[1];
 
           const parameter = year && season ? year + season : "";
           const res = await axios.get(`${jikanUrl}/season${parameter}`);
@@ -182,7 +237,7 @@ export const execute = async (client, message, args) => {
                 .setTitle(`${maxSize} Anime for ${data?.season_name} ${data?.season_year}`)
                 .setURL(`${malUrl}/season/${data?.season_year}/${data?.season_name}`)
                 .setDescription(trimExtraSpaces(`
-                  ${message.author.toString()}, here are ${maxSize} **${data?.season_name} ${data?.season_year}** anime.
+                  ${tagUser}, here are ${maxSize} **${data?.season_name} ${data?.season_year}** anime.
 
                   You can react with the reaction below to navigate through the list of anime with more information.
 
@@ -261,29 +316,29 @@ export const execute = async (client, message, args) => {
               );
             });
 
-            message.channel.send(embedMsgs[0]).then(async msg => {
-              await msg.react("⬅️");
-              await msg.react("➡️");
-          
-              let currentPage = 0;
-              const filter = (reaction, user) => (reaction.emoji.name === "⬅️" || reaction.emoji.name === "➡️") && !user.bot && user.id === message.author.id;
-              const collector = msg.createReactionCollector(filter, { time: duration, dispose: true });
-              
-              collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-              collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-            }).catch(e => {
-              console.log(chalk.red("Failed to send message"));
-              console.log(chalk.red(`${e.name}: ${e.message}\n`));
-              message.channel.send(`${message.author.toString()}, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
-            });
+            if (isWs) {
+              wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+            }
+            else {
+              message.channel.send(embedMsgs[0]).then(async msg => {
+                embedPageReaction(authorId, duration, embedMsgs, msg);
+              }).catch(e => {
+                console.log(chalk.red("\nFailed to send message"));
+                console.log(chalk.red(`${e.name}: ${e.message}`));
+                message.channel.send(`${tagUser}, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
+              });
+            }
+          }
+          else if (isWs) {
+            wsPatch(client, message, `${tagUser}, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
           }
           else {
-            message.channel.send(`${message.author.toString()}, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
+            message.channel.send(`${tagUser}, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
           }
         }
         else {
           message.channel.send(trimExtraSpaces(`
-            **どうも ${message.author.toString()}, サメです。**
+            **どうも ${tagUser}, サメです。**
             Tag me with \`anime season\` to get the current season anime on **MyAnimeList**.
             To get a specific season's of anime tag me with \`anime season <year> <season>\` or \`anime season <season> <year>\`.
           `));
@@ -308,11 +363,11 @@ export const execute = async (client, message, args) => {
               .setTitle(`${maxSize} Anime that Matched`)
               .setURL(`${malUrl}`)
               .setDescription(trimExtraSpaces(`
-                ${message.author.toString()}, here are ${maxSize} anime titles that matches.
+                ${tagUser}, here are ${maxSize} anime titles that matches.
 
                 You can react with the reaction below to navigate through the list of anime with more information.
 
-                **Note:** You will not be able to interact with this embed message after **${Math.floor(DURATION / 60000)}** minute.
+                **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
               `))
               .addFields(animeList.map(anime => {
                 const synopsis = anime.synopsis.length > fieldValMaxLen ?
@@ -392,52 +447,48 @@ export const execute = async (client, message, args) => {
             );
           });
 
-          message.channel.send(embedMsgs[0]).then(async msg => {
-            await msg.react("⬅️");
-            await msg.react("➡️");
-        
-            let currentPage = 0;
-            const filter = (reaction, user) => (reaction.emoji.name === "⬅️" || reaction.emoji.name === "➡️") && !user.bot && user.id === message.author.id;
-            const collector = msg.createReactionCollector(filter, { time: DURATION, dispose: true });
-            
-            collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-            collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-          }).catch(e => {
-            console.log(chalk.red("Failed to send message"));
-            console.log(chalk.red(`${e.name}: ${e.message}\n`));
-            message.channel.send(`${message.author.toString()}, it seems that I am having trouble finding an anime with that name, please kindly try again later.`);
-          });
+          if (isWs) {
+            wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+          }
+          else {
+            message.channel.send(embedMsgs[0]).then(async msg => {
+              embedPageReaction(authorId, duration, embedMsgs, msg);
+            }).catch(e => {
+              console.log(chalk.red("\nFailed to send message"));
+              console.log(chalk.red(`${e.name}: ${e.message}`));
+              message.channel.send(`${tagUser}, it seems that I am having trouble finding an anime with that name, please kindly try again later.`);
+            });
+          }
+        }
+        else if (isWs) {
+          wsPatch(client, message, trimExtraSpaces(`
+            **どうも ${tagUser}, サメです。**
+            Tag me with \`anime <anime name>\` to search for an anime on **MyAnimeList**.
+          `));
         }
         else {
           message.channel.send(trimExtraSpaces(`
-            **どうも ${message.author.toString()}, サメです。**
+            **どうも ${tagUser}, サメです。**
             Tag me with \`anime <anime name>\` to search for an anime on **MyAnimeList**.
           `));
         }
         break;
     }
   }
-  else {
-    message.channel.send(trimExtraSpaces(`
-      **どうも ${message.author.toString()}, サメです。**
+  else if (isWs) {
+    wsPatch(client, message, trimExtraSpaces(`
+      **どうも ${tagUser}, サメです。**
       \u2022 Tag me with \`anime <anime name>\` to search for an anime on **MyAnimeList**.
       \u2022 Tag me with \`anime latest\` to get the latest episodes on **9Anime**.
       \u2022 Tag me with \`anime <year> <season>\` to get the anime from that year of season on **MyAnimeList**.
     `));
   }
-}
-
-const updateEmbedPage = (msg, embedMsgs, currentPage, reaction) => {
-  let page = currentPage;
-
-  if (reaction.emoji.name === "⬅️" && page > 0) {
-    page--;
-    msg.edit(embedMsgs[page]);
+  else {
+    message.channel.send(trimExtraSpaces(`
+      **どうも ${tagUser}, サメです。**
+      \u2022 Tag me with \`anime <anime name>\` to search for an anime on **MyAnimeList**.
+      \u2022 Tag me with \`anime latest\` to get the latest episodes on **9Anime**.
+      \u2022 Tag me with \`anime <year> <season>\` to get the anime from that year of season on **MyAnimeList**.
+    `));
   }
-  else if (reaction.emoji.name === "➡️" && page < embedMsgs.length - 1) {
-    page++;
-    msg.edit(embedMsgs[page]);
-  }
-  
-  return page;
 }

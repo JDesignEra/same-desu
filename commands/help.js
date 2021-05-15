@@ -2,10 +2,23 @@ import chalk from "chalk";
 import { getAllCommands } from "./../databases/commandsDb.js";
 import { MessageEmbed } from "discord.js";
 import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import embedPageReaction from "../addons/embedPageReaction.js";
+import wsReply from "../addons/wsReply.js";
+import wsEditReplyEmbedPage from "../addons/wsEditReplyEmbedPage.js";
 
 export const name = "help";
-export const execute = async (client, message, args) => {
-  const DURATION = 60000;
+export const description = "I will tell you about what I can do.";
+export const options = [
+  {
+    name: "command",
+    description: "Command detailed help information, leave it empty for all commands information.",
+    type: 3
+  }
+]
+
+export const execute = async (client, message, args, isWs = false) => {
+  const duration = 60000;
+  const authorId = message.author?.id ?? message.member?.user?.id;
   const data = await getAllCommands();
   let detailedHelpCmd = false;
 
@@ -20,7 +33,7 @@ export const execute = async (client, message, args) => {
 
         You can also navigate with the reaction below to navigate through the list of commands for more information.
 
-        **Note:** This embed message will be deleted after **${Math.floor(DURATION / 60000)}** minute.
+        **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
 
         **Commands**
         ${data.map(cmd => {
@@ -30,7 +43,7 @@ export const execute = async (client, message, args) => {
   ];
 
   data.forEach((cmd, i) => {
-    if (args[1] && args[1] === cmd.command && args[1] !== "help") {
+    if (args[0] && args[0] === cmd.command && args[1] !== "help") {
       detailedHelpCmd = cmd;
       return;
     }
@@ -49,36 +62,21 @@ export const execute = async (client, message, args) => {
         `))
     );
   });
-
-  message.delete();
   
   if (!detailedHelpCmd) {
-    message.channel.send(embedMsgs[0]).then(async msg => {
-      await msg.react("⬅️");
-      await msg.react("➡️");
-  
-      let currentPage = 0;
-      const filter = (reaction, user) => (reaction.emoji.name === "⬅️" || reaction.emoji.name === "➡️") && !user.bot && user.id === message.author.id;
-      const collector = msg.createReactionCollector(filter, { time: DURATION, dispose: true });
-      
-      collector.on("collect", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-      collector.on("remove", (reaction, user) => currentPage = updateEmbedPage(msg, embedMsgs, currentPage, reaction));
-  
-      collector.on("end", () => {
-        try {
-          msg.delete();
-          console.log(chalk.yellow("Embed help message deleted.\n"));
-        }
-        catch (e) {
-          console.log(chalk.yellow("Embed message might have been delete already."));
-          console.log(chalk.yellow(`${e.name}: ${e.message}\n`));
-        }
+    if (isWs) {
+      await wsReply(client, message, "", embedMsgs[0], 5);
+      await wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+    }
+    else {
+      message.channel.send(embedMsgs[0]).then(async msg => {
+        embedPageReaction(authorId, duration, embedMsgs, msg);
+      }).catch(e => {
+        console.log(chalk.red("\nFailed to send message"));
+        console.log(chalk.red(`${e.name}: ${e.message}`));
+        message.channel.send(`${message.author?.toString()}, this is embarrassing. But it seems that you have stumble upon a bug. Please let <@156834654140235776> know so he can fix me up.`);
       });
-    }).catch(e => {
-      console.log(chalk.red("Failed to send message"));
-      console.log(chalk.red(`${e.name}: ${e.message}\n`));
-      message.channel.send(`${message.author.toString()}, this is embarrassing. But it seems that you have stumble upon a bug. Please let <@156834654140235776> know so he can fix me up.`);
-    });
+    }
   }
   else {
     const embed = new MessageEmbed()
@@ -93,21 +91,11 @@ export const execute = async (client, message, args) => {
         \u2022 ${detailedHelpCmd.usage.replace(/::/gm, "\n\u2022 ")}
       `));
 
-    message.channel.send(embed);
+    if (isWs) {
+      wsReply(client, message, "", embed);
+    }
+    else {
+      message.channel.send(embed);
+    }
   }
-}
-
-const updateEmbedPage = (msg, embedMsgs, currentPage, reaction) => {
-  let page = currentPage;
-
-  if (reaction.emoji.name === "⬅️" && page > 0) {
-    page--;
-    msg.edit(embedMsgs[page]);
-  }
-  else if (reaction.emoji.name === "➡️" && page < embedMsgs.length - 1) {
-    page++;
-    msg.edit(embedMsgs[page]);
-  }
-  
-  return page;
 }

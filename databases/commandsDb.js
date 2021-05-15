@@ -15,6 +15,7 @@ const sequelize = new Sequelize.Sequelize(process.env.DATABASE, process.env.DB_U
 const Commands = sequelize.define("commands", {
   "command": {
     type: Sequelize.DataTypes.STRING,
+    primaryKey: true,
     unique: true,
     allowNull: false
   },
@@ -27,6 +28,11 @@ const Commands = sequelize.define("commands", {
     type: Sequelize.DataTypes.BOOLEAN,
     defaultValue: false,
     allowNull: false
+  },
+  "roles": {
+    type: Sequelize.DataTypes.STRING,
+    defaultValue: null,
+    allowNull: true
   },
   "usage": {
     type: Sequelize.DataTypes.STRING,
@@ -41,6 +47,16 @@ export const execute = () => {
 
 export const getAllCommands = async () => {
   return await Commands.findAll({ raw: true });
+}
+
+
+export const getCommandRoles = async (command) => {
+  const data = await Commands.findByPk(command, {
+    raw: true,
+    attributes: ["roles"]
+  });
+
+  return data?.roles;
 }
 
 export const init = async () => {
@@ -87,6 +103,7 @@ export const init = async () => {
         command: "clear",
         description: "I shall clean the chat for you. This is an **administrator** only command.",
         admin: true,
+        roles: "278178035927351298",
         usage: [
           "`clear <all>` - I will clear all messages in that channel.",
           "`clear <int>` - I will will clear that last x number of messages from that channel."
