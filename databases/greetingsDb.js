@@ -14,6 +14,7 @@ const sequelize = new Sequelize.Sequelize(process.env.DATABASE, process.env.DB_U
 const Greetings = sequelize.define("greetings", {
   "greeting": {
     type: Sequelize.DataTypes.STRING,
+    primaryKey: true,
     unique: true,
     allowNull: false
   },

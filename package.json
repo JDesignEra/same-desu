@@ -1,6 +1,6 @@
 {
   "name": "same-desu",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "description": "JDεꜱɪɢɴ™#1111 personal Discord bot.",
   "main": "main.js",
   "type": "module",
@@ -12,15 +12,20 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
+    "bufferutil": "^4.0.3",
     "chalk": "^4.1.1",
     "discord.js": "^12.5.3",
     "dotenv": "^9.0.2",
+    "erlpack": "github:discord/erlpack",
     "moment": "^2.29.1",
+    "node-gyp": "^3.8.0",
     "puppeteer": "^9.1.1",
     "puppeteer-core": "^9.1.1",
     "puppeteer-extra": "^3.1.18",
     "puppeteer-extra-plugin-stealth": "^2.7.8",
     "sequelize": "^6.6.2",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.2",
+    "utf-8-validate": "^5.0.5",
+    "zlib-sync": "^0.1.7"
   }
 }

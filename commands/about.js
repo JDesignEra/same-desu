@@ -1,8 +1,11 @@
 import { MessageEmbed } from "discord.js";
 import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import wsReply from "../addons/wsReply.js";
 
 export const name = "about";
-export const execute = async (client, message, args) => {
+export const description = "I will provide you with information about my creator.";
+
+export const execute = async (client, message, args, isWs = false) => {
   const embed = new MessageEmbed()
     .setColor("#2576A3")
     .setTitle("サメです、here is more info about creator!")
@@ -28,5 +31,10 @@ export const execute = async (client, message, args) => {
     )
     .setFooter("</> with <3 by JDεꜱɪɢɴ™#1111");
 
-    message.channel.send(embed);
+    if (isWs) {
+      wsReply(client, message, "", embed);
+    }
+    else {
+      message.channel?.send(embed);
+    }
 }
