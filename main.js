@@ -36,7 +36,10 @@ fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async fi
 
 client.once("ready", async () => {
   console.log(`${chalk.blue(client.user.tag)} is ${chalk.green("ONLINE")}.\n`);
-  client.user.setActivity(process.env.STATUS);
+  client.user.setActivity(process.env.STATUS_MSG, {
+    url: "https://jdesignera.com",
+    type: process.env.STATUS_TYPE
+  });
   
   client.commands.each(async cmd => {
     const data = {};
