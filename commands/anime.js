@@ -166,7 +166,7 @@ export const execute = async (client, message, args, isWs = false) => {
                   inline: true
                 }
               }))
-              .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
+              .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${animeLatest.length + 1}`, client.user.avatarURL())
               .setTimestamp()
           ];
 
@@ -178,7 +178,7 @@ export const execute = async (client, message, args, isWs = false) => {
               .setURL(anime.link)
               .setDescription(`[${anime.episode}](${anime.link})`)
               .setImage(anime.image)
-              .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${animeLatest.length + 1}`, client.user.avatarURL())
+              .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${animeLatest.length + 1}`, client.user.avatarURL())
               .setTimestamp()
             );
           });
@@ -269,7 +269,7 @@ export const execute = async (client, message, args, isWs = false) => {
                     inline: true
                   }
                 }))
-                .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${maxSize + 1}`, client.user.avatarURL())
+                .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${maxSize + 1}`, client.user.avatarURL())
                 .setTimestamp()
             ];
 
@@ -311,7 +311,7 @@ export const execute = async (client, message, args, isWs = false) => {
                       value: anime.score
                     }
                   )
-                  .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${maxSize + 1}`, client.user.avatarURL())
+                  .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${maxSize + 1}`, client.user.avatarURL())
                   .setTimestamp()
               );
             });
@@ -396,7 +396,7 @@ export const execute = async (client, message, args, isWs = false) => {
                   inline: true
                 }
               }))
-              .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${maxSize + 1}`, client.user.avatarURL())
+              .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${maxSize + 1}`, client.user.avatarURL())
               .setTimestamp()
           ];
 
@@ -442,7 +442,7 @@ export const execute = async (client, message, args, isWs = false) => {
                     value: anime.score
                   }
                 )
-                .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${maxSize + 1}`, client.user.avatarURL())
+                .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${maxSize + 1}`, client.user.avatarURL())
                 .setTimestamp()
             );
           });

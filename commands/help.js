@@ -26,7 +26,7 @@ export const execute = async (client, message, args, isWs = false) => {
     new MessageEmbed()
       .setColor("#2576A3")
       .setTitle("COMMANDS")
-      .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
+      .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
       .setDescription(trimExtraSpaces(`
         Use \`/help <Command Name>\` or tag me with \`help <Command Name\` for more information about that command.
@@ -52,7 +52,7 @@ export const execute = async (client, message, args, isWs = false) => {
       new MessageEmbed()
         .setColor("#2576A3")
         .setTitle(cmd.command.toUpperCase())
-        .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${data.length + 1}`, client.user.avatarURL())
+        .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${data.length + 1}`, client.user.avatarURL())
         .setTimestamp()
         .setDescription(trimExtraSpaces(`
           ${cmd.description}
@@ -82,7 +82,7 @@ export const execute = async (client, message, args, isWs = false) => {
     const embed = new MessageEmbed()
       .setColor("#2576A3")
       .setTitle(detailedHelpCmd.command.toUpperCase())
-      .setFooter(`Living in ${process.env.EMBED_HOST_FOOTER} ${data.length + 1}`, client.user.avatarURL())
+      .setFooter(`${process.env.EMBED_HOST_FOOTER} ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
       .setDescription(trimExtraSpaces(`
         ${detailedHelpCmd.description}
