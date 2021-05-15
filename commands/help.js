@@ -29,7 +29,7 @@ export const execute = async (client, message, args, isWs = false) => {
       .setFooter(`Living in ${process.env.HOST_PLATFORM}  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
       .setDescription(trimExtraSpaces(`
-        Use \`help <Command Name>\` for more information about that command.
+        Use \`/help <Command Name>\` or tag me with \`help <Command Name\` for more information about that command.
 
         You can also navigate with the reaction below to navigate through the list of commands for more information.
 
