@@ -84,7 +84,7 @@ export const execute = async (client, message, args, isWs = false) => {
     const embed = new MessageEmbed()
       .setColor("#2576A3")
       .setTitle(detailedHelpCmd.command.toUpperCase())
-      .setFooter(`${process.env.EMBED_HOST_FOOTER} ${data.length + 1}`, client.user.avatarURL())
+      .setFooter(`${process.env.EMBED_HOST_FOOTER}`, client.user.avatarURL())
       .setTimestamp()
       .setDescription(trimExtraSpaces(`
         ${detailedHelpCmd.description}
