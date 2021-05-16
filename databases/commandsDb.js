@@ -65,38 +65,39 @@ export const init = async () => {
       {
         command: "about",
         description: "I will provide you with information about my creator.",
-        admin: false,
         usage: "`about`"
       },
       {
         command: "anime",
         description: trimExtraSpaces(`
           I will retrieve anime related information for you.
-
-          \`anime season\` - Accepts 2 optional parameters, if both parameters are provided, I get a list of anime from that season. If either parameters are not provided I will get the current season's anime.
-
-          \`anime <name>\` - The name parameter can have spaces in between.
         `),
-        admin: false,
         usage: [
           "`anime latest`                   - I will retrieve the latest anime episodes on 9Anime.",
-          "`anime season <year>? <season>?` - I will provide a list of anime for that season.",
-          "`anime <name>`                   - I will provide a list of anime that matches that name.",
+          "`anime season <year?> <season?>` - I will provide a list of anime for that season. (Both year and season are optional together as a set)",
+          "`anime <name>`                   - I will provide a list of anime that matches that name. (Spaces are allowed)",
+        ].join("::")
+      },
+      {
+        command: "define",
+        description: "I will get the definitions of that word",
+        usage: [
+          "`define <word>`        - I will find the proper definitions for a word.",
+          "`define word <word>`   - I will find the proper definitions for a word.",
+          "`define urban <word>`  - I will find the definitions for that word on Urban Dictionary.",
         ].join("::")
       },
       {
         command: "hello",
         description: "I shall greet you.",
-        admin: false,
         usage: "`hello`"
       },
       {
         command: "insult",
         description: "I shall insult someone for you or yourself.",
-        admin: false,
         usage: [
           "`insult`       - I will insult you.",
-          "`insult @user` - I will insult that person."
+          "`insult <@user?>` - I will insult that person you tagged. Leaving @user parameter empty and I will insult you. "
         ].join("::"),
       },
       {
@@ -105,7 +106,7 @@ export const init = async () => {
         admin: true,
         roles: "278178035927351298",
         usage: [
-          "`clear <all>` - I will clear all messages in that channel.",
+          "`clear all` - I will clear all messages in that channel.",
           "`clear <int>` - I will will clear that last x number of messages from that channel."
         ].join("::"),
       }

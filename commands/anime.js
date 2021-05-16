@@ -32,13 +32,31 @@ export const options = [
     options: [
       {
         name: "year",
-        description: "Give me the year.",
+        description: "Give me the year to narrow the search.",
         type: 4
       },
       {
         name: "season",
-        description: "Give me the season. Valid options are (winter | spring | summer | fall).",
-        type: 3
+        description: "Give me the season to narrow the search.",
+        type: 3,
+        choices: [
+          {
+            "name":  "summer",
+            "value": "summer"
+          },
+          {
+            "name": "spring",
+            "value": "spring"
+          },
+          {
+            "name": "fall",
+            "value": "fall"
+          },
+          {
+            "name": "winter",
+            "value": "winter"
+          }
+        ]
       }
     ]
   },
@@ -192,7 +210,7 @@ export const execute = async (client, message, args, isWs = false) => {
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));
-              message.channel.send(`${tagUser}, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
+              message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
             });
           }
         }
@@ -201,10 +219,10 @@ export const execute = async (client, message, args, isWs = false) => {
           console.log(chalk.red(`${e.name}: ${e.message}`));
           
           if (isWs) {
-            wsPatch(client, message, `${tagUser}, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
+            wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
           }
           else {
-            message.channel.send(`${tagUser}, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
+            message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
           }
         }
         break;
@@ -216,12 +234,12 @@ export const execute = async (client, message, args, isWs = false) => {
           let year;
           let season;
 
-          if (!isNaN(args[2])) year = `/${args[2]}/`;
-          if (!isNaN(args[1])) year = `/${args[1]}/`;
-          if (typeof(args[2]) === "string" && args[2]?.indexOf(/\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi) > -1) season = args[2];
-          if (typeof(args[1]) === "string" && args[1]?.indexOf(/\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi) > -1) season = args[1];
+          if (!isNaN(args[2])) year = `${args[2]}`;
+          if (!isNaN(args[1])) year = `${args[1]}`;
+          if (typeof(args[2]) === "string" && /\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi.test(args[2])) season = args[2];
+          if (typeof(args[1]) === "string" && /\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi.test(args[1])) season = args[1];
 
-          const parameter = year && season ? year + season : "";
+          const parameter = year && season ? `/${year}/${season}` : "";
           const res = await axios.get(`${jikanUrl}/season${parameter}`);
           const data = res.data;
           
@@ -325,22 +343,22 @@ export const execute = async (client, message, args, isWs = false) => {
               }).catch(e => {
                 console.log(chalk.red("\nFailed to send message"));
                 console.log(chalk.red(`${e.name}: ${e.message}`));
-                message.channel.send(`${tagUser}, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
+                message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
               });
             }
           }
           else if (isWs) {
-            wsPatch(client, message, `${tagUser}, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
+            wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
           }
           else {
-            message.channel.send(`${tagUser}, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
+            message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
           }
         }
         else {
           message.channel.send(trimExtraSpaces(`
             **どうも ${tagUser}, サメです。**
-            Tag me with \`anime season\` to get the current season anime on **MyAnimeList**.
-            To get a specific season's of anime tag me with \`anime season <year> <season>\` or \`anime season <season> <year>\`.
+            Use \`/anime season\` or me with \`anime season\` to get the current season of anime.
+            To get a specific season's of anime use \`/anime season <year> <season>\` or tag me with \`anime season <year> <season>\`.
           `));
         }
         break;
@@ -456,20 +474,20 @@ export const execute = async (client, message, args, isWs = false) => {
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));
-              message.channel.send(`${tagUser}, it seems that I am having trouble finding an anime with that name, please kindly try again later.`);
+              message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble finding an anime with that name, please kindly try again later.`);
             });
           }
         }
         else if (isWs) {
           wsPatch(client, message, trimExtraSpaces(`
             **どうも ${tagUser}, サメです。**
-            Tag me with \`anime <anime name>\` to search for an anime on **MyAnimeList**.
+            Use \`/anime <Anime Name>\` or tag me with \`anime <Anime Name>\` to search for an anime.
           `));
         }
         else {
           message.channel.send(trimExtraSpaces(`
             **どうも ${tagUser}, サメです。**
-            Tag me with \`anime <anime name>\` to search for an anime on **MyAnimeList**.
+            Use \`/anime <Anime Name>\` or tag me with \`anime <Anime Name>\` to search for an anime.
           `));
         }
         break;
@@ -478,17 +496,17 @@ export const execute = async (client, message, args, isWs = false) => {
   else if (isWs) {
     wsPatch(client, message, trimExtraSpaces(`
       **どうも ${tagUser}, サメです。**
-      \u2022 Tag me with \`anime <anime name>\` to search for an anime on **MyAnimeList**.
-      \u2022 Tag me with \`anime latest\` to get the latest episodes on **9Anime**.
-      \u2022 Tag me with \`anime <year> <season>\` to get the anime from that year of season on **MyAnimeList**.
+      \u2022 Use \`/anime search <Anime Name>\` or tag me with \`anime <anime name>\` to search for an anime.
+      \u2022 use \`/anime latest\` or tag me with \`anime latest\` to get the latest episodes on **9Anime**.
+      \u2022 Use \`/anime season <year?> <season?>\` or tag me with \`anime season <year?> <season?>\` to get the anime from that year of season.
     `));
   }
   else {
     message.channel.send(trimExtraSpaces(`
       **どうも ${tagUser}, サメです。**
-      \u2022 Tag me with \`anime <anime name>\` to search for an anime on **MyAnimeList**.
-      \u2022 Tag me with \`anime latest\` to get the latest episodes on **9Anime**.
-      \u2022 Tag me with \`anime <year> <season>\` to get the anime from that year of season on **MyAnimeList**.
+      \u2022 Use \`/anime search <Anime Name>\` or tag me with \`anime <anime name>\` to search for an anime.
+      \u2022 use \`/anime latest\` or tag me with \`anime latest\` to get the latest episodes on **9Anime**.
+      \u2022 Use \`/anime season <year?> <season?>\` or tag me with \`anime season <year?> <season?>\` to get the anime from that year of season.
     `));
   }
 }

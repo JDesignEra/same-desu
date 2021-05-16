@@ -29,9 +29,9 @@ fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async fi
   db.execute();
   
   // Create database.
-  // (async () => {
-  //   await db.init();
-  // })();
+  (async () => {
+    await db.init();
+  })();
 });
 
 client.once("ready", async () => {
@@ -87,6 +87,10 @@ client.ws.on("INTERACTION_CREATE", async (interaction) => {
   const userRoles = member?.roles ?? [];
   let cmdRoles = await getCommandRoles(command);
   cmdRoles = cmdRoles?.split("::") ?? cmdRoles;
+
+  // console.log(cmdRoles);
+  // console.log(cmdRoles == null);
+  // console.log(cmdRoles);
   
   if (cmdRoles == null || cmdRoles && userRoles.length > 0 && userRoles.filter(roleId => cmdRoles?.indexOf(roleId) > -1)) {
     await client.commands.get(command).execute(client, interaction, args, true);
