@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { getAllCommands } from "./../databases/commandsDb.js";
 import { MessageEmbed } from "discord.js";
-import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import trimStartingIndent from "../utils/trimStartingIndent.js";
 import embedPageReaction from "../addons/embedPageReaction.js";
 import wsReply from "../addons/wsReply.js";
 import wsEditReplyEmbedPage from "../addons/wsEditReplyEmbedPage.js";
@@ -28,7 +28,7 @@ export const execute = async (client, message, args, isWs = false) => {
       .setTitle("COMMANDS")
       .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
-      .setDescription(trimExtraSpaces(`
+      .setDescription(trimStartingIndent(`
         Use \`/help <Command Name>\` or tag me with \`help <Command Name\` for more information about that command.
         
         All commands are available in either \`/\` variant prefix or a tag me variant.
@@ -56,7 +56,7 @@ export const execute = async (client, message, args, isWs = false) => {
         .setTitle(cmd.command.toUpperCase())
         .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${data.length + 1}`, client.user.avatarURL())
         .setTimestamp()
-        .setDescription(trimExtraSpaces(`
+        .setDescription(trimStartingIndent(`
           ${cmd.description}
 
           **Usage**
@@ -86,7 +86,7 @@ export const execute = async (client, message, args, isWs = false) => {
       .setTitle(detailedHelpCmd.command.toUpperCase())
       .setFooter(`${process.env.EMBED_HOST_FOOTER}`, client.user.avatarURL())
       .setTimestamp()
-      .setDescription(trimExtraSpaces(`
+      .setDescription(trimStartingIndent(`
         ${detailedHelpCmd.description}
 
         **Usage**

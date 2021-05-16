@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { MessageEmbed } from "discord.js";
 import moment from "moment";
 import puppeteer from 'puppeteer';
-import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import trimStartingIndent from "../utils/trimStartingIndent.js";
 import wsReply from "../addons/wsReply.js";
 import embedPageReaction from "../addons/embedPageReaction.js";
 import wsEditReplyEmbedPage from "../addons/wsEditReplyEmbedPage.js";
@@ -170,7 +170,7 @@ export const execute = async (client, message, args, isWs = false) => {
               .setColor("#5a2e98")
               .setTitle("Latest Episodes on 9Anime")
               .setURL(`${nineAnimeUrl}/updated`)
-              .setDescription(trimExtraSpaces(`
+              .setDescription(trimStartingIndent(`
                 ${tagUser}, here are the latest episodes on 9Anime.
 
                 You can react with the reaction below to navigate through the list of latest episodes with an image of that anime.
@@ -254,7 +254,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setColor("#3552A4")
                 .setTitle(`${maxSize} Anime for ${data?.season_name} ${data?.season_year}`)
                 .setURL(`${malUrl}/season/${data?.season_year}/${data?.season_name}`)
-                .setDescription(trimExtraSpaces(`
+                .setDescription(trimStartingIndent(`
                   ${tagUser}, here are ${maxSize} **${data?.season_name} ${data?.season_year}** anime.
 
                   You can react with the reaction below to navigate through the list of anime with more information.
@@ -270,7 +270,7 @@ export const execute = async (client, message, args, isWs = false) => {
 
                   return {
                     name: `${anime.title}`,
-                    value: trimExtraSpaces(`
+                    value: trimStartingIndent(`
                       ${synopsis}
 
                       **__Type__**
@@ -302,7 +302,7 @@ export const execute = async (client, message, args, isWs = false) => {
                   .setTitle(anime.title)
                   .setURL(anime.url)
                   .setImage(anime.image_url)
-                  .setDescription(trimExtraSpaces(`
+                  .setDescription(trimStartingIndent(`
                     ${synopsis}
 
                     [Read More](${anime.url})
@@ -355,7 +355,7 @@ export const execute = async (client, message, args, isWs = false) => {
           }
         }
         else {
-          message.channel.send(trimExtraSpaces(`
+          message.channel.send(trimStartingIndent(`
             **どうも ${tagUser}, サメです。**
             Use \`/anime season\` or me with \`anime season\` to get the current season of anime.
             To get a specific season's of anime use \`/anime season <year> <season>\` or tag me with \`anime season <year> <season>\`.
@@ -380,7 +380,7 @@ export const execute = async (client, message, args, isWs = false) => {
               .setColor("#3552A4")
               .setTitle(`${maxSize} Anime that Matched`)
               .setURL(`${malUrl}`)
-              .setDescription(trimExtraSpaces(`
+              .setDescription(trimStartingIndent(`
                 ${tagUser}, here are ${maxSize} anime titles that matches.
 
                 You can react with the reaction below to navigate through the list of anime with more information.
@@ -394,7 +394,7 @@ export const execute = async (client, message, args, isWs = false) => {
 
                 return {
                   name: `${anime.title}`,
-                  value: trimExtraSpaces(`
+                  value: trimStartingIndent(`
                     ${synopsis}
 
                     **__Type__**
@@ -429,7 +429,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setTitle(anime.title)
                 .setURL(anime.url)
                 .setImage(anime.image_url)
-                .setDescription(trimExtraSpaces(`
+                .setDescription(trimStartingIndent(`
                   ${synopsis}
 
                   [Read More](${anime.url})
@@ -479,13 +479,13 @@ export const execute = async (client, message, args, isWs = false) => {
           }
         }
         else if (isWs) {
-          wsPatch(client, message, trimExtraSpaces(`
+          wsPatch(client, message, trimStartingIndent(`
             **どうも ${tagUser}, サメです。**
             Use \`/anime <Anime Name>\` or tag me with \`anime <Anime Name>\` to search for an anime.
           `));
         }
         else {
-          message.channel.send(trimExtraSpaces(`
+          message.channel.send(trimStartingIndent(`
             **どうも ${tagUser}, サメです。**
             Use \`/anime <Anime Name>\` or tag me with \`anime <Anime Name>\` to search for an anime.
           `));
@@ -494,7 +494,7 @@ export const execute = async (client, message, args, isWs = false) => {
     }
   }
   else if (isWs) {
-    wsPatch(client, message, trimExtraSpaces(`
+    wsPatch(client, message, trimStartingIndent(`
       **どうも ${tagUser}, サメです。**
       \u2022 Use \`/anime search <Anime Name>\` or tag me with \`anime <anime name>\` to search for an anime.
       \u2022 use \`/anime latest\` or tag me with \`anime latest\` to get the latest episodes on **9Anime**.
@@ -502,7 +502,7 @@ export const execute = async (client, message, args, isWs = false) => {
     `));
   }
   else {
-    message.channel.send(trimExtraSpaces(`
+    message.channel.send(trimStartingIndent(`
       **どうも ${tagUser}, サメです。**
       \u2022 Use \`/anime search <Anime Name>\` or tag me with \`anime <anime name>\` to search for an anime.
       \u2022 use \`/anime latest\` or tag me with \`anime latest\` to get the latest episodes on **9Anime**.

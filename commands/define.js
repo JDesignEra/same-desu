@@ -5,7 +5,7 @@ import embedPageReaction from "../addons/embedPageReaction.js";
 import wsEditReplyEmbedPage from "../addons/wsEditReplyEmbedPage.js";
 import wsPatch from "../addons/wsPatch.js";
 import wsReply from "../addons/wsReply.js";
-import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import trimStartingIndent from "../utils/trimStartingIndent.js";
 
 export const name = "define";
 export const description = "I will get the definitions of that word";
@@ -69,14 +69,14 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setColor("#2576A3")
                 .setTitle(definition.word.replace(/^\w/, (c) => c.toUpperCase()))
                 .setURL(definition.permalink)
-                .setDescription(trimExtraSpaces(`
+                .setDescription(trimStartingIndent(`
                   ${definition.definition.replace(/\[|\]/gm, "")}
-                  ${definition.example && definition.example.trim() ? trimExtraSpaces(`
+                  ${definition.example && definition.example.trim() ? trimStartingIndent(`
                     **__Example(s)__**
-                    ${trimExtraSpaces(definition.example.replace(/\[|\]/gm, ""))}
+                    ${trimStartingIndent(definition.example.replace(/\[|\]/gm, ""))}
                   `) : ""}
                   
-                  ${data.length > 1 ? trimExtraSpaces(`
+                  ${data.length > 1 ? trimStartingIndent(`
                     ***Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.*
                   `) : ""}
                 `))
@@ -171,15 +171,15 @@ export const execute = async (client, message, args, isWs = false) => {
               new MessageEmbed()
                 .setColor("#2576A3")
                 .setTitle(`${word.replace(/^\w/, (c) => c.toUpperCase())} (${category})`)
-                .setDescription(trimExtraSpaces(`
+                .setDescription(trimStartingIndent(`
                   ${definition.definition.replace(/^\w/, (c) => c.toUpperCase())}
-                  ${definition.examples?.length > 0 ? trimExtraSpaces(`
+                  ${definition.examples?.length > 0 ? trimStartingIndent(`
                       **__Example(s)__**
                       ${definition.examples?.map(example => `\u2022\u2003${example.replace(/^\w/, (c) => c.toUpperCase())}`).join("\n")}
                     `) : ""
                   }
                   
-                  ${definitions[category].length > 1 || idx > 0 ? trimExtraSpaces(`
+                  ${definitions[category].length > 1 || idx > 0 ? trimStartingIndent(`
                     ***Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.*
                   `) : ""}
                 `))
@@ -223,14 +223,14 @@ export const execute = async (client, message, args, isWs = false) => {
     }
   }
   else if (isWs) {
-    wsPatch(client, message, trimExtraSpaces(`
+    wsPatch(client, message, trimStartingIndent(`
     **どうも ${tagUser}, サメです。**
     \u2022 Use \`/define word <word>\`, or tag me with \`define word <word>\` or \`define <word>\` to search for a proper definition.
     \u2022 Use \`/define slang <word>\` or tag me with \`define slang <word>\` to search for a slang definition.
   `));
   }
   else {
-    message.channel.send(trimExtraSpaces(`
+    message.channel.send(trimStartingIndent(`
       **どうも ${tagUser}, サメです。**
       \u2022 Use \`/define word <word>\`, or tag me with \`define word <word>\` or \`define <word>\` to search for a proper definition.
       \u2022 Use \`/define slang <word>\` or tag me with \`define slang <word>\` to search for a slang definition.

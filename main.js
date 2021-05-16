@@ -4,7 +4,7 @@ import fs from "fs";
 import { Client, Collection } from "discord.js";
 import wsReply from "./addons/wsReply.js";
 import { getCommandRoles } from "./databases/commandsDb.js";
-import trimExtraSpaces from "./utils/trimExtraSpaces.js";
+import trimStartingIndent from "./utils/trimStartingIndent.js";
 
 dotenv.config();
 
@@ -28,7 +28,6 @@ fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async fi
   const db = await import(`./databases/${file}`);
   db.execute();
   
-  // Create database.
   (async () => {
     await db.init();
   })();
@@ -96,7 +95,7 @@ client.ws.on("INTERACTION_CREATE", async (interaction) => {
     await client.commands.get(command).execute(client, interaction, args, true);
   }
   else {
-    wsReply(client, interaction, trimExtraSpaces(`
+    wsReply(client, interaction, trimStartingIndent(`
       <@${interaction.member.user.id.toString()}> 申し訳ありませんが、その許可はありません。
       Sorry, you do not have that permission.
     `));
@@ -139,7 +138,7 @@ client.on("message", async message => {
         client.commands.get(command)?.execute(client, message, args);
       }
       else {
-        message.channel.send(trimExtraSpaces(`
+        message.channel.send(trimStartingIndent(`
           ${message.author?.toString()} 申し訳ありませんが、その許可はありません。
           Sorry, you do not have that permission.
         `));
@@ -147,7 +146,7 @@ client.on("message", async message => {
     }
     else {
       if (!await client.commands.get("hello").execute(client, message, args)) {
-        message.channel.send(trimExtraSpaces(`
+        message.channel.send(trimStartingIndent(`
           **どうも ${message.author?.toString()}, サメです。**
           How may I help you?\n${client.emojis.cache.find(emoji => emoji.name === "guraShy")}
         `));

@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import trimStartingIndent from "../utils/trimStartingIndent.js";
 import wsReply from "../addons/wsReply.js";
 
 export const name = "about";
@@ -13,14 +13,14 @@ export const execute = async (client, message, args, isWs = false) => {
       "https://www.dropbox.com/s/88t69bfojsw4df1/avatar.png?raw=1",
       "https://jdesignera.com/"
     )
-    .setDescription(trimExtraSpaces(`
+    .setDescription(trimStartingIndent(`
       
       Here are some links where you can learn more about him:
     `))
     .addFields(
       {
         name: "Platform",
-        value: trimExtraSpaces(`
+        value: trimStartingIndent(`
           [Website](https://jdesignera.com/)
           [Discord](https://discord.com/users/156834654140235776)
           [GitHub](https://github.com/jdesignera)
