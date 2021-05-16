@@ -30,6 +30,8 @@ export const execute = async (client, message, args, isWs = false) => {
       .setTimestamp()
       .setDescription(trimExtraSpaces(`
         Use \`/help <Command Name>\` or tag me with \`help <Command Name\` for more information about that command.
+        
+        All commands are available in either \`/\` variant prefix or a tag me variant.
 
         You can also navigate with the reaction below to navigate through the list of commands for more information.
 
