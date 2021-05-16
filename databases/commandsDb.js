@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import chalk from "chalk";
 import Sequelize from "sequelize";
-import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import trimStartingIndent from "../utils/trimStartingIndent.js";
 
 dotenv.config();
 
@@ -69,7 +69,7 @@ export const init = async () => {
       },
       {
         command: "anime",
-        description: trimExtraSpaces(`
+        description: trimStartingIndent(`
           I will retrieve anime related information for you.
         `),
         usage: [

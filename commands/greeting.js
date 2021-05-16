@@ -1,5 +1,5 @@
 import wsReply from "../addons/wsReply.js";
-import trimExtraSpaces from "../utils/trimExtraSpaces.js";
+import trimStartingIndent from "../utils/trimStartingIndent.js";
 import { getAllGreetings } from "./../databases/greetingsDb.js";
 
 export const name = "hello";
@@ -30,7 +30,7 @@ export const execute = async (client, message, args, isWs = false) => {
     return true;
   }
   else if (isWs) {
-    wsReply(client, message, trimExtraSpaces(`
+    wsReply(client, message, trimStartingIndent(`
       **どうも <@${message.member.user.id.toString()}>, サメです。**
       How may I help you?\n${client.emojis.cache.find(emoji => emoji.name === "guraShy")}
     `));
