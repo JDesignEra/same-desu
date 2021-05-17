@@ -25,8 +25,8 @@ const Greetings = sequelize.define("greetings", {
   }
 }, { timestamps: false });
 
-export const execute = () => {
-  Greetings.sync();
+export const execute = async () => {
+  await Greetings.sync();
 }
 
 export const getAllGreetings = async () => {
@@ -35,6 +35,7 @@ export const getAllGreetings = async () => {
 
 export const init = async () => {
   try {    
+    await Greetings.truncate();
     await Greetings.bulkCreate([
       {
         greeting: "bonjour",

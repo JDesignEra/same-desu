@@ -25,8 +25,8 @@ const Insults = sequelize.define("insults", {
   }
 }, { timestamps: false });
 
-export const execute = () => {
-  Insults.sync();
+export const execute = async () => {
+  await Insults.sync();
 }
 
 export const getAllInsults = async () => {
@@ -35,6 +35,7 @@ export const getAllInsults = async () => {
 
 export const init = async () => {
   try {
+    await Insults.truncate();
     await Insults.bulkCreate([
       { insult: "FAQ <user>!" },
       { insult: "FAQ you <user>!" },

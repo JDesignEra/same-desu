@@ -41,20 +41,20 @@ export const options = [
         type: 3,
         choices: [
           {
-            "name":  "summer",
-            "value": "summer"
+            name:  "summer",
+            value: "summer"
           },
           {
-            "name": "spring",
-            "value": "spring"
+            name: "spring",
+            value: "spring"
           },
           {
-            "name": "fall",
-            "value": "fall"
+            name: "Fall",
+            value: "fall"
           },
           {
-            "name": "winter",
-            "value": "winter"
+            name: "Winter",
+            value: "winter"
           }
         ]
       }
@@ -201,12 +201,10 @@ export const execute = async (client, message, args, isWs = false) => {
             );
           });
 
-          if (isWs) {
-            await wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
-          }
+          if (isWs) wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
           else {
             message.channel.send(embedMsgs[0]).then(async msg => {
-              await embedPageReaction(authorId, duration, embedMsgs, msg);
+              embedPageReaction(authorId, duration, embedMsgs, msg);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));

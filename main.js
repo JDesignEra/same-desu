@@ -26,11 +26,9 @@ fs.readdirSync("./commands/").filter(file => file.endsWith(".js")).map(async fil
 
 fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async file => {
   const db = await import(`./databases/${file}`);
-  db.execute();
-  
-  (async () => {
-    await db.init();
-  })();
+  await db.execute();
+
+  // await db.init();  // Create or Re-create tables comment out when not needed
 });
 
 client.once("ready", async () => {
@@ -86,10 +84,6 @@ client.ws.on("INTERACTION_CREATE", async (interaction) => {
   const userRoles = member?.roles ?? [];
   let cmdRoles = await getCommandRoles(command);
   cmdRoles = cmdRoles?.split("::") ?? cmdRoles;
-
-  // console.log(cmdRoles);
-  // console.log(cmdRoles == null);
-  // console.log(cmdRoles);
   
   if (cmdRoles == null || cmdRoles && userRoles.length > 0 && userRoles.filter(roleId => cmdRoles?.indexOf(roleId) > -1)) {
     await client.commands.get(command).execute(client, interaction, args, true);
@@ -153,6 +147,11 @@ client.on("message", async message => {
       }
     }
   }
+});
+
+process.on("SIGINT", function(){
+  console.log(`${chalk.blue(client.user.tag)} has ${chalk.red("DISCONNECTED")}.\n`);
+  process.exit();
 });
 
 client.login(process.env.TOKEN);

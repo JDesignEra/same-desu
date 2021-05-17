@@ -41,8 +41,8 @@ const Commands = sequelize.define("commands", {
   }
 }, { timestamps: false });
 
-export const execute = () => {
-  Commands.sync();
+export const execute = async () => {
+  await Commands.sync();
 }
 
 export const getAllCommands = async () => {
@@ -61,6 +61,7 @@ export const getCommandRoles = async (command) => {
 
 export const init = async () => {
   try {
+    await Commands.truncate();
     await Commands.bulkCreate([
       {
         command: "about",

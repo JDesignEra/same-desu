@@ -1,4 +1,3 @@
-import { ChannelManager, MessageManager } from "discord.js";
 import embedPageReaction from "./embedPageReaction.js";
 import wsPatch from "./wsPatch.js";
 

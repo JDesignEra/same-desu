@@ -23,8 +23,8 @@ export default async (client, interaction, content, embed = undefined, type = 4)
 const createAPIMessage = async (client, interaction, content, embed) => {
   const { data, files } = await APIMessage.create(
     client.channels.resolve(interaction.channel_id),
-    content && content?.trim() ? content : embed,
-    embed && content && content?.trim() ? embed : undefined
+    content && content?.trim().length > 0 ? content : embed,
+    embed && content && content?.trim().length > 0 ? embed : undefined
   ).resolveData().resolveFiles();
 
   return { ...data, files };
