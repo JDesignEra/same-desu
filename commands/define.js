@@ -8,7 +8,7 @@ import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 
 export const name = "define";
-export const description = "I will get the definitions of that word";
+export const description = "I will get the definitions of that word.";
 export const options = [
   {
     name: "word",
@@ -71,7 +71,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setURL(definition.permalink)
                 .setDescription(trimStartingIndent(`
                   ${definition.definition.replace(/\[|\]/gm, "")}
-                  ${definition.example && definition.example.trim() ? trimStartingIndent(`
+                  ${definition.example && definition.example.trim().length > 0 ? trimStartingIndent(`
                     **__Example(s)__**
                     ${trimStartingIndent(definition.example.replace(/\[|\]/gm, ""))}
                   `) : ""}

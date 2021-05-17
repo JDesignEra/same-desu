@@ -25,7 +25,7 @@ export const execute = async (client, message, args, isWs = false) => {
     const greeting = greetingWords?.filter(word => messageContents.search(new RegExp(`\\b${word?.greeting}\\b`, "gmi")) > -1).pop()?.greeting;
 
     if (isWs) wsReply(client, message, `${greeting[0].replace(/^\w/, (c) => c.toUpperCase())} ${tagUser}, サメです。 <a:guraWave:840734876964749342>`);
-    else message.channel.send(`${greeting[0].replace(/^\w/, (c) => c.toUpperCase())} ${tagUser}, サメです。 <a:guraWave:840734876964749342>`);
+    else message.channel.send(`${greeting.replace(/^\w/, (c) => c.toUpperCase())} ${tagUser}, サメです。 <a:guraWave:840734876964749342>`);
 
     return true;
   }

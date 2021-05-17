@@ -68,7 +68,7 @@ export const execute = async (client, message, args, isWs = false) => {
   if (!detailedHelpCmd) {
     if (isWs) {
       await wsReply(client, message, "", embedMsgs[0], 5);
-      await wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+      wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
     }
     else {
       message.channel.send(embedMsgs[0]).then(async msg => {
