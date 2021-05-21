@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import Sequelize from "sequelize";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
+import deeplLanguages from "../data/deeplLanguages.js";
+import googleLanguages from "../data/googleLanguages.js";
 
 dotenv.config();
 
@@ -100,6 +102,16 @@ export const init = async () => {
           "`insult`       - I will insult you.",
           "`insult <@user?>` - I will insult that person you tagged. Leaving @user parameter empty and I will insult you. "
         ].join("::"),
+      },
+      {
+        command: "translate",
+        description: trimStartingIndent(`
+          I will translate for you.
+
+          **__Valid Language Code__**
+          ${Object.entries({...googleLanguages, ...deeplLanguages}).map(([k, v]) => `**${k}** - ${v}`).join("\n")}
+        `),
+        usage: "`\`translate <sentence> <to language?>\``"
       },
       {
         command: "clear",

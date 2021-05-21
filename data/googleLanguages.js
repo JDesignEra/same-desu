@@ -1,0 +1,23 @@
+export default {
+  "zh" : "Chinese",
+  "nl" : "Dutch",
+  "en" : "English",
+  "fr" : "French",
+  "de" : "German",
+  "el" : "Greek",
+  "id" : "Indonesian",
+  "it" : "Italian",
+  "ja" : "Japanese",
+  "ko" : "Korean",
+  "ms" : "Malay",
+  "pl" : "Polish",
+  "pt" : "Portuguese",
+  "ro" : "Romanian",
+  "ru" : "Russian",
+  "es" : "Spanish",
+  "sv" : "Swedish",
+  "tl" : "Tagalog",
+  "ta" : "Tamil",
+  "th" : "Thai",
+  "vi" : "Vietnamese"
+}

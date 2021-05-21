@@ -104,8 +104,7 @@ export const execute = async (client, message, args, isWs = false) => {
         }
       }
       else {
-        console.log(chalk.red("\nFailed to send message"));
-        console.log(chalk.red(`${e.name} (${res.status}): ${e.message}`));
+        console.log(chalk.red(`\n${res.status}: Failed to send message`));
         
         if (isWs) wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble getting the definitions for that slang word, please kindly try again later.`);
         else message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the definitions for that slang word, please kindly try again later.`);
@@ -179,7 +178,7 @@ export const execute = async (client, message, args, isWs = false) => {
                     `) : ""
                   }
                   
-                  ${definitions[category].length > 1 || idx > 0 ? trimStartingIndent(`
+                  ${definitions[category].length > 1 || Object.keys(definitions).length > 1 ? trimStartingIndent(`
                     ***Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.*
                   `) : ""}
                 `))
@@ -203,8 +202,7 @@ export const execute = async (client, message, args, isWs = false) => {
         }
       }
       else if (res.status === 403) {
-        console.log(chalk.red("\nOxford Dictionary API limit exceed."));
-        console.log(chalk.red(`${e.name} (${res.status}): ${e.message}`));
+        console.log(chalk.red(`\n${res.status}: Oxford Dictionary API limit exceed.`));
 
         if (isWs) wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I can't look up for any word definition for this month.`);
         else message.channel.send(`${tagUser} this is embarrassing, it seems that I can't look up for any word definition for this month.`);
@@ -214,8 +212,7 @@ export const execute = async (client, message, args, isWs = false) => {
         else message.channel.send(`${tagUser} it seems like that word may not exist`);
       }
       else {
-        console.log(chalk.red("\nOxford Dictionary failed to retrieve."));
-        console.log(chalk.red(`${e.name} (${res.status}): ${e.message}`));
+        console.log(chalk.red(`\n${res.status}: Oxford Dictionary failed to retrieve.`));
 
         if (isWs) wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble defining that word. Please kindly try again later.`);
         else message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble defining that word. Please kindly try again later.`);
