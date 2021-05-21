@@ -28,7 +28,7 @@ fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async fi
   const db = await import(`./databases/${file}`);
   await db.execute();
 
-  await db.init();  // Create or Re-create tables comment out when not needed
+  // await db.init();  // Create or Re-create tables comment out when not needed
 });
 
 client.once("ready", async () => {
