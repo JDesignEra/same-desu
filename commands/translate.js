@@ -11,7 +11,7 @@ const googleLanguages = googleLangs;
 const languages = {...googleLanguages, ...deeplLanguages};
 
 export const name = "translate";
-export const description = "(WIP) I will translate for you.";
+export const description = "I will translate for you.";
 export const options = [
   {
     name: "text",
