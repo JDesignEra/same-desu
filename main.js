@@ -42,7 +42,7 @@ client.once("ready", async () => {
   setInterval(() => {
     const randomInt = Math.floor(Math.random() * (activityStatuses.length));
 
-    client.user.setActivity(randomInt[randomInt], { type: process.env.STATUS_TYPE });
+    client.user.setActivity(activityStatuses[randomInt], { type: process.env.STATUS_TYPE });
   }, 900000);
   
   client.commands.each(async cmd => {
