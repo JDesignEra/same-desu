@@ -33,10 +33,17 @@ fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async fi
 
 client.once("ready", async () => {
   console.log(`${chalk.blue(client.user.tag)} is ${chalk.green("ONLINE")}.\n`);
-  client.user.setActivity(process.env.STATUS_MSG, {
-    url: "https://jdesignera.com",
-    type: process.env.STATUS_TYPE
-  });
+
+  let activityStatuses = client.commands.map(cmd => `for /${cmd.name}`);
+  activityStatuses.unshift(process.env.STATUS_MSG);
+  
+  client.user.setActivity(activityStatuses[0], { type: process.env.STATUS_TYPE });
+
+  setInterval(() => {
+    const randomInt = Math.floor(Math.random() * (activityStatuses.length));
+
+    client.user.setActivity(randomInt[randomInt], { type: process.env.STATUS_TYPE });
+  }, 900000);
   
   client.commands.each(async cmd => {
     const data = {};
@@ -48,7 +55,7 @@ client.once("ready", async () => {
       if (cmd.options) data.options = cmd.options;
       if (cmd.default_permission) data.default_permission = cmd.default_permission;
 
-      await getApp(guildId).commands.post({ data: data });
+      getApp(guildId).commands.post({ data: data });
     }
   });
 });
