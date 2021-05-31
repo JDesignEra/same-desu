@@ -27,7 +27,6 @@ fs.readdirSync("./commands/").filter(file => file.endsWith(".js")).map(async fil
 fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async file => {
   const db = await import(`./databases/${file}`);
   await db.execute();
-
   // await db.init();  // Create or Re-create tables comment out when not needed
 });
 
@@ -40,10 +39,10 @@ client.once("ready", async () => {
   client.user.setActivity(activityStatuses[0], { type: process.env.STATUS_TYPE });
 
   setInterval(() => {
-    const randomInt = Math.floor(Math.random() * (activityStatuses.length));
+    const randomInt = Math.floor(Math.random() * activityStatuses.length);
 
     client.user.setActivity(activityStatuses[randomInt], { type: process.env.STATUS_TYPE });
-  }, 900000);
+  }, 600000);
   
   client.commands.each(async cmd => {
     const data = {};
@@ -61,7 +60,7 @@ client.once("ready", async () => {
 });
 
 // Slash Commands
-client.ws.on("INTERACTION_CREATE", async (interaction) => {
+client.ws.on("INTERACTION_CREATE", async interaction => {
   const member = interaction.member;
   const { name, options } = interaction.data
   const command = name.toLowerCase();

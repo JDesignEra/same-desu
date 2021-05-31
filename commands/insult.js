@@ -19,7 +19,7 @@ export const execute = async (client, message, args, isWs = false) => {
     return data.insult;
   });
 
-  const randomInt = Math.floor(Math.random() * (insults.length));
+  const randomInt = Math.floor(Math.random() * insults.length);
   let insult;
   
   if (message.mentions?.users?.size > 1) {

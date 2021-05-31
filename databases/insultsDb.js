@@ -30,7 +30,7 @@ export const execute = async () => {
 }
 
 export const getAllInsults = async () => {
-  return await Insults.findAll({ raw: true });
+  return Insults.findAll({ raw: true });
 }
 
 export const init = async () => {
