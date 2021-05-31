@@ -48,7 +48,7 @@ export const execute = async () => {
 }
 
 export const getAllCommands = async () => {
-  return await Commands.findAll({ raw: true });
+  return Commands.findAll({ raw: true });
 }
 
 
