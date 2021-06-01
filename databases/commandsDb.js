@@ -106,7 +106,7 @@ export const init = async () => {
         description: trimStartingIndent(`
           I shall remind you or a role about something.
 
-          Some valid formats for \`when\` arguments are:
+          Some valid formats for \`when\` argument are:
           \u2022 25/12/2022 01:00 pm
           \u2022 25/12/2022 1:00 pm
           \u2022 25/12/2022 24:00
