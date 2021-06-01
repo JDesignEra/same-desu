@@ -28,7 +28,6 @@ export const options = [
 export const execute = async (client, message, args, isWs = false) => {
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
   const authorId = message.author?.id ?? message.member?.user?.id;
-  // TODO: Update message.
   const usageMessage = trimStartingIndent(`
     **どうも ${tagUser}, サメです。**
     \u2022 Use \`/remind <when> <message> <role?>\` or tag me with \`remind <when> <message> <role?>\` to set a reminder.
@@ -142,7 +141,7 @@ export const execute = async (client, message, args, isWs = false) => {
       }
     }
 
-    if (moment().isSameOrAfter(momentReminder)) {
+    if (moment().isSameOrAfter(new Date(momentReminder))) {
       if (isWs) wsReply(client, message, `\`<when>\` argument has to be later then ${moment().format("DD/MM/YYYY hh:mm a")}.`)
       else message.channel.send(`${tagUser}, \`<when>\` argument has to be later then ${moment().format("DD/MM/YYYY hh:mm a")}.`);
     }
