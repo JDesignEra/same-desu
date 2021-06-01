@@ -39,12 +39,6 @@ client.once("ready", async () => {
   activityStatuses.unshift(process.env.STATUS_MSG);
   
   client.user.setActivity(activityStatuses[0], { type: process.env.STATUS_TYPE });
-
-  client.setInterval(() => {
-    const randomInt = Math.floor(Math.random() * activityStatuses.length);
-
-    client.user.setActivity(activityStatuses[randomInt], { type: process.env.STATUS_TYPE });
-  }, 120000);
   
   client.commands.each(async cmd => {
     const data = {};
@@ -62,7 +56,10 @@ client.once("ready", async () => {
 
   // Interval checks every 30 secs
   client.setInterval(async () => {
-    // Reminders
+    // Rotate bot activity message
+    client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE });
+
+    // Reminders check
     const reminders = await getAllReminders();
     
     for (const reminder of reminders) {
