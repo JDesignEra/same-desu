@@ -72,9 +72,7 @@ export const init = async () => {
       },
       {
         command: "anime",
-        description: trimStartingIndent(`
-          I will retrieve anime related information for you.
-        `),
+        description: "I will retrieve anime related information for you.",
         usage: [
           "`anime latest`                   - I will retrieve the latest anime episodes on 9Anime.",
           "`anime season <year?> <season?>` - I will provide a list of anime for that season. (Both year and season are optional together as a set)",
@@ -99,8 +97,32 @@ export const init = async () => {
         command: "insult",
         description: "I shall insult someone for you or yourself.",
         usage: [
-          "`insult`       - I will insult you.",
+          "`insult`          - I will insult you.",
           "`insult <@user?>` - I will insult that person you tagged. Leaving @user parameter empty and I will insult you. "
+        ].join("::"),
+      },
+      {
+        command: "remind",
+        description: trimStartingIndent(`
+          I shall remind you or a role about something.
+
+          Some valid formats for \`when\` arguments are:
+          \u2022 25/12/2022 01:00 pm
+          \u2022 25/12/2022 1:00 pm
+          \u2022 25/12/2022 24:00
+          \u2022 25/12/2022 1:00
+          \u2022 1:00 pm
+          \u2022 24:00
+          \u2022 1:00
+          \u2022 1 year
+          \u2022 2 months
+          \u2022 2 days
+          \u2022 2 hours
+          \u2022 2 minutes
+          \u2022 1 year 2 months 2 days 2 hours 2 minutes`),
+        usage: [
+          "`remind <when> <message>`        - I shall remind you about something with a DM.",
+          "`remind <when> <message> <role>` - I shall remind a role about something."
         ].join("::"),
       },
       {
