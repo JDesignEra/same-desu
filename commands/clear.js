@@ -19,7 +19,7 @@ export const execute = async (client, message, args, isWs = false) => {
 
   let amt = args[0] ?? null;
 
-  if (amt === "all" || !isNaN(amt)) {
+  if (amt === "all" || !isNaN(amt) && parseInt(amt) > 0) {
     amt = isNaN(amt) ? amt : parseInt(amt);
     let msg;
     let deletedCount = 0;
@@ -49,4 +49,6 @@ export const execute = async (client, message, args, isWs = false) => {
 
     channel.send(`${tagUser}, I have deleted ${isNaN(amt) ? amt : isWs ? amt - 1 : amt - 2} messages.`);
   }
+  else if (isWs) await wsReply(client, message, `${tagUser}, \`<amount>\` parameter only allows "all" or an Integer greater then 0.`);
+  else channel.send(`${tagUser}, \`<amount>\` parameter only allows "all" or an Integer greater then 0.`);
 }
