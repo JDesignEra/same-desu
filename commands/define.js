@@ -46,6 +46,12 @@ export const execute = async (client, message, args, isWs = false) => {
   const authorId = message.author?.id ?? message.member?.user?.id;
   const duration = 300000;
 
+  const usageMessage = trimStartingIndent(`
+    **どうも ${tagUser}, サメです。**
+    \u2022 Use \`/define word <word>\`, or tag me with \`define word <word>\` or \`define <word>\` to search for a proper definition.
+    \u2022 Use \`/define slang <word>\` or tag me with \`define slang <word>\` to search for a slang definition.
+  `);
+
   if (isWs) wsReply(client, message, "Please wait, I am getting the word definitions.", null, 5);
 
   if (args.length > 0) {
@@ -220,17 +226,9 @@ export const execute = async (client, message, args, isWs = false) => {
     }
   }
   else if (isWs) {
-    wsPatch(client, message, trimStartingIndent(`
-    **どうも ${tagUser}, サメです。**
-    \u2022 Use \`/define word <word>\`, or tag me with \`define word <word>\` or \`define <word>\` to search for a proper definition.
-    \u2022 Use \`/define slang <word>\` or tag me with \`define slang <word>\` to search for a slang definition.
-  `));
+    wsPatch(client, message, usageMessage);
   }
   else {
-    message.channel.send(trimStartingIndent(`
-      **どうも ${tagUser}, サメです。**
-      \u2022 Use \`/define word <word>\`, or tag me with \`define word <word>\` or \`define <word>\` to search for a proper definition.
-      \u2022 Use \`/define slang <word>\` or tag me with \`define slang <word>\` to search for a slang definition.
-    `));
+    message.channel.send(usageMessage);
   }
 }

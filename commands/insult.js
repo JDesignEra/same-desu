@@ -15,8 +15,8 @@ export const execute = async (client, message, args, isWs = false) => {
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
 
   const data = await getAllInsults();
-  const insults = data?.filter(insult => insult.state)?.map(data => {
-    return data.insult;
+  const insults = data?.filter(i => i.state)?.map(d => {
+    return d.insult;
   });
 
   const randomInt = Math.floor(Math.random() * insults.length);

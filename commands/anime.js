@@ -41,7 +41,7 @@ export const options = [
         type: 3,
         choices: [
           {
-            name:  "summer",
+            name: "summer",
             value: "summer"
           },
           {
@@ -75,7 +75,14 @@ export const execute = async (client, message, args, isWs = false) => {
   const nineAnimeUrl = "https://9anime.to";
   const jikanUrl = "https://api.jikan.moe/v3";
   const malUrl = "https://myanimelist.net";
+
   const argument = args[0] ?? null;
+  const usageMessage = trimStartingIndent(`
+    **どうも ${tagUser}, サメです。**
+    \u2022 Use \`/anime search <Anime Name>\` or tag me with \`anime <anime name>\` to search for an anime.
+    \u2022 use \`/anime latest\` or tag me with \`anime latest\` to get the latest episodes on **9Anime**.
+    \u2022 Use \`/anime season <year?> <season?>\` or tag me with \`anime season <year?> <season?>\` to get the anime from that year of season.
+  `);
 
   if (args.length > 0) {
     const puppeteerOpt = {
@@ -127,18 +134,18 @@ export const execute = async (client, message, args, isWs = false) => {
         "--disable-offer-store-unmasked-wallet-cards"
       ]
     };
-    
+
     if (isWs) {
       await wsReply(client, message, `${tagUser} please wait, I am retrieving it now.`, null, 5);
     }
     else {
       message.delete();
-      
+
       message.channel.send(`${tagUser} please wait, I am retrieving it now.`).then(msg => {
-        msg?.delete({ timeout: 30000});
+        msg?.delete({ timeout: 30000 });
       });
     }
-    
+
     const browser = await puppeteer.launch(puppeteerOpt);
     const page = await browser.newPage();
 
@@ -150,7 +157,7 @@ export const execute = async (client, message, args, isWs = false) => {
 
           const animeLatest = await page.$$eval("ul.anime-list > li", (el) => {
             const list = [];
-            
+
             el.forEach(el => {
               list.push({
                 name: el.querySelector("a.name")?.innerText,
@@ -159,12 +166,12 @@ export const execute = async (client, message, args, isWs = false) => {
                 image: el.querySelector("a.poster > img")?.src
               });
             });
-            
+
             return list;
           });
-          
+
           await browser.close();
-          
+
           const embedMsgs = [
             new MessageEmbed()
               .setColor("#5a2e98")
@@ -191,13 +198,13 @@ export const execute = async (client, message, args, isWs = false) => {
           animeLatest.forEach((anime, i) => {
             embedMsgs.push(
               new MessageEmbed()
-              .setColor("#5a2e98")
-              .setTitle(anime.name)
-              .setURL(anime.link)
-              .setDescription(`[${anime.episode}](${anime.link})`)
-              .setImage(anime.image)
-              .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${animeLatest.length + 1}`, client.user.avatarURL())
-              .setTimestamp()
+                .setColor("#5a2e98")
+                .setTitle(anime.name)
+                .setURL(anime.link)
+                .setDescription(`[${anime.episode}](${anime.link})`)
+                .setImage(anime.image)
+                .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${animeLatest.length + 1}`, client.user.avatarURL())
+                .setTimestamp()
             );
           });
 
@@ -215,7 +222,7 @@ export const execute = async (client, message, args, isWs = false) => {
         catch (e) {
           console.log(chalk.red("\nFailed to get latest anime."));
           console.log(chalk.red(`${e.name}: ${e.message}`));
-          
+
           if (isWs) {
             wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
           }
@@ -234,14 +241,14 @@ export const execute = async (client, message, args, isWs = false) => {
 
           if (!isNaN(args[2])) year = `${args[2]}`;
           if (!isNaN(args[1])) year = `${args[1]}`;
-          if (typeof(args[2]) === "string" && /\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi.test(args[2])) season = args[2];
-          if (typeof(args[1]) === "string" && /\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi.test(args[1])) season = args[1];
+          if (typeof (args[2]) === "string" && /\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi.test(args[2])) season = args[2];
+          if (typeof (args[1]) === "string" && /\b^summer\b|\b^spring\b|\b^fall\b|\b^winter\b/gi.test(args[1])) season = args[1];
 
           const parameter = year && season ? `/${year}/${season}` : "";
           const res = await axios.get(`${jikanUrl}/season${parameter}`);
           const data = res.data;
-          
-          if (data?.anime && data?.anime.length > 0)  {
+
+          if (data?.anime && data?.anime.length > 0) {
             const maxSize = 12;
             const fieldValMaxLen = 150;
             const descMaxLen = 900;
@@ -263,7 +270,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 `))
                 .addFields(animeList.map(anime => {
                   const synopsis = anime.synopsis.length > fieldValMaxLen ?
-                    anime.synopsis.replace(/(\r\n|\n|\r)/gm," ").substring(0, fieldValMaxLen).trimEnd() + "..." :
+                    anime.synopsis.replace(/(\r\n|\n|\r)/gm, " ").substring(0, fieldValMaxLen).trimEnd() + "..." :
                     anime.synopsis.replace(/\r\n\r\n.*/gmi, "");
 
                   return {
@@ -291,9 +298,9 @@ export const execute = async (client, message, args, isWs = false) => {
 
             animeList.forEach((anime, i) => {
               const synopsis = anime.synopsis.length > descMaxLen ?
-                anime.synopsis.replace(/(\r\n|\n|\r)/gm," ").substring(0, descMaxLen).trimEnd() + "..." :
+                anime.synopsis.replace(/(\r\n|\n|\r)/gm, " ").substring(0, descMaxLen).trimEnd() + "..." :
                 anime.synopsis.replace(/\r\n\r\n.*/gmi, "");
-              
+
               embedMsgs.push(
                 new MessageEmbed()
                   .setColor("#3552A4")
@@ -360,7 +367,7 @@ export const execute = async (client, message, args, isWs = false) => {
           `));
         }
         break;
-        
+
       // Defaults to anime search
       default:
         if (args?.length > 1) {
@@ -420,7 +427,7 @@ export const execute = async (client, message, args, isWs = false) => {
             const synopsis = anime.synopsis.length > descMaxLen ?
               anime.synopsis.replace("...", " ").substring(0, descMaxLen).trimEnd() + "..." :
               anime.synopsis;
-            
+
             embedMsgs.push(
               new MessageEmbed()
                 .setColor("#3552A4")
@@ -492,19 +499,9 @@ export const execute = async (client, message, args, isWs = false) => {
     }
   }
   else if (isWs) {
-    wsPatch(client, message, trimStartingIndent(`
-      **どうも ${tagUser}, サメです。**
-      \u2022 Use \`/anime search <Anime Name>\` or tag me with \`anime <anime name>\` to search for an anime.
-      \u2022 use \`/anime latest\` or tag me with \`anime latest\` to get the latest episodes on **9Anime**.
-      \u2022 Use \`/anime season <year?> <season?>\` or tag me with \`anime season <year?> <season?>\` to get the anime from that year of season.
-    `));
+    wsPatch(client, message, usageMessage);
   }
   else {
-    message.channel.send(trimStartingIndent(`
-      **どうも ${tagUser}, サメです。**
-      \u2022 Use \`/anime search <Anime Name>\` or tag me with \`anime <anime name>\` to search for an anime.
-      \u2022 use \`/anime latest\` or tag me with \`anime latest\` to get the latest episodes on **9Anime**.
-      \u2022 Use \`/anime season <year?> <season?>\` or tag me with \`anime season <year?> <season?>\` to get the anime from that year of season.
-    `));
+    message.channel.send(usageMessage);
   }
 }
