@@ -12,11 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
-    "bufferutil": "^4.0.3",
     "chalk": "^4.1.1",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
-    "erlpack": "github:discord/erlpack",
     "moment": "^2.29.1",
     "puppeteer": "^10.0.0",
     "puppeteer-core": "^10.0.0",
