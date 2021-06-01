@@ -150,7 +150,7 @@ export const execute = async (client, message, args, isWs = false) => {
       const reminderMsg = isWs ? args[1] : whenArgs.slice(whenIdx + 1, roleId ? -1 : whenArgs.length).join(" ");
       
       const channelId = roleId ? isWs ? message.channel_id : message.channel.id : null;
-      createReminder(authorId, reminderMsg, momentReminder.format(), roleId, channelId);
+      await createReminder(authorId, reminderMsg, momentReminder.format(), roleId, channelId);
 
       if (isWs) wsReply(client, message, `${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`);
       else message.channel.send(`${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`);

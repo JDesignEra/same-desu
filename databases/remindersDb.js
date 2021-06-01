@@ -71,5 +71,5 @@ export const deleteReminder = async (authorId, message, dateTime, roleId = null,
     channelId
   }});
 
-  if (reminder) reminder.destroy();
+  if (reminder) await reminder.destroy();
 }

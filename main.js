@@ -55,7 +55,7 @@ client.once("ready", async () => {
   });
 
   // Interval checks every 30 secs
-  setInterval(async () => {
+  client.setInterval(async () => {
     // Rotate bot activity message
     client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE });
 
@@ -82,7 +82,7 @@ client.once("ready", async () => {
         if (reminder.roleId && reminder.channelId) client.channels.cache.get(reminder.channelId).send(embedMsg);
         else client.users.cache.get(reminder.authorId).send(embedMsg);
         
-        deleteReminder(reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
+        await deleteReminder(reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
       }
     }
   }, 30000);
