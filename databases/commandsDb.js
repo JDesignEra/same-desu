@@ -22,8 +22,8 @@ const Commands = sequelize.define("commands", {
     allowNull: false
   },
   "description": {
-    type: Sequelize.DataTypes.BOOLEAN,
-    defaultValue: false,
+    type: Sequelize.DataTypes.STRING,
+    defaultValue: "",
     allowNull: false
   },
   "admin": {
@@ -61,6 +61,16 @@ export const getCommandRoles = async (command) => {
   return data?.roles;
 }
 
+
+export const getCommandAdmin = async (command) => {
+  const data = await Commands.findByPk(command, {
+    raw: true,
+    attributes: ["admin"]
+  });
+
+  return data?.admin ?? false;
+}
+
 export const init = async () => {
   try {
     await Commands.truncate();
@@ -94,12 +104,20 @@ export const init = async () => {
         usage: "`hello`"
       },
       {
+        command: "help",
+        description: "I will tell you about what I can do.",
+        usage: [
+          "`help`           - I will tell you about what I can do.",
+          "`help <command>` - Command detailed help information."
+        ].join("::")
+      },
+      {
         command: "insult",
         description: "I shall insult someone for you or yourself.",
         usage: [
           "`insult`          - I will insult you.",
-          "`insult <@user?>` - I will insult that person you tagged. Leaving @user parameter empty and I will insult you. "
-        ].join("::"),
+          "`insult <@user?>` - I will insult that person you tagged. Leaving @user parameter empty and I will insult you."
+        ].join("::")
       },
       {
         command: "remind",
@@ -139,7 +157,6 @@ export const init = async () => {
         command: "clear",
         description: "I shall clean the chat for you. This is an **administrator** only command.",
         admin: true,
-        roles: "278178035927351298",
         usage: [
           "`clear all` - I will clear all messages in that channel.",
           "`clear <int>` - I will will clear that last x number of messages from that channel."

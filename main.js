@@ -3,7 +3,7 @@ import chalk from "chalk";
 import fs from "fs";
 import { Client, Collection, MessageEmbed } from "discord.js";
 import wsReply from "./addons/wsReply.js";
-import { getCommandRoles } from "./databases/commandsDb.js";
+import { getCommandAdmin, getCommandRoles } from "./databases/commandsDb.js";
 import { deleteReminder, getAllReminders } from "./databases/remindersDb.js";
 import trimStartingIndent from "./utils/trimStartingIndent.js";
 import moment from "moment-timezone";
@@ -29,7 +29,7 @@ fs.readdirSync("./commands/").filter(file => file.endsWith(".js")).map(async fil
 fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async file => {
   const db = await import(`./databases/${file}`);
   await db.execute();
-  // await db.init();  // Create or Re-create tables comment out when not needed
+  await db.init();  // Create or Re-create tables comment out when not needed
 });
 
 client.once("ready", async () => {
@@ -116,11 +116,14 @@ client.ws.on("INTERACTION_CREATE", async interaction => {
     chalk.cyan(`\/${command} ${args.join(" ")}`)
   );
   
+  const reqAdmin = await getCommandAdmin(command);
   const userRoles = member?.roles ?? [];
   let cmdRoles = await getCommandRoles(command);
   cmdRoles = cmdRoles?.split("::") ?? cmdRoles;
   
-  if (cmdRoles == null || cmdRoles && userRoles.length > 0 && userRoles.filter(roleId => cmdRoles?.indexOf(roleId) > -1)) {
+  if (!reqAdmin && cmdRoles == null ||
+    !reqAdmin && cmdRoles && userRoles.length > 0 && userRoles.filter(roleId => cmdRoles?.indexOf(roleId) > -1) ||
+    reqAdmin && client.guilds.cache.get(interaction.guild_id).member(interaction.member.user.id).hasPermission("ADMINISTRATOR")) {
     await client.commands.get(command).execute(client, interaction, args, true);
   }
   else {
@@ -158,12 +161,16 @@ client.on("message", async message => {
     }
     
     if (command) {
+      const reqAdmin = await getCommandAdmin(command);
+      
       let cmdRoles = await getCommandRoles(command);
       cmdRoles = cmdRoles?.split("::") ?? cmdRoles;
 
       let userRoles = message.member?.roles?.cache;
 
-      if (cmdRoles === null || cmdRoles && userRoles.size > 0 && userRoles.find(role => cmdRoles.indexOf(role.id) > -1)) {
+      if (!reqAdmin && cmdRoles === null ||
+        !reqAdmin && cmdRoles && userRoles.size > 0 && userRoles.find(role => cmdRoles.indexOf(role.id) > -1) ||
+        reqAdmin && message.member.hasPermission("ADMINISTRATOR")) {
         client.commands.get(command)?.execute(client, message, args);
       }
       else {
