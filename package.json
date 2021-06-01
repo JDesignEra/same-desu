@@ -1,6 +1,6 @@
 {
   "name": "same-desu",
-  "version": "11.3.0",
+  "version": "11.3.1",
   "description": "JDεꜱɪɢɴ™#1111 personal Discord bot.",
   "main": "main.js",
   "type": "module",
@@ -23,7 +23,6 @@
     "puppeteer-extra": "^3.1.18",
     "puppeteer-extra-plugin-stealth": "^2.7.8",
     "sequelize": "^6.6.2",
-    "sqlite3": "^5.0.2",
-    "utf-8-validate": "^5.0.5"
+    "sqlite3": "^5.0.2"
   }
 }
