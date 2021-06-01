@@ -55,7 +55,7 @@ client.once("ready", async () => {
   });
 
   // Interval checks every 30 secs
-  client.setInterval(async () => {
+  setInterval(async () => {
     // Rotate bot activity message
     client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE });
 
