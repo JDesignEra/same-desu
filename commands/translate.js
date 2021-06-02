@@ -2,8 +2,8 @@ import axios from "axios";
 import chalk from "chalk";
 import wsPatch from "../addons/wsPatch.js";
 import wsReply from "../addons/wsReply.js";
-import deeplLangs from "../data/deeplLanguages.js";
-import googleLangs from "../data/googleLanguages.js";
+import deeplLangs from "../data/translate/deeplLanguages.js";
+import googleLangs from "../data/translate/googleLanguages.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 
 const deeplLanguages = deeplLangs;
