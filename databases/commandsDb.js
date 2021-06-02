@@ -1,3 +1,4 @@
+import fs from "fs";
 import dotenv from "dotenv";
 import chalk from "chalk";
 import Sequelize from "sequelize";
@@ -12,7 +13,7 @@ const sequelize = new Sequelize.Sequelize(process.env.DATABASE, process.env.DB_U
   host: "localhost",
   dialect: "sqlite",
   logging: false,
-  storage: "database.sqlite"
+  storage: process.env.SQLITE_FILENAME
 });
 const Commands = sequelize.define("commands", {
   "command": {
@@ -71,103 +72,110 @@ export const getCommandAdmin = async (command) => {
   return data?.admin ?? false;
 }
 
-export const init = async () => {
-  try {
-    await Commands.truncate();
-    await Commands.bulkCreate([
-      {
-        command: "about",
-        description: "I will provide you with information about my creator.",
-        usage: "`about`"
-      },
-      {
-        command: "anime",
-        description: "I will retrieve anime related information for you.",
-        usage: [
-          "`anime latest`                   - I will retrieve the latest anime episodes on 9Anime.",
-          "`anime season <year?> <season?>` - I will provide a list of anime for that season. (Both year and season are optional together as a set)",
-          "`anime <name>`                   - I will provide a list of anime that matches that name. (Spaces are allowed)",
-        ].join("::")
-      },
-      {
-        command: "define",
-        description: "I will get the definitions of that word",
-        usage: [
-          "`define <word>`        - I will find the proper definitions for a word.",
-          "`define word <word>`   - I will find the proper definitions for a word.",
-          "`define urban <word>`  - I will find the definitions for that word on Urban Dictionary.",
-        ].join("::")
-      },
-      {
-        command: "hello",
-        description: "I shall greet you.",
-        usage: "`hello`"
-      },
-      {
-        command: "help",
-        description: "I will tell you about what I can do.",
-        usage: [
-          "`help`           - I will tell you about what I can do.",
-          "`help <command>` - Command detailed help information."
-        ].join("::")
-      },
-      {
-        command: "insult",
-        description: "I shall insult someone for you or yourself.",
-        usage: [
-          "`insult`          - I will insult you.",
-          "`insult <@user?>` - I will insult that person you tagged. Leaving @user parameter empty and I will insult you."
-        ].join("::")
-      },
-      {
-        command: "remind",
-        description: trimStartingIndent(`
-          I shall remind you or a role about something.
-
-          Some valid formats for \`when\` argument are:
-          \u2022 25/12/2022 01:00 pm
-          \u2022 25/12/2022 1:00 pm
-          \u2022 25/12/2022 24:00
-          \u2022 25/12/2022 1:00
-          \u2022 1:00 pm
-          \u2022 24:00
-          \u2022 1:00
-          \u2022 1 year
-          \u2022 2 months
-          \u2022 2 days
-          \u2022 2 hours
-          \u2022 2 minutes
-          \u2022 1 year 2 months 2 days 2 hours 2 minutes`),
-        usage: [
-          "`remind <when> <message>`        - I shall remind you about something with a DM.",
-          "`remind <when> <message> <role>` - I shall remind a role about something."
-        ].join("::"),
-      },
-      {
-        command: "translate",
-        description: trimStartingIndent(`
-          I will translate for you.
-
-          **__Valid Language Code__**
-          ${Object.entries({...googleLanguages, ...deeplLanguages}).map(([k, v]) => `**${k}** - ${v}`).join("\n")}
-        `),
-        usage: "`\`translate <sentence> <to language?>\``"
-      },
-      {
-        command: "clear",
-        description: "I shall clean the chat for you. This is an **administrator** only command.",
-        admin: true,
-        usage: [
-          "`clear all` - I will clear all messages in that channel.",
-          "`clear <int>` - I will will clear that last x number of messages from that channel."
-        ].join("::"),
+export const init = async (force = false) => {
+  fs.access(`./../${process.env.SQLITE_FILENAME}`, fs.F_OK, async err => {
+    if (err || force) {
+      try {
+        console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
+        if (err) console.log(chalk.red.bold(`${err.name}: `) + chalk.red(`${err.message}\n`));
+        
+        await Commands.truncate();
+        await Commands.bulkCreate([
+          {
+            command: "about",
+            description: "I will provide you with information about my creator.",
+            usage: "`about`"
+          },
+          {
+            command: "anime",
+            description: "I will retrieve anime related information for you.",
+            usage: [
+              "`anime latest`                   - I will retrieve the latest anime episodes on 9Anime.",
+              "`anime season <year?> <season?>` - I will provide a list of anime for that season. (Both year and season are optional together as a set)",
+              "`anime <name>`                   - I will provide a list of anime that matches that name. (Spaces are allowed)",
+            ].join("::")
+          },
+          {
+            command: "define",
+            description: "I will get the definitions of that word",
+            usage: [
+              "`define <word>`        - I will find the proper definitions for a word.",
+              "`define word <word>`   - I will find the proper definitions for a word.",
+              "`define urban <word>`  - I will find the definitions for that word on Urban Dictionary.",
+            ].join("::")
+          },
+          {
+            command: "hello",
+            description: "I shall greet you.",
+            usage: "`hello`"
+          },
+          {
+            command: "help",
+            description: "I will tell you about what I can do.",
+            usage: [
+              "`help`           - I will tell you about what I can do.",
+              "`help <command>` - Command detailed help information."
+            ].join("::")
+          },
+          {
+            command: "insult",
+            description: "I shall insult someone for you or yourself.",
+            usage: [
+              "`insult`          - I will insult you.",
+              "`insult <@user?>` - I will insult that person you tagged. Leaving @user parameter empty and I will insult you."
+            ].join("::")
+          },
+          {
+            command: "remind",
+            description: trimStartingIndent(`
+              I shall remind you or a role about something.
+    
+              Some valid formats for \`when\` argument are:
+              \u2022 25/12/2022 01:00 pm
+              \u2022 25/12/2022 1:00 pm
+              \u2022 25/12/2022 24:00
+              \u2022 25/12/2022 1:00
+              \u2022 1:00 pm
+              \u2022 24:00
+              \u2022 1:00
+              \u2022 1 year
+              \u2022 2 months
+              \u2022 2 days
+              \u2022 2 hours
+              \u2022 2 minutes
+              \u2022 1 year 2 months 2 days 2 hours 2 minutes`),
+            usage: [
+              "`remind <when> <message>`        - I shall remind you about something with a DM.",
+              "`remind <when> <message> <role>` - I shall remind a role about something."
+            ].join("::"),
+          },
+          {
+            command: "translate",
+            description: trimStartingIndent(`
+              I will translate for you.
+    
+              **__Valid Language Code__**
+              ${Object.entries({...googleLanguages, ...deeplLanguages}).map(([k, v]) => `**${k}** - ${v}`).join("\n")}
+            `),
+            usage: "`\`translate <sentence> <to language?>\``"
+          },
+          {
+            command: "clear",
+            description: "I shall clean the chat for you. This is an **administrator** only command.",
+            admin: true,
+            usage: [
+              "`clear all` - I will clear all messages in that channel.",
+              "`clear <int>` - I will will clear that last x number of messages from that channel."
+            ].join("::"),
+          }
+        ]);
       }
-    ]);
-  }
-  catch (e) {
-    if (e.name !== "SequelizeUniqueConstraintError") {
-      console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
-      console.log(chalk.red(`${e.name}: ${e.message}\n`));
+      catch (e) {
+        if (e.name !== "SequelizeUniqueConstraintError") {
+          console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
+          console.log(chalk.red(`${e.name}: ${e.message}\n`));
+        }
+      }
     }
-  }
+  });
 }
