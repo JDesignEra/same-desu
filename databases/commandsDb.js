@@ -121,8 +121,16 @@ export const init = async (force = false) => {
             command: "insult",
             description: "I shall insult someone for you or yourself.",
             usage: [
-              "`insult`          - I will insult you.",
-              "`insult <@user?>` - I will insult that person you tagged. Leaving @user parameter empty and I will insult you."
+              "`insult`         - I will insult you.",
+              "`insult <@user>` - I will insult that person you tag."
+            ].join("::")
+          },
+          {
+            command: "nekopunch",
+            description: "I will Neko Punch you or someone.",
+            usage: [
+              "`nekopunch`         - I will Neko Punch you.",
+              "`nekopunch <@user>` - I will Neko Punch that person you tag"
             ].join("::")
           },
           {
