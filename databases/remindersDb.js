@@ -9,7 +9,7 @@ const sequelize = new Sequelize.Sequelize(process.env.DATABASE, process.env.DB_U
   host: "localhost",
   dialect: "sqlite",
   logging: false,
-  storage: "database.sqlite"
+  storage: process.env.SQLITE_FILENAME
 });
 const Reminders = sequelize.define("reminders", {
   "authorId": {
@@ -37,8 +37,6 @@ const Reminders = sequelize.define("reminders", {
 export const execute = async () => {
   await Reminders.sync();
 }
-
-export const init = async () => { return null; };
 
 export const getAllReminders = async () => {
   return Reminders.findAll({ raw: true });
@@ -73,3 +71,5 @@ export const deleteReminder = async (authorId, message, dateTime, roleId = null,
 
   if (reminder) await reminder.destroy();
 }
+
+export const init = async (force = false) => { return null; };
