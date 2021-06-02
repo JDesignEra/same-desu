@@ -16,7 +16,7 @@ export const execute = async (client, message, args, isWs = false) => {
   
   if (message.mentions?.users?.size > 1) {
     const users = message?.mentions?.users?.filter(user => user != client.user.id);
-    nekoPunchMsg = msg.replace("<user>", users.map(u => u.toString()).join(" "));
+    nekoPunchMsg = nekoPunchMsg.replace("<user>", users.map(u => u.toString()).join(" "));
   }
   else {
     nekoPunchMsg = nekoPunchMsg.replace("<user>", isWs && args[0] ? `<@${args[0]}>` : tagUser);
