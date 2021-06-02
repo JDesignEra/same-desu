@@ -73,7 +73,7 @@ export const getCommandAdmin = async (command) => {
 }
 
 export const init = async (force = false) => {
-  fs.access(`./../${process.env.SQLITE_FILENAME}`, fs.F_OK, async err => {
+  fs.access(`./${process.env.SQLITE_FILENAME}`, fs.F_OK, async err => {
     if (err || force) {
       try {
         console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
