@@ -55,7 +55,6 @@ export const execute = async (client, message, args, isWs = false) => {
   if (isWs) wsReply(client, message, "Please wait, I am translating...", null, 5);
 
   if (args.length > 0) {
-    console.log(args);
     if (sentence && sentence.trim()) {
       if (deeplLanguages[toLang]) {
         const parameters = `?auth_key=${process.env.DEEPL_API_KEY}&text=${encodeURI(sentence)}${toLang && toLang.trim().length > 0 ? `&target_lang=${toLang}` : ""}`;
