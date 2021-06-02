@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import dotenv from "dotenv";
 import chalk from "chalk";
 import Sequelize from "sequelize";
@@ -35,66 +36,63 @@ export const getAllGreetings = async () => {
 }
 
 export const init = async (force = true) => {
-  fs.access(`./${process.env.SQLITE_FILENAME}`, fs.F_OK, async err => {
-    if (err || force) {
-      try {
-        console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
-        if (err) console.log(chalk.red.bold(`${err.name}: `) + chalk.red(`${err.message}\n`));
+  if (!fs.existsSync(`../${process.env.SQLITE_FILENAME}`) || force) {
+    try {
+      console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
 
-        await Greetings.truncate();
-        await Greetings.bulkCreate([
-          {
-            greeting: "bonjour",
-            state: true,
-          },
-          {
-            greeting: "domo",
-            state: true,
-          },
-          {
-            greeting: "hello",
-            state: true,
-          },
-          {
-            greeting: "hey",
-            state: true,
-          },
-          {
-            greeting: "hi",
-            state: true,
-          },
-          {
-            greeting: "howdy",
-            state: true,
-          },
-          {
-            greeting: "sup",
-            state: true,
-          },
-          {
-            greeting: "greeting",
-            state: true,
-          },
-          {
-            greeting: "greetings",
-            state: true,
-          },
-          {
-            greeting: "ども",
-            state: true,
-          },
-          {
-            greeting: "こんにちわ",
-            state: true,
-          }
-        ]);
-      }
-      catch (e) {
-        if (e.name !== "SequelizeUniqueConstraintError") {
-          console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
-          console.log(chalk.red(`${e.name}: ${e.message}\n`));
+      await Greetings.truncate();
+      await Greetings.bulkCreate([
+        {
+          greeting: "bonjour",
+          state: true,
+        },
+        {
+          greeting: "domo",
+          state: true,
+        },
+        {
+          greeting: "hello",
+          state: true,
+        },
+        {
+          greeting: "hey",
+          state: true,
+        },
+        {
+          greeting: "hi",
+          state: true,
+        },
+        {
+          greeting: "howdy",
+          state: true,
+        },
+        {
+          greeting: "sup",
+          state: true,
+        },
+        {
+          greeting: "greeting",
+          state: true,
+        },
+        {
+          greeting: "greetings",
+          state: true,
+        },
+        {
+          greeting: "ども",
+          state: true,
+        },
+        {
+          greeting: "こんにちわ",
+          state: true,
         }
+      ]);
+    }
+    catch (e) {
+      if (e.name !== "SequelizeUniqueConstraintError") {
+        console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
+        console.log(chalk.red(`${e.name}: ${e.message}\n`));
       }
     }
-  });
+  }
 }

@@ -35,32 +35,29 @@ export const getAllInsults = async () => {
 }
 
 export const init = async (force = false) => {
-  fs.access(`./${process.env.SQLITE_FILENAME}`, fs.F_OK, async err => {
-    if (err || force) {
-      console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
-      if (err) console.log(chalk.red.bold(`${err.name}: `) + chalk.red(`${err.message}\n`));
+  if (!fs.existsSync(`../${process.env.SQLITE_FILENAME}`) || force) {
+    console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
 
-      try {
-        await Insults.truncate();
-        await Insults.bulkCreate([
-          { insult: "FAQ <user>!" },
-          { insult: "FAQ you <user>!" },
-          { insult: "<user>, Pol... Poltato? You are a Poltato PC. I am beef PC." },
-          { insult: "F*ck you <user>!" },
-          { insult: "Are you fucking kidding me <user>!?" },
-          { insult: "Stay home dayo <user>!" },
-          { insult: "You're too small <user>." },
-          { insult: "Stop it <user>, eeewwww." },
-          { insult: "<user> weirdo, or dare I say ばか。" },
-          { insult: "<user>、ボコボコにするよ、まじで。" }
-        ]);
-      }
-      catch (e) {
-        if (e.name !== "SequelizeUniqueConstraintError") {
-          console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
-          console.log(chalk.red(`${e.name}: ${e.message}\n`));
-        }
+    try {
+      await Insults.truncate();
+      await Insults.bulkCreate([
+        { insult: "FAQ <user>!" },
+        { insult: "FAQ you <user>!" },
+        { insult: "<user>, Pol... Poltato? You are a Poltato PC. I am beef PC." },
+        { insult: "F*ck you <user>!" },
+        { insult: "Are you fucking kidding me <user>!?" },
+        { insult: "Stay home dayo <user>!" },
+        { insult: "You're too small <user>." },
+        { insult: "Stop it <user>, eeewwww." },
+        { insult: "<user> weirdo, or dare I say ばか。" },
+        { insult: "<user>、ボコボコにするよ、まじで。" }
+      ]);
+    }
+    catch (e) {
+      if (e.name !== "SequelizeUniqueConstraintError") {
+        console.log(chalk.red(`Failed to init ${name.toUpperCase()} database.`));
+        console.log(chalk.red(`${e.name}: ${e.message}\n`));
       }
     }
-  });
+  }
 }
