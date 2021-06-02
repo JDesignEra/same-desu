@@ -35,7 +35,7 @@ export const getAllInsults = async () => {
 }
 
 export const init = async (force = false) => {
-  fs.access(`./../${process.env.SQLITE_FILENAME}`, fs.F_OK, async err => {
+  fs.access(`./${process.env.SQLITE_FILENAME}`, fs.F_OK, async err => {
     if (err || force) {
       console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
       if (err) console.log(chalk.red.bold(`${err.name}: `) + chalk.red(`${err.message}\n`));
