@@ -21,15 +21,32 @@ const getApp = (guildId) => {
   return app;
 }
 
-fs.readdirSync("./commands/").filter(file => file.endsWith(".js")).map(async file => {
-  const cmd = await import(`./commands/${file}`);
-  client.commands.set(cmd.name, cmd);
+fs.readdir("./commands/", (e, files) => {
+  if (e) console.log(chalk.red.bold(`${e.name}: `) + chalk.red(e.message));
+  else {
+    files.filter(file => file.endsWith(".js")).map(async file => {
+      const cmd = await import(`./commands/${file}`);
+      client.commands.set(cmd.name, cmd);
+    });
+  }
 });
 
-fs.readdirSync("./databases/").filter(file => file.endsWith(".js")).map(async file => {
-  const db = await import(`./databases/${file}`);
-  await db.execute();
-  await db.init(false);  // change argument to true to force re-init.
+fs.access(`./${process.env.SQLITE_FILENAME}`, async err => {
+  const initFlag = err ? true : false;
+  if (initFlag) console.log(chalk.red.bold(`${err.name}: `) + chalk.red(err.message));
+
+  fs.readdir("./databases/", (e, files) => {
+    if (e) console.log(chalk.red.bold(`${e.name}: `) + chalk.red(e.message));
+    else {
+      files.filter(file => file.endsWith(".js")).map(async file => {
+        const db = await import(`./databases/${file}`);
+        await db.execute();
+        
+        if (initFlag) await db.init();
+        // await db.init();  // Uncomment to force init.
+      });
+    }
+  });
 });
 
 client.once("ready", async () => {
