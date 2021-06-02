@@ -72,4 +72,4 @@ export const deleteReminder = async (authorId, message, dateTime, roleId = null,
   if (reminder) await reminder.destroy();
 }
 
-export const init = async (force = false) => { return null; };
+export const init = async () => { return null; };
