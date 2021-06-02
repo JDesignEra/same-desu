@@ -36,7 +36,7 @@ export const getAllGreetings = async () => {
 }
 
 export const init = async (force = true) => {
-  if (!fs.existsSync(`../${process.env.SQLITE_FILENAME}`) || force) {
+  if (!fs.existsSync(`./${process.env.SQLITE_FILENAME}`) || force) {
     try {
       console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
 

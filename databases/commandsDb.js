@@ -74,7 +74,7 @@ export const getCommandAdmin = async (command) => {
 }
 
 export const init = async (force = false) => {
-  if (!fs.existsSync(`../${process.env.SQLITE_FILENAME}`) || force) {
+  if (!fs.existsSync(`./${process.env.SQLITE_FILENAME}`) || force) {
     try {
       console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
       

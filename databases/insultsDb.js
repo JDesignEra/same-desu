@@ -35,7 +35,7 @@ export const getAllInsults = async () => {
 }
 
 export const init = async (force = false) => {
-  if (!fs.existsSync(`../${process.env.SQLITE_FILENAME}`) || force) {
+  if (!fs.existsSync(`./${process.env.SQLITE_FILENAME}`) || force) {
     console.log(chalk.magenta.bold(`${name} > `) + chalk.yellow(`creating ${name}.`));
 
     try {
