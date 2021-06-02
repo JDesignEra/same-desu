@@ -2,11 +2,11 @@ import chalk from "chalk";
 import wsReply from "../addons/wsReply.js";
 
 export const name = "clear";
-export const description = "I shall clean the chat for you. This is an administrator only command.";
+export const description = "(Administrator) I shall clean the chat for you.";
 export const options = [
   {
     name: "amount",
-    description: "Number of messages to delete, use (all) to delete all messages in that channel.",
+    description: "Number of messages to delete, use <all> to delete all messages in that channel.",
     type: 3,
     required: true
   }
