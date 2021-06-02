@@ -5,7 +5,7 @@
     * Node can be downloaded at: <a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a>
 2. Install required packages with `npm i`.
 3. Ensure that `.env` file is in the root directory with the following contents:
-```
+```.env
 TOKEN = <Discord Bot Token>
 APP_ID = <Discord App ID>
 GUILD_ID = <Your Discord Server Guild ID>
