@@ -82,7 +82,7 @@ client.once("ready", async () => {
         if (reminder.roleId && reminder.channelId) client.channels.cache.get(reminder.channelId).send(embedMsg);
         else client.users.cache.get(reminder.authorId).send(embedMsg);
         
-        await deleteReminder(reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
+        deleteReminder(reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
       }
     }
   }, 30000);
