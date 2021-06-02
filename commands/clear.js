@@ -21,7 +21,6 @@ export const execute = async (client, message, args, isWs = false) => {
 
   if (amt === "all" || !isNaN(amt) && parseInt(amt) > 0) {
     amt = isNaN(amt) ? amt : parseInt(amt);
-    let msg;
     let deletedCount = 0;
     let deleted;
 
