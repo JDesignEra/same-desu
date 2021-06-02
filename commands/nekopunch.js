@@ -1,3 +1,4 @@
+import { MessageAttachment, MessageEmbed } from "discord.js";
 import wsReply from "../addons/wsReply.js";
 
 export const name = "nekopunch";
@@ -12,7 +13,8 @@ export const options = [
 
 export const execute = async (client, message, args, isWs = false) => {
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
-  let nekoPunchMsg = "**Neko Punch** <user>!\nhttps://media.tenor.com/images/daf6d9ec9db76043fc9fcbfff6ae9442/tenor.gif";
+  const nekoPunchGif = "https://media.tenor.com/images/b03ee5ecf261c9073f62dfd9d7b9bb75/tenor.gif";
+  let nekoPunchMsg = "**Neko Punch** <user>!";
   
   if (message.mentions?.users?.size > 1) {
     const users = message?.mentions?.users?.filter(user => user != client.user.id);
@@ -23,9 +25,15 @@ export const execute = async (client, message, args, isWs = false) => {
   }
 
   if (isWs) {
-    wsReply(client, message, nekoPunchMsg);
+    const attachment = new MessageEmbed()
+      .setColor("#2576A3")
+      .setImage(nekoPunchGif)
+      .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
+      .setTimestamp();
+
+    wsReply(client, message, nekoPunchMsg, attachment);
   }
   else {
-    message.channel.send(nekoPunchMsg);
+    message.channel.send(nekoPunchMsg, new MessageAttachment(nekoPunchGif));
   }
 }
