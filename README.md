@@ -7,10 +7,25 @@
 3. Ensure that `.env` file is in the root directory with the following contents:
 ```
 TOKEN = <Discord Bot Token>
-STATUS = "<Status Message>"
-DATABASE = "<Database Name>"
-DB_USERNAME = "<Database Username>"
-DB_PASSWORD = "<Database Password>"
+APP_ID = <Discord App ID>
+GUILD_ID = <Your Discord Server Guild ID>
+
+SQLITE_FILENAME = <SQLite DB Filename>.sqlite
+
+STATUS_MSG = <Status Message>
+STATUS_TYPE = <PLAYING | STREAMING | LISTENING | WATCHING>
+EMBED_HOST_FOOTER = <Embed Message Footer Text>
+
+DATABASE = <Database Name>
+DB_USERNAME = <Database Username>
+DB_PASSWORD = <Database Password>
+
+OXFORD_DICT_ID = <OxFord Dictionary API ID>
+OXFORD_DICT_KEY = <OxFord Dictionary API Key>
+
+RAPID_API_KEY = <RapidAPI API Key>
+
+DEEPL_API_KEY = <DeepL API Key>
 ```
 
 ## How to Run?
