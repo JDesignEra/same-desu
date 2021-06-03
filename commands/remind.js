@@ -152,46 +152,24 @@ export const execute = async (client, message, args, isWs = false) => {
     else {
       const roleId = isWs ? args[2] ?? null : /^<@&\d+>$/g.test(whenArgs[whenArgs.length - 1]) ? whenArgs[whenArgs.length - 1].slice(3, -1) : null;
       const reminderMsg = isWs ? args[1] : whenArgs.slice(whenIdx + 1, roleId ? -1 : whenArgs.length).join(" ");
-      
       const channelId = roleId ? isWs ? message.channel_id : message.channel.id : null;
+      const sendMsg = `${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`;
+
       await createReminder(authorId, reminderMsg, momentReminder.format(), roleId, channelId);
 
-      if (isWs) wsReply(client, message, `${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`);
-      else message.channel.send(`${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`);
-
-      // Schedule Send Reminder
-      setTimeout(() => {
-        const embedMsg = new MessageEmbed()
-          .setColor("#2576A3")
-          .setTitle("Reminder")
-          .setDescription(roleId && channelId ? `<@&${roleId}>, ${reminderMsg}` : reminderMsg)
-          .addFields({
-            name: "When",
-            value: momentReminder.format("DD/MM/YYYY hh:mm a")
-          },
-          {
-            name: "Created by",
-            value: client.users.cache.get(authorId).toString()
-          })
-          .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
-          .setTimestamp();
-
-          if (roleId && channelId) client.channels.cache.get(channelId).send(embedMsg);
-          else client.users.cache.get(authorId).send(embedMsg);
-          
-          deleteReminder(authorId, reminderMsg, momentReminder.format(), roleId, channelId);
-      }, moment.duration(momentReminder.diff(moment())).as("milliseconds"));
+      if (isWs) wsReply(client, message, sendMsg);
+      else message.channel.send(sendMsg);
     }
   }
   else if (isWs) wsReply(client, message, usageMessage);
   else message.channel.send(usageMessage);
 }
 
-export const initSendReminder = async (client) => {
+export const sendReminder = async (client) => {
   const reminders = await getAllReminders();
     
   for (const reminder of reminders) {
-    setTimeout(() => {
+    if (moment().isSameOrAfter(moment(reminder.dateTime))) {
       const embedMsg = new MessageEmbed()
         .setColor("#2576A3")
         .setTitle("Reminder")
@@ -211,6 +189,6 @@ export const initSendReminder = async (client) => {
       else client.users.cache.get(reminder.authorId).send(embedMsg);
       
       deleteReminder(reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
-    }, moment.duration(moment(reminder.dateTime).diff(moment())).as("milliseconds"));
+    }
   }
 }

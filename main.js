@@ -68,15 +68,12 @@ client.once("ready", async () => {
       getApp(guildId).commands.post({ data: data });
     }
   });
-
-  // Schedule Send Reminder
-  client.commands.get("remind").initSendReminder(client);
-
-  // Interval checks every min
-  client.setInterval(async () => {
-    // Rotate bot activity message
-    client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE });
-  }, 60000);
+  
+  // Check & send reminders every 15 secs
+  client.setInterval(client.commands.get("remind").sendReminder(client), 15000);
+  
+  // Rotate bot activity message every min
+  client.setInterval(client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE }), 60000);
 });
 
 // Slash Commands
