@@ -1,8 +1,8 @@
 import axios from "axios";
 import chalk from "chalk";
 import { MessageEmbed } from "discord.js";
-import embedPageReaction from "../addons/embedPageReaction.js";
-import wsEditReplyEmbedPage from "../addons/wsEditReplyEmbedPage.js";
+import pageReaction from "../addons/pageReaction.js";
+import wsEditReplyPage from "../addons/wsEditReplyPage.js";
 import wsPatch from "../addons/wsPatch.js";
 import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
@@ -91,10 +91,10 @@ export const execute = async (client, message, args, isWs = false) => {
             )
           });
 
-          if (isWs) wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+          if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
           else {
             message.channel.send(embedMsgs[0]).then(async msg => {
-              if (embedMsgs.length > 1) embedPageReaction(authorId, duration, embedMsgs, msg);
+              if (embedMsgs.length > 1) pageReaction(authorId, duration, embedMsgs, msg);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e?.name}: ${e?.message}`));
@@ -196,10 +196,10 @@ export const execute = async (client, message, args, isWs = false) => {
           }
         }
 
-        if (isWs) wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+        if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
         else {
           message.channel.send(embedMsgs[0]).then(async msg => {
-            if (embedMsgs.length > 1) embedPageReaction(authorId, duration, embedMsgs, msg);
+            if (embedMsgs.length > 1) pageReaction(authorId, duration, embedMsgs, msg);
           }).catch(e => {
             console.log(chalk.red("\nFailed to send message"));
             console.log(chalk.red(`${e.name}: ${e.message}`));

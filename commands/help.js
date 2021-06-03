@@ -2,9 +2,9 @@ import chalk from "chalk";
 import { getAllCommands } from "./../databases/commandsDb.js";
 import { MessageEmbed } from "discord.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
-import embedPageReaction from "../addons/embedPageReaction.js";
+import pageReaction from "../addons/pageReaction.js";
 import wsReply from "../addons/wsReply.js";
-import wsEditReplyEmbedPage from "../addons/wsEditReplyEmbedPage.js";
+import wsEditReplyPage from "../addons/wsEditReplyPage.js";
 
 export const name = "help";
 export const description = "I will tell you about what I can do.";
@@ -29,11 +29,11 @@ export const execute = async (client, message, args, isWs = false) => {
       .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
       .setTimestamp()
       .setDescription(trimStartingIndent(`
-        Use \`/help <Command Name>\` or tag me with \`help <Command Name\` for more information about that command.
+        Use / or tag me with \`help <Command Name>\` for more information about that command.
         
         All commands are available in either \`/\` variant prefix or a tag me variant.
 
-        You can also navigate with the reaction below to navigate through the list of commands for more information.
+        You can react with the reaction below to navigate through the list of commands for more information.
 
         **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
 
@@ -68,11 +68,11 @@ export const execute = async (client, message, args, isWs = false) => {
   if (!detailedHelpCmd) {
     if (isWs) {
       await wsReply(client, message, "", embedMsgs[0], 5);
-      wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+      wsEditReplyPage(client, message, duration, authorId, embedMsgs);
     }
     else {
       message.channel.send(embedMsgs[0]).then(async msg => {
-        embedPageReaction(authorId, duration, embedMsgs, msg);
+        pageReaction(authorId, duration, embedMsgs, msg);
       }).catch(e => {
         console.log(chalk.red("\nFailed to send message"));
         console.log(chalk.red(`${e.name}: ${e.message}`));

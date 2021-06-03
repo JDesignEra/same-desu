@@ -4,6 +4,7 @@ import Sequelize from "sequelize";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 import deeplLanguages from "../data/translate/deeplLanguages.js";
 import googleLanguages from "../data/translate/googleLanguages.js";
+import organization from "../data/vtuber/organization.js";
 
 dotenv.config();
 
@@ -86,18 +87,18 @@ export const init = async () => {
         command: "anime",
         description: "I will retrieve anime related information for you.",
         usage: [
-          "`anime latest`                   - I will retrieve the latest anime episodes on 9Anime.",
+          "`anime latest` - I will retrieve the latest anime episodes on 9Anime.",
           "`anime season <year?> <season?>` - I will provide a list of anime for that season. (Both year and season are optional together as a set)",
-          "`anime <name>`                   - I will provide a list of anime that matches that name. (Spaces are allowed)",
+          "`anime <name>` - I will provide a list of anime that matches that name. (Spaces are allowed)",
         ].join("::")
       },
       {
         command: "define",
         description: "I will get the definitions of that word",
         usage: [
-          "`define <word>`        - I will find the proper definitions for a word.",
-          "`define word <word>`   - I will find the proper definitions for a word.",
-          "`define urban <word>`  - I will find the definitions for that word on Urban Dictionary.",
+          "`define <word>` - I will find the proper definitions for a word.",
+          "`define word <word>` - I will find the proper definitions for a word.",
+          "`define urban <word>` - I will find the definitions for that word on Urban Dictionary.",
         ].join("::")
       },
       {
@@ -109,7 +110,7 @@ export const init = async () => {
         command: "help",
         description: "I will tell you about what I can do.",
         usage: [
-          "`help`           - I will tell you about what I can do.",
+          "`help` - I will tell you about what I can do.",
           "`help <command>` - Command detailed help information."
         ].join("::")
       },
@@ -117,7 +118,7 @@ export const init = async () => {
         command: "insult",
         description: "I shall insult someone for you or yourself.",
         usage: [
-          "`insult`         - I will insult you.",
+          "`insult` - I will insult you.",
           "`insult <@user>` - I will insult that person you tag."
         ].join("::")
       },
@@ -125,7 +126,7 @@ export const init = async () => {
         command: "nekopunch",
         description: "I will Neko Punch you or someone.",
         usage: [
-          "`nekopunch`         - I will Neko Punch you.",
+          "`nekopunch` - I will Neko Punch you.",
           "`nekopunch <@user>` - I will Neko Punch that person you tag"
         ].join("::")
       },
@@ -149,7 +150,7 @@ export const init = async () => {
           \u2022 2 minutes
           \u2022 1 year 2 months 2 days 2 hours 2 minutes`),
         usage: [
-          "`remind <when> <message>`        - I shall remind you about something with a DM.",
+          "`remind <when> <message>` - I shall remind you about something with a DM.",
           "`remind <when> <message> <role>` - I shall remind a role about something."
         ].join("::"),
       },
@@ -162,6 +163,19 @@ export const init = async () => {
           ${Object.entries({...googleLanguages, ...deeplLanguages}).map(([k, v]) => `**${k}** - ${v}`).join("\n")}
         `),
         usage: "`\`translate <sentence> <to language?>\``"
+      },
+      {
+        command: "vtuber",
+        description: trimStartingIndent(`
+          vTuber related commands.
+
+          Some valid formats for \`organization\` argument:
+          ${organization.map(org => `\u2022 ${org}`).join("\n")}`),
+        usage: [
+          "`vtuber list <organization>` - I will provide you a  list of of vTuber's related information.",
+          "`vtuber live <organization> <type?>` - I will provide you a list of vTuber's streams that are currently streaming.",
+          "`vtuber live <organization> <hours?> <type?>` - I will provide you a list of vTuber's upcoming streams that are not live yet."
+        ].join("::"),
       },
       {
         command: "clear",

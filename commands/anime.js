@@ -5,8 +5,8 @@ import moment from "moment";
 import puppeteer from 'puppeteer';
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 import wsReply from "../addons/wsReply.js";
-import embedPageReaction from "../addons/embedPageReaction.js";
-import wsEditReplyEmbedPage from "../addons/wsEditReplyEmbedPage.js";
+import pageReaction from "../addons/pageReaction.js";
+import wsEditReplyPage from "../addons/wsEditReplyPage.js";
 import wsPatch from "../addons/wsPatch.js";
 
 export const name = "anime";
@@ -208,10 +208,10 @@ export const execute = async (client, message, args, isWs = false) => {
             );
           });
 
-          if (isWs) wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+          if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
           else {
             message.channel.send(embedMsgs[0]).then(async msg => {
-              embedPageReaction(authorId, duration, embedMsgs, msg);
+              pageReaction(authorId, duration, embedMsgs, msg);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));
@@ -340,11 +340,11 @@ export const execute = async (client, message, args, isWs = false) => {
             });
 
             if (isWs) {
-              wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+              wsEditReplyPage(client, message, duration, authorId, embedMsgs);
             }
             else {
               message.channel.send(embedMsgs[0]).then(async msg => {
-                embedPageReaction(authorId, duration, embedMsgs, msg);
+                pageReaction(authorId, duration, embedMsgs, msg);
               }).catch(e => {
                 console.log(chalk.red("\nFailed to send message"));
                 console.log(chalk.red(`${e.name}: ${e.message}`));
@@ -471,11 +471,11 @@ export const execute = async (client, message, args, isWs = false) => {
           });
 
           if (isWs) {
-            wsEditReplyEmbedPage(client, message, duration, authorId, embedMsgs);
+            wsEditReplyPage(client, message, duration, authorId, embedMsgs);
           }
           else {
             message.channel.send(embedMsgs[0]).then(async msg => {
-              embedPageReaction(authorId, duration, embedMsgs, msg);
+              pageReaction(authorId, duration, embedMsgs, msg);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));
@@ -498,10 +498,6 @@ export const execute = async (client, message, args, isWs = false) => {
         break;
     }
   }
-  else if (isWs) {
-    wsPatch(client, message, usageMessage);
-  }
-  else {
-    message.channel.send(usageMessage);
-  }
+  else if (isWs) wsPatch(client, message, usageMessage);
+  else message.channel.send(usageMessage);
 }
