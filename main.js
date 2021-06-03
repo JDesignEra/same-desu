@@ -1,12 +1,10 @@
 import dotenv from "dotenv";
 import chalk from "chalk";
 import fs from "fs";
-import { Client, Collection, MessageEmbed } from "discord.js";
+import { Client, Collection } from "discord.js";
+import trimStartingIndent from "./utils/trimStartingIndent.js";
 import wsReply from "./addons/wsReply.js";
 import { getCommandAdmin, getCommandRoles } from "./databases/commandsDb.js";
-import { deleteReminder, getAllReminders } from "./databases/remindersDb.js";
-import trimStartingIndent from "./utils/trimStartingIndent.js";
-import moment from "moment-timezone";
 
 dotenv.config();
 
@@ -71,38 +69,14 @@ client.once("ready", async () => {
     }
   });
 
-  // Interval checks every 30 secs
+  // Schedule Send Reminder
+  client.commands.get("remind").initSendReminder(client);
+
+  // Interval checks every min
   client.setInterval(async () => {
     // Rotate bot activity message
     client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE });
-
-    // Reminders check
-    const reminders = await getAllReminders();
-    
-    for (const reminder of reminders) {
-      if (moment().isSameOrAfter(new Date(reminder.dateTime))) {
-        const embedMsg = new MessageEmbed()
-          .setColor("#2576A3")
-          .setTitle("Reminder")
-          .setDescription(reminder.roleId && reminder.channelId ? `<@&${reminder.roleId}>, ${reminder.message}` : reminder.message)
-          .addFields({
-            name: "When",
-            value: moment(reminder.dateTime).format("DD/MM/YYYY hh:mm a")
-          },
-          {
-            name: "Created by",
-            value: client.users.cache.get(reminder.authorId).toString()
-          })
-          .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
-          .setTimestamp();
-
-        if (reminder.roleId && reminder.channelId) client.channels.cache.get(reminder.channelId).send(embedMsg);
-        else client.users.cache.get(reminder.authorId).send(embedMsg);
-        
-        deleteReminder(reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
-      }
-    }
-  }, 30000);
+  }, 60000);
 });
 
 // Slash Commands
