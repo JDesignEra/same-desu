@@ -23,7 +23,7 @@ export const options = [
         description: "Give me an organization name.",
         type: 3,
         required: true,
-        choices: ["all", ...organization].map(org => { return { name: org === "all" ? "All" : org, value: org }; })
+        choices: ["All", ...organization].map(org => { return { name: org === "All" ? "All" : org, value: org }; })
       }
     ]
   },
@@ -37,7 +37,7 @@ export const options = [
         description: "Give me an organization name.",
         type: 3,
         required: true,
-        choices: ["all", ...organization].map(org => { return { name: org === "all" ? "All" : org, value: org }; })
+        choices: ["All", ...organization].map(org => { return { name: org === "All" ? "All" : org, value: org }; })
       },
       {
         name: "type",
@@ -67,7 +67,7 @@ export const options = [
         description: "Give me an organization name.",
         type: 3,
         required: true,
-        choices: ["all", ...organization].map(org => { return { name: org === "all" ? "All" : org, value: org }; })
+        choices: ["All", ...organization].map(org => { return { name: org === "All" ? "All" : org, value: org }; })
       },
       {
         name: "hours",
@@ -107,7 +107,7 @@ export const execute = async (client, message, args, isWs = false) => {
   `);
   
   if (args.length > 0) {
-    const org = organization.find(o => o.toLowerCase() === args[1].toLowerCase()) ?? "all";
+    const org = organization.find(o => o.toLowerCase() === args[1].toLowerCase()) ?? "All";
 
     if (isWs) await wsReply(client, message, `${tagUser} please wait, I am retrieving it now.`, null, 5);
     else {
@@ -119,7 +119,7 @@ export const execute = async (client, message, args, isWs = false) => {
     switch (args[0]) {
       case "list":
         if (org) {
-          const vTubers = await getHolodexChannels([], 0, org === "all" ? undefined : org);
+          const vTubers = await getHolodexChannels([], 0, org === "All" ? undefined : org);
           
           if (vTubers.length > 0) {
             const embedMsgs = [
@@ -220,7 +220,7 @@ export const execute = async (client, message, args, isWs = false) => {
                   .setColor("#2576A3")
                   .setTitle(`${org} vTubers`)
                   .setDescription(trimStartingIndent(`
-                    Here are the list of${org === "all" ? " all" : org === "Independents" ? " independent" : ""} vTuber's streams${org !== "all" && org !== "Independents" ? ` from **${org}**` : ""} that are ${args[0] === "live" ? "currently live" : "upcoming"}.
+                    Here are the list of${org === "All" ? " all" : org === "Independents" ? " independent" : ""} vTuber's streams${org !== "All" && org !== "Independents" ? ` from **${org}**` : ""} that are ${args[0] === "live" ? "currently live" : "upcoming"}.
 
                     ${videos.map(vid => `**__${vid.name}__**\n[${vid.title}](https://www.youtube.com/watch?v=${vid.id})`).join("\n\n")}
                   
@@ -294,23 +294,23 @@ export const execute = async (client, message, args, isWs = false) => {
   else message.channel.send(usageMessage);
 }
 
-export const getHolodexUpcoming = async (organization = "all", durationHour = 24, limit = undefined) => {
-  const parameters = `?status=upcoming&type=stream${organization !== "all" ? `&org=${organization}` : ""}&order=desc${limit ? `&limit=${limit}` : ""}&paginated=%3Cempty%3E&max_upcoming_hours=${durationHour}`
+export const getHolodexUpcoming = async (organization = "All", durationHour = 24, limit = undefined) => {
+  const parameters = `?status=upcoming&type=stream${organization !== "All" ? `&org=${organization}` : ""}&order=desc${limit ? `&limit=${limit}` : ""}&paginated=%3Cempty%3E&max_upcoming_hours=${durationHour}`
   const res = await axios.get(`${holodexUrl}/live${parameters}`);
   
   return res.status === 200 && res.data.items ? res.data.items : [];
 }
 
-const getHolodexLive24Hours = async (organization = "all", limit = undefined) => {
-  const parameters = `?status=live&type=stream${organization !== "all" ? `&org=${organization}` : ""}&order=desc${limit ? `&limit=${limit}` : ""}&paginated=%3Cempty%3E&max_upcoming_hours=24`
+const getHolodexLive24Hours = async (organization = "All", limit = undefined) => {
+  const parameters = `?status=live&type=stream${organization !== "All" ? `&org=${organization}` : ""}&order=desc${limit ? `&limit=${limit}` : ""}&paginated=%3Cempty%3E&max_upcoming_hours=24`
   const res = await axios.get(`${holodexUrl}/live${parameters}`);
   
   return res.status === 200 && res.data.items ? res.data.items : [];
 }
 
-const getHolodexChannels = async (lists = [], offset = 0, org = undefined, limit = undefined) => {
+const getHolodexChannels = async (lists = [], offset = 0, organization = "All", limit = undefined) => {
   const sizeLimit = 100;  // Allowed size limit for API.
-  const parameters = `?type=vtuber&offset=${offset}&limit=${limit && limit < sizeLimit ? limit : sizeLimit}${org !== "all" ? `&org=${org}` : ""}`;
+  const parameters = `?type=vtuber&offset=${offset}&limit=${limit && limit < sizeLimit ? limit : sizeLimit}${organization !== "All" ? `&org=${organization}` : ""}`;
   const res = await axios.get(`${holodexUrl}/channels${parameters}`);
   const data = res.data;
 
@@ -336,7 +336,7 @@ const getHolodexChannels = async (lists = [], offset = 0, org = undefined, limit
     vTubers = vTubers.concat(infos);
   }
 
-  if (data.length < limit || !limit && data.length >= sizeLimit) await getHolodexChannels(vTubers, offset + sizeLimit, org, limit);
+  if (data.length < limit || !limit && data.length >= sizeLimit) await getHolodexChannels(vTubers, offset + sizeLimit, organization, limit);
 
   return vTubers;
 }
