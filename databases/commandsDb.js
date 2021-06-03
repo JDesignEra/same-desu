@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import Sequelize from "sequelize";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
-import deeplLanguages from "../data/deeplLanguages.js";
-import googleLanguages from "../data/googleLanguages.js";
+import deeplLanguages from "../data/translate/deeplLanguages.js";
+import googleLanguages from "../data/translate/googleLanguages.js";
 
 dotenv.config();
 

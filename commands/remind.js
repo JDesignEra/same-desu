@@ -1,7 +1,11 @@
+import dotenv from "dotenv";
+import { MessageEmbed } from 'discord.js';
 import moment from 'moment';
 import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
-import { createReminder } from "../databases/remindersDb.js";
+import { createReminder, deleteReminder, getAllReminders } from "../databases/remindersDb.js";
+
+dotenv.config();
 
 export const name = "remind";
 export const description = "I shall remind you or a role about something.";
@@ -154,8 +158,59 @@ export const execute = async (client, message, args, isWs = false) => {
 
       if (isWs) wsReply(client, message, `${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`);
       else message.channel.send(`${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`);
+
+      // Schedule Send Reminder
+      setTimeout(() => {
+        const embedMsg = new MessageEmbed()
+          .setColor("#2576A3")
+          .setTitle("Reminder")
+          .setDescription(roleId && channelId ? `<@&${roleId}>, ${reminderMsg}` : reminderMsg)
+          .addFields({
+            name: "When",
+            value: momentReminder.format("DD/MM/YYYY hh:mm a")
+          },
+          {
+            name: "Created by",
+            value: client.users.cache.get(authorId).toString()
+          })
+          .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
+          .setTimestamp();
+
+          if (roleId && channelId) client.channels.cache.get(channelId).send(embedMsg);
+          else client.users.cache.get(authorId).send(embedMsg);
+          
+          deleteReminder(authorId, reminderMsg, momentReminder.format(), roleId, channelId);
+      }, moment.duration(momentReminder.diff(moment())).as("milliseconds"));
     }
   }
   else if (isWs) wsReply(client, message, usageMessage);
   else message.channel.send(usageMessage);
+}
+
+export const initSendReminder = async (client) => {
+  const reminders = await getAllReminders();
+    
+  for (const reminder of reminders) {
+    setTimeout(() => {
+      const embedMsg = new MessageEmbed()
+        .setColor("#2576A3")
+        .setTitle("Reminder")
+        .setDescription(reminder.roleId && reminder.channelId ? `<@&${reminder.roleId}>, ${reminder.message}` : reminder.message)
+        .addFields({
+          name: "When",
+          value: moment(reminder.dateTime).format("DD/MM/YYYY hh:mm a")
+        },
+        {
+          name: "Created by",
+          value: client.users.cache.get(reminder.authorId).toString()
+        })
+        .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
+        .setTimestamp();
+
+      if (reminder.roleId && reminder.channelId) client.channels.cache.get(reminder.channelId).send(embedMsg);
+      else client.users.cache.get(reminder.authorId).send(embedMsg);
+      
+      deleteReminder(reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
+    }, moment.duration(moment(reminder.dateTime).diff(moment())).as("milliseconds"));
+  }
 }

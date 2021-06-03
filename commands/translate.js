@@ -2,8 +2,8 @@ import axios from "axios";
 import chalk from "chalk";
 import wsPatch from "../addons/wsPatch.js";
 import wsReply from "../addons/wsReply.js";
-import deeplLangs from "../data/deeplLanguages.js";
-import googleLangs from "../data/googleLanguages.js";
+import deeplLangs from "../data/translate/deeplLanguages.js";
+import googleLangs from "../data/translate/googleLanguages.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 
 const deeplLanguages = deeplLangs;
@@ -55,7 +55,6 @@ export const execute = async (client, message, args, isWs = false) => {
   if (isWs) wsReply(client, message, "Please wait, I am translating...", null, 5);
 
   if (args.length > 0) {
-    console.log(args);
     if (sentence && sentence.trim()) {
       if (deeplLanguages[toLang]) {
         const parameters = `?auth_key=${process.env.DEEPL_API_KEY}&text=${encodeURI(sentence)}${toLang && toLang.trim().length > 0 ? `&target_lang=${toLang}` : ""}`;
