@@ -145,7 +145,7 @@ export const execute = async (client, message, args, isWs = false) => {
       }
     }
 
-    if (moment().isSameOrAfter(new Date(momentReminder))) {
+    if (moment().isSameOrAfter(momentReminder.format())) {
       if (isWs) wsReply(client, message, `\`<when>\` argument has to be later then ${moment().format("DD/MM/YYYY hh:mm a")}.`)
       else message.channel.send(`${tagUser}, \`<when>\` argument has to be later then ${moment().format("DD/MM/YYYY hh:mm a")}.`);
     }
@@ -169,7 +169,7 @@ export const sendReminder = async (client) => {
   const reminders = await getAllReminders();
     
   for (const reminder of reminders) {
-    if (moment().isSameOrAfter(moment(reminder.dateTime))) {
+    if (moment().isSameOrAfter(reminder.dateTime)) {
       const embedMsg = new MessageEmbed()
         .setColor("#2576A3")
         .setTitle("Reminder")

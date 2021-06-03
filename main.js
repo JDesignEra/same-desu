@@ -70,10 +70,14 @@ client.once("ready", async () => {
   });
   
   // Check & send reminders every 15 secs
-  client.setInterval(client.commands.get("remind").sendReminder(client), 15000);
+  client.setInterval(() => {
+    client.commands.get("remind").sendReminder(client)
+  }, 15000);
   
   // Rotate bot activity message every min
-  client.setInterval(client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE }), 60000);
+  client.setInterval(() => {
+    client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE })
+  }, 60000);
 });
 
 // Slash Commands
