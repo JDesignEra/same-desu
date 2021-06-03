@@ -5,6 +5,7 @@ import pageReaction from "../addons/pageReaction.js";
 import wsEditReplyPage from "../addons/wsEditReplyPage.js";
 import wsPatch from "../addons/wsPatch.js";
 import wsReply from "../addons/wsReply.js";
+import channelIdExclude from "../data/vtuber/channelIdExclude.js";
 import organization from "../data/vtuber/organization.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 
@@ -310,9 +311,9 @@ const getHolodexLive24Hours = async (organization = "All", limit = undefined) =>
 
 const getHolodexChannels = async (lists = [], offset = 0, organization = "All", limit = undefined) => {
   const sizeLimit = 100;  // Allowed size limit for API.
-  const parameters = `?type=vtuber&offset=${offset}&limit=${limit && limit < sizeLimit ? limit : sizeLimit}${organization !== "All" ? `&org=${organization}` : ""}`;
+  const parameters = `?type=vtuber&offset=${offset}&limit=${limit && limit < sizeLimit ? limit : sizeLimit}${organization !== "All" ? `&org=${organization}` : ""}${organization !== "All" || organization !== "Independents" ? "&sort=group" : ""}`;
   const res = await axios.get(`${holodexUrl}/channels${parameters}`);
-  const data = res.data;
+  const data = res.data?.filter(d => channelIdExclude.indexOf(d.id) < 0);
 
   let vTubers = lists;
 
