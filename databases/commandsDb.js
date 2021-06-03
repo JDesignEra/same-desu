@@ -174,7 +174,7 @@ export const init = async () => {
         usage: [
           "`vtuber list <organization>` - I will provide you a  list of of vTuber's related information.",
           "`vtuber live <organization> <type?>` - I will provide you a list of vTuber's streams that are currently streaming.",
-          "`vtuber live <organization> <hours?> <type?>` - I will provide you a list of vTuber's upcoming streams that are not live yet."
+          "`vtuber upcoming <organization> <hours?> <type?>` - I will provide you a list of vTuber's upcoming streams that are not live yet."
         ].join("::"),
       },
       {
