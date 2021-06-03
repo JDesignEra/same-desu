@@ -146,8 +146,8 @@ export const execute = async (client, message, args, isWs = false) => {
     }
 
     if (moment().isSameOrAfter(momentReminder.format())) {
-      if (isWs) wsReply(client, message, `\`<when>\` argument has to be later then ${moment().format("DD/MM/YYYY hh:mm a")}.`)
-      else message.channel.send(`${tagUser}, \`<when>\` argument has to be later then ${moment().format("DD/MM/YYYY hh:mm a")}.`);
+      if (isWs) wsReply(client, message, `\`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`)
+      else message.channel.send(`${tagUser}, \`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`);
     }
     else {
       const roleId = isWs ? args[2] ?? null : /^<@&\d+>$/g.test(whenArgs[whenArgs.length - 1]) ? whenArgs[whenArgs.length - 1].slice(3, -1) : null;
