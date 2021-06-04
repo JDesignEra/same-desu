@@ -4,7 +4,6 @@ import wsReply from "../addons/wsReply.js";
 
 export const name = "about";
 export const description = "I will provide you with information about my creator.";
-
 export const execute = async (client, message, args, isWs = false) => {
   const embed = new MessageEmbed()
     .setColor("#2576A3")

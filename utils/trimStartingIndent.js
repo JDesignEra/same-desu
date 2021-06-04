@@ -1,3 +1,3 @@
 export default function (str) {
-  return str.replace(/^  +/gm, "");
+  return str?.replace(/^  +/gm, "") ?? str;
 }

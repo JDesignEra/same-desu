@@ -203,13 +203,9 @@ export const initSendRemindersInterval = async (client) => {
 const sendReminder = async (client, authorId, message, dateTime, roleId, channelId) => {
   const embedMsg = new MessageEmbed()
     .setColor("#2576A3")
-    .setTitle("Reminder")
+    .setTitle("REMINDER")
     .setDescription(roleId && channelId ? `<@&${roleId}>, ${message}` : message)
     .addFields({
-      name: "When",
-      value: moment(dateTime).format("DD/MM/YYYY hh:mm a")
-    },
-    {
       name: "Created by",
       value: client.users.cache.get(authorId).toString()
     })

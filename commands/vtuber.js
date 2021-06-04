@@ -95,7 +95,6 @@ export const options = [
     ]
   }
 ];
-
 export const execute = async (client, message, args, isWs = false) => {
   const duration = 300000;
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
@@ -129,21 +128,60 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setTitle(`${org} vTubers`)
                 .setDescription(trimStartingIndent(`${vTubers.map(vTuber => vTuber?.name ? `\u2022 ${vTuber.name}` : "").join("\n")}
     
-                **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
+                  **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
                 `))
                 .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${vTubers.length + 1}`, client.user.avatarURL())
                 .setTimestamp()
             ];
     
             vTubers.forEach((vTuber, i) => {
-              const infos = [];
+              const fields = [];
     
-              if (vTuber.organization) infos.push({ "Organization": vTuber.organization });
-              if (vTuber.group) infos.push({ "Group": vTuber.group });
-              if (vTuber.twitter) infos.push({ "Twitter": `[${vTuber.twitter}](https://twitter.com/${vTuber.twitter})` });
-              if (vTuber.id && vTuber.channel_name) infos.push({ "YouTube": `[${vTuber.channel_name}](https://www.youtube.com/channel/${vTuber.id})` });
-              if (vTuber.subscriber_count) infos.push({ "Subscriber Count": `${vTuber.subscriber_count}` });
-              if (vTuber.video_count) infos.push({ "Video Count": `${vTuber.video_count}` });
+              if (vTuber.organization) fields.push({
+                name: "Organization",
+                value: vTuber.organization,
+                inline: true
+              });
+
+              if (vTuber.group) fields.push({
+                name: "Group",
+                value: vTuber.group,
+                inline: true
+              });
+              else fields.push({
+                name: "\u200b",
+                value: "\u200b",
+                inline: true
+              });
+
+              fields.push({
+                name: "\u200b",
+                value: "\u200b",
+                inline: true
+              });
+
+              if (vTuber.id && vTuber.channel_name) fields.push({
+                name: "YouTube",
+                value: `[${vTuber.channel_name}](https://www.youtube.com/channel/${vTuber.id})`,
+                inline: true
+              });
+
+              if (vTuber.subscriber_count) fields.push({
+                name: "Subscribers",
+                value: `${vTuber.subscriber_count}`,
+                inline: true
+              });
+
+              if (vTuber.video_count) fields.push({
+                name: "Video Counts",
+                value: `${vTuber.video_count}`,
+                inline: true
+              });
+
+              if (vTuber.twitter) fields.push({
+                name: "Twitter",
+                value: `[${vTuber.twitter}](https://twitter.com/${vTuber.twitter})`
+              });
     
               embedMsgs.push(
                 new MessageEmbed()
@@ -151,11 +189,10 @@ export const execute = async (client, message, args, isWs = false) => {
                   .setTitle(vTuber.name)
                   .setURL(vTuber.id ? `https://www.youtube.com/channel/${vTuber.id}` : "")
                   .setThumbnail(vTuber.photo)
-                  .setDescription(trimStartingIndent(`
-                    ${infos.map(info => `**__${Object.keys(info)[0]}__**\n${Object.values(info)[0]}`).join("\n\n")}
-    
-                    **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
-                  `))
+                  .addFields([...fields, {
+                    name: "\u200b",
+                    value: `**Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.`
+                  }])
                   .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${vTubers.length + 1}`, client.user.avatarURL())
                   .setTimestamp()
               );
@@ -189,7 +226,7 @@ export const execute = async (client, message, args, isWs = false) => {
         if (org) {
           const type = args[3] === "details" || args[3] === "previews" ? args[3]  : isNaN(args[2]) ? args[2] : "details";
           const noLiveErrorMsg = `${tagUser} it seems that there isn't any ${args[0]} channel currently, please kindly try again later.`;
-          let data = args[0] === "upcoming" ? await getHolodexUpcoming(org, hours) : await getHolodexLive24Hours(org);
+          let data = args[0] === "upcoming" ? await getHolodexUpcoming(org, hours) : await getHolodexLive(org);
           
           if (data.length > 0) {
             if (type === "previews") {
@@ -199,69 +236,58 @@ export const execute = async (client, message, args, isWs = false) => {
               else message.channel.send(urlMsgs);
             }
             else {
-              const videos = data.filter(vid => vid.channel.type === "vtuber").map(vid => {
+              const videos = await Promise.all(data.filter(vid => vid.channel.type === "vtuber").map(async vid => {
                 let info = {};
 
-                if (vid.id) info.id = vid.id;
+                if (vid.id) info.url = `https://www.youtube.com/watch?v=${vid.id}`;
                 if (vid.title) info.title = vid.title;
                 if (vid.topic_id) info.topic = vid.topic_id.replace(/^\w/, (c) => c.toUpperCase()).replace(/_/g, " ");
                 if (vid.start_scheduled) info.live_on = vid.start_scheduled;
                 if (vid.available_at) info.live_on = vid.available_at;
                 if (vid.live_viewers) info.viewers = vid.live_viewers;
-                if (vid.channel && vid.channel.id) info.channel_id = vid.channel.id;
+                if (vid.channel && vid.channel.id) info.channel_url = `https://www.youtube.com/channel/${vid.channel.id}`;
                 if (vid.channel && vid.channel.name) info.channel_name = vid.channel.name;
                 if (vid.channel && vid.channel.photo) info.photo = vid.channel.photo;
                 if (vid.channel && vid.channel.english_name) info.name = vid.channel.english_name;
-
+                
                 return info;
-              });
+              }));
 
-              const embedMsgs = [
-                new MessageEmbed()
-                  .setColor("#2576A3")
-                  .setTitle(`${org} vTubers`)
-                  .setDescription(trimStartingIndent(`
-                    Here are the list of${org === "All" ? " all" : org === "Independents" ? " independent" : ""} vTuber's streams${org !== "All" && org !== "Independents" ? ` from **${org}**` : ""} that are ${args[0] === "live" ? "currently live" : "upcoming"}.
-
-                    ${videos.map(vid => `**__${vid.name}__**\n[${vid.title}](https://www.youtube.com/watch?v=${vid.id})`).join("\n\n")}
-                  
-                    **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
-                  `))
-                  .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${videos.length + 1}`, client.user.avatarURL())
-                  .setTimestamp()
-              ];
-
-              videos.forEach((vid, i) => {
-                const infos = [];
+              const embedMsgs = videos.map((vid, i) => {
+                const fields = [];
     
-                if (vid.name) infos.push({ "Name": vid.name });
-                if (vid.topic_id) infos.push({ "Topic": vid.topic_id });
+                if (vid.name) fields.push({name: "Name", value: vid.name});
+
+                if (vid.topic_id) fields.push({name: "Topic", value: vid.topic_id, inline: true});
 
                 if (vid.live_on) {
-                  if (args[0] === "live") infos.push({ "Live": moment(vid.live_on).fromNow(true) });
-                  else infos.push({ "Scheduled": moment(vid.live_on).utcOffset("+0800").format("DD/MM/YYYY hh:mm a (Z)") });
+                  if (args[0] === "live") fields.push({name: "Live Duration", value: moment(vid.live_on).fromNow(true), inline: true});
+                  else fields.push({name: "Starts At", value: moment(vid.live_on).utcOffset("+0800").format("DD/MM/YYYY hh:mm a (Z)"), inline: true});
                 }
                 
-                if (vid.viewers) infos.push({ "Viewers": vid.viewers });
-                if (vid.channel_id && vid.channel_name) infos.push({ "YouTube Channel": `[${vid.channel_name}](https://www.youtube.com/channel/${vid.channel_id})` });
+                if (vid.viewers) {
+                  fields.push({name: "Viewers", value: vid.viewers, inline: true});
+                }
 
-                embedMsgs.push(
-                  new MessageEmbed()
-                    .setColor("#2576A3")
-                    .setTitle(trimStartingIndent(vid.title))
-                    .setURL(vid.id ? `https://www.youtube.com/watch?v=${vid.id}` : "")
-                    .setThumbnail(vid.photo)
-                    .setDescription(trimStartingIndent(`
-                      ${infos.map(info => `**__${Object.keys(info)[0]}__**\n${Object.values(info)[0]}`).join("\n\n")}
+                if (vid.channel_url && vid.channel_name) fields.push({name: "YouTube Channel", value: `[${vid.channel_name}](${vid.channel_url})`});
 
-
-                      **[Watch on YouTube](https://www.youtube.com/watch?v=${vid.id})**
-                      
-                      **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
-                    `))
-                    .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${videos.length + 1}`, client.user.avatarURL())
-                    .setTimestamp()
-                );
+                return new MessageEmbed()
+                  .setColor("#2576A3")
+                  .setTitle(trimStartingIndent(vid.title))
+                  .setURL(vid.url ? vid.url : "")
+                  .setThumbnail(vid.photo)
+                  .addFields([...fields,
+                    {
+                      name: "\u200b",
+                      value: `**[Watch on YouTube](${vid.url})**`
+                    },
+                    {
+                      name: "\u200b",
+                      value: `**Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.`
+                    }
+                  ])
+                  .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${videos.length + 1}`, client.user.avatarURL())
+                  .setTimestamp()
               });
 
               if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
@@ -295,23 +321,23 @@ export const execute = async (client, message, args, isWs = false) => {
   else message.channel.send(usageMessage);
 }
 
-export const getHolodexUpcoming = async (organization = "All", durationHour = 24, limit = undefined) => {
-  const parameters = `?status=upcoming&type=stream${organization !== "All" ? `&org=${organization}` : ""}&order=desc${limit ? `&limit=${limit}` : ""}&paginated=%3Cempty%3E&max_upcoming_hours=${durationHour}`
+export const getHolodexUpcoming = async (org = "All", durationHour = 24, limit = undefined) => {
+  const parameters = `?status=upcoming&type=stream${org !== "All" ? `&org=${org}` : ""}&order=desc${limit ? `&limit=${limit}` : ""}&paginated=%3Cempty%3E&max_upcoming_hours=${durationHour}`
   const res = await axios.get(`${holodexUrl}/live${parameters}`);
   
   return res.status === 200 && res.data.items ? res.data.items : [];
 }
 
-const getHolodexLive24Hours = async (organization = "All", limit = undefined) => {
-  const parameters = `?status=live&type=stream${organization !== "All" ? `&org=${organization}` : ""}&order=desc${limit ? `&limit=${limit}` : ""}&paginated=%3Cempty%3E&max_upcoming_hours=24`
+const getHolodexLive = async (org = "All", limit = undefined) => {
+  const parameters = `?status=live&type=stream${org !== "All" ? `&org=${org}` : ""}${limit ? `&limit=${limit}` : ""}&paginated=%3Cempty%3E`
   const res = await axios.get(`${holodexUrl}/live${parameters}`);
   
-  return res.status === 200 && res.data.items ? res.data.items : [];
+  return res.status === 200 && res.data.items ? res.data.items.filter(d => d.start_actual) : [];
 }
 
-const getHolodexChannels = async (lists = [], offset = 0, organization = "All", limit = undefined) => {
+const getHolodexChannels = async (lists = [], offset = 0, org = "All", limit = undefined) => {
   const sizeLimit = 100;  // Allowed size limit for API.
-  const parameters = `?type=vtuber&offset=${offset}&limit=${limit && limit < sizeLimit ? limit : sizeLimit}${organization !== "All" ? `&org=${organization}` : ""}${organization !== "All" || organization !== "Independents" ? "&sort=group" : ""}`;
+  const parameters = `?type=vtuber&offset=${offset}&limit=${limit && limit < sizeLimit ? limit : sizeLimit}${org !== "All" ? `&org=${org}` : ""}${org !== "All" || org !== "Independents" ? "&sort=group" : ""}`;
   const res = await axios.get(`${holodexUrl}/channels${parameters}`);
   const data = res.data?.filter(d => channelIdExclude.indexOf(d.id) < 0);
 
@@ -337,7 +363,7 @@ const getHolodexChannels = async (lists = [], offset = 0, organization = "All", 
     vTubers = vTubers.concat(infos);
   }
 
-  if (data.length < limit || !limit && data.length >= sizeLimit) await getHolodexChannels(vTubers, offset + sizeLimit, organization, limit);
+  if (data.length < limit || !limit && data.length >= sizeLimit) await getHolodexChannels(vTubers, offset + sizeLimit, org, limit);
 
   return vTubers;
 }
