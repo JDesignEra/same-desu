@@ -145,7 +145,9 @@ export const execute = async (client, message, args, isWs = false) => {
       }
     }
 
-    if (moment().isSameOrAfter(momentReminder.format())) {
+    const momentNow = moment();
+
+    if (momentNow.isSameOrAfter(momentReminder.format())) {
       if (isWs) wsReply(client, message, `\`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`)
       else message.channel.send(`${tagUser}, \`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`);
     }
@@ -155,40 +157,67 @@ export const execute = async (client, message, args, isWs = false) => {
       const channelId = roleId ? isWs ? message.channel_id : message.channel.id : null;
       const sendMsg = `${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`;
 
+      const reminders = await getAllReminders();
+
       await createReminder(authorId, reminderMsg, momentReminder.format(), roleId, channelId);
 
       if (isWs) wsReply(client, message, sendMsg);
       else message.channel.send(sendMsg);
+
+      // Send reminder with interval or timeout
+      const msDelay = momentReminder.diff(momentNow);
+
+      if (reminders.length < 1 && msDelay > -2147483648 && msDelay < 2147483647) {
+        client.setTimeout(() => {
+          sendReminder(client, authorId, reminderMsg, momentReminder.format(), roleId, channelId);
+        }, msDelay);
+      }
+      else if (reminders.length < 1) {
+        initSendRemindersInterval(client);
+      }
     }
   }
   else if (isWs) wsReply(client, message, usageMessage);
   else message.channel.send(usageMessage);
 }
 
-export const sendReminder = async (client) => {
-  const reminders = await getAllReminders();
-    
-  for (const reminder of reminders) {
-    if (moment().isSameOrAfter(reminder.dateTime)) {
-      const embedMsg = new MessageEmbed()
-        .setColor("#2576A3")
-        .setTitle("Reminder")
-        .setDescription(reminder.roleId && reminder.channelId ? `<@&${reminder.roleId}>, ${reminder.message}` : reminder.message)
-        .addFields({
-          name: "When",
-          value: moment(reminder.dateTime).format("DD/MM/YYYY hh:mm a")
-        },
-        {
-          name: "Created by",
-          value: client.users.cache.get(reminder.authorId).toString()
-        })
-        .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
-        .setTimestamp();
+export const initSendRemindersInterval = async (client) => {
+  let reminders = await getAllReminders();
 
-      if (reminder.roleId && reminder.channelId) client.channels.cache.get(reminder.channelId).send(embedMsg);
-      else client.users.cache.get(reminder.authorId).send(embedMsg);
-      
-      deleteReminder(reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
-    }
+  if (reminders.length > 0) {
+    const remindInterval = setInterval(async () => {
+      reminders = await getAllReminders();
+
+      reminders.forEach((reminder, i) => {
+        if (moment().isSameOrAfter(reminder.dateTime)) {
+          sendReminder(client, reminder.authorId, reminder.message, reminder.dateTime, reminder.roleId, reminder.channelId);
+          reminders.splice(i, 1);
+        }
+      });
+  
+      if (reminders.length < 1) clearInterval(remindInterval);
+    }, 15000);
   }
+}
+
+const sendReminder = async (client, authorId, message, dateTime, roleId, channelId) => {
+  const embedMsg = new MessageEmbed()
+    .setColor("#2576A3")
+    .setTitle("Reminder")
+    .setDescription(roleId && channelId ? `<@&${roleId}>, ${message}` : message)
+    .addFields({
+      name: "When",
+      value: moment(dateTime).format("DD/MM/YYYY hh:mm a")
+    },
+    {
+      name: "Created by",
+      value: client.users.cache.get(authorId).toString()
+    })
+    .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
+    .setTimestamp();
+
+  if (roleId && channelId) client.channels.cache.get(channelId).send(embedMsg);
+  else client.users.cache.get(authorId).send(embedMsg);
+
+  deleteReminder(authorId, message, dateTime, roleId, channelId);
 }

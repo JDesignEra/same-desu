@@ -69,11 +69,8 @@ client.once("ready", async () => {
     }
   });
   
-  // Interval every 15 secs
-  client.setInterval(() => {
-    // Check & send reminders
-    client.commands.get("remind").sendReminder(client)
-  }, 15000);
+  // Check & send reminders Interval every 15 secs
+  client.commands.get("remind").initSendRemindersInterval(client);
   
   // Interval every min
   client.setInterval(() => {
