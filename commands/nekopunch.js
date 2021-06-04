@@ -12,7 +12,7 @@ export const options = [
 ];
 export const execute = async (client, message, args, isWs = false) => {
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
-  const nekoPunchGif = "https://media.tenor.com/images/b03ee5ecf261c9073f62dfd9d7b9bb75/tenor.gif";
+  const nekoPunchGif = "https://i.imgur.com/YSw5ywc.gif";
   let nekoPunchMsg = "**Neko Punch** <user>!";
   
   if (message.mentions?.users?.size > 1) {

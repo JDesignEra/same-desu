@@ -13,7 +13,6 @@ export const options = [
   }
 ];
 export const execute = async (client, message, args, isWs = false) => {
-  console.log(message.id);
   const data = await getAllGreetings();
   const greetingWords = data?.filter(greeting => greeting.state);
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
