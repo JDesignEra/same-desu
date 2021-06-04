@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import chalk from "chalk";
 import fs from "fs";
-import { Client, Collection } from "discord.js";
+import { Client, Collection, MessageAttachment } from "discord.js";
 import trimStartingIndent from "./utils/trimStartingIndent.js";
 import wsReply from "./addons/wsReply.js";
 import { getCommandAdmin, getCommandRoles } from "./databases/commandsDb.js";
@@ -39,7 +39,7 @@ fs.access(`./${process.env.SQLITE_FILENAME}`, async err => {
       files.filter(file => file.endsWith(".js")).map(async file => {
         const db = await import(`./databases/${file}`);
         await db.execute();
-        
+
         if (initFlag) await db.init();
         // await db.init();  // Uncomment to force init.
       });
@@ -52,26 +52,26 @@ client.once("ready", async () => {
 
   let activityStatuses = client.commands.map(cmd => `for /${cmd.name}`);
   activityStatuses.unshift(process.env.STATUS_MSG);
-  
+
   client.user.setActivity(activityStatuses[0], { type: process.env.STATUS_TYPE });
-  
+
   client.commands.each(async cmd => {
     const data = {};
-    
+
     if (cmd.name) {
       data.name = cmd.name;
       data.description = cmd.description ?? "サメです";
-      
+
       if (cmd.options) data.options = cmd.options;
       if (cmd.default_permission) data.default_permission = cmd.default_permission;
 
       getApp(guildId).commands.post({ data: data });
     }
   });
-  
+
   // Check & send reminders Interval every 15 secs
   client.commands.get("remind").initSendRemindersInterval(client);
-  
+
   // Interval every min
   client.setInterval(() => {
     // Rotate bot activity message 
@@ -90,7 +90,7 @@ client.ws.on("INTERACTION_CREATE", async interaction => {
     if (obj?.name && !obj.value) args.push(obj.name);
     if (obj?.value) args.push(obj.value);
     if (obj?.options?.length < 1) return;
-    
+
     if (Array.isArray(obj)) {
       obj.forEach(option => buildArgs(option));
     }
@@ -106,12 +106,12 @@ client.ws.on("INTERACTION_CREATE", async interaction => {
     chalk.green.bold(`${member?.user?.username}#${member?.user?.discriminator}: `) +
     chalk.cyan(`\/${command} ${args.join(" ")}`)
   );
-  
+
   const reqAdmin = await getCommandAdmin(command);
   const userRoles = member?.roles ?? [];
   let cmdRoles = await getCommandRoles(command);
   cmdRoles = cmdRoles?.split("::") ?? cmdRoles;
-  
+
   if (!reqAdmin && cmdRoles == null ||
     !reqAdmin && cmdRoles && userRoles.length > 0 && userRoles.filter(roleId => cmdRoles?.indexOf(roleId) > -1) ||
     reqAdmin && client.guilds.cache.get(interaction.guild_id).member(interaction.member.user.id).hasPermission("ADMINISTRATOR")) {
@@ -145,15 +145,15 @@ client.on("message", async message => {
         idx = i;
       }
     }
-    
+
     if (idx != null && idx > -1) {
       args = possibleArgs.slice(idx);
       command = args.shift();
     }
-    
+
     if (command) {
       const reqAdmin = await getCommandAdmin(command);
-      
+
       let cmdRoles = await getCommandRoles(command);
       cmdRoles = cmdRoles?.split("::") ?? cmdRoles;
 
@@ -173,16 +173,24 @@ client.on("message", async message => {
     }
     else {
       if (!await client.commands.get("hello").execute(client, message, args)) {
-        message.channel.send(trimStartingIndent(`
-          **どうも ${message.author?.toString()}, サメです。**
-          How may I help you?\n${client.emojis.cache.find(emoji => emoji.name === "guraShy")}
-        `));
+        if (/good bot/gmi.test(message.content)) {
+          message.channel.send(trimStartingIndent(`
+            **どうも ${message.author?.toString()}, サメです。**
+            Yeah! Yea you are right, thank you. I like the way you compliment me. ${client.emojis.cache.find(emoji => emoji.name === "guraShy")}
+          `), new MessageAttachment("./static/videos/compliment_reaction.mp4"));
+        }
+        else {
+          message.channel.send(trimStartingIndent(`
+            **どうも ${message.author?.toString()}, サメです。**
+            How may I help you? ${client.emojis.cache.find(emoji => emoji.name === "guraShy")}
+          `));
+        }
       }
     }
   }
 });
 
-process.on("SIGINT", function(){
+process.on("SIGINT", function () {
   console.log(`${chalk.blue(client.user.tag)} has ${chalk.red("DISCONNECTED")}.\n`);
   process.exit();
 });
