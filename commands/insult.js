@@ -1,4 +1,5 @@
 import { MessageAttachment } from "discord.js";
+import wsDelReply from "../addons/wsDelReply.js";
 import wsReply from "../addons/wsReply.js";
 import { getAllInsults } from "../databases/insultsDb.js";
 
@@ -32,8 +33,10 @@ export const execute = async (client, message, args, isWs = false) => {
   if (insults[randomInt]?.attachmentType === "audio") attachment = `./static/audios/${insults[randomInt]?.attachment}`
 
   if (isWs) {
-    wsReply(client, message, insult);
-    client.channels.cache.get(message.channel_id).send(new MessageAttachment(attachment));
+    wsReply(client, message, insult, null, 5);
+    wsDelReply(client, message);
+
+    client.channels.cache.get(message.channel_id).send(insult, new MessageAttachment(attachment));
   }
   else {
     message.channel.send(insult, new MessageAttachment(attachment));
