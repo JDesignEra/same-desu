@@ -12,7 +12,7 @@ export default async (client, interaction, content, embed) => {
   if (!embed && (!content || !content?.trim())) data.content = "\u200b";
   if (embed) data = await createAPIMessage(client, interaction, content, embed);
 
-  return await client.api.webhooks(client.user.id, interaction.token).messages('@original').patch({
+  return client.api.webhooks(client.user.id, interaction.token).messages('@original').patch({
     data
   });
 }

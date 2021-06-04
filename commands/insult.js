@@ -32,7 +32,7 @@ export const execute = async (client, message, args, isWs = false) => {
   if (insults[randomInt]?.attachmentType === "audio") attachment = `./static/audios/${insults[randomInt]?.attachment}`
 
   if (isWs) {
-    await wsReply(client, message, insult);
+    wsReply(client, message, insult);
     client.channels.cache.get(message.channel_id).send(new MessageAttachment(attachment));
   }
   else {
