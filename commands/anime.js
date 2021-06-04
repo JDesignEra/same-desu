@@ -4,10 +4,16 @@ import { MessageEmbed } from "discord.js";
 import moment from "moment";
 import puppeteer from 'puppeteer';
 import trimStartingIndent from "../utils/trimStartingIndent.js";
+import shortenUrl from "../utils/shortenUrl.js";
 import wsReply from "../addons/wsReply.js";
 import pageReaction from "../addons/pageReaction.js";
 import wsEditReplyPage from "../addons/wsEditReplyPage.js";
 import wsPatch from "../addons/wsPatch.js";
+
+const nineAnimeUrl = "https://9anime.to";
+const jikanUrl = "https://api.jikan.moe/v3";
+const malUrl = "https://myanimelist.net";
+const reactDuration = 300000;
 
 export const name = "anime";
 export const description = "I will retrieve anime related information for you.";
@@ -66,16 +72,9 @@ export const options = [
     type: 1
   }
 ];
-
 export const execute = async (client, message, args, isWs = false) => {
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
   const authorId = message.author?.id ?? message.member?.user?.id;
-
-  const duration = 180000;
-  const nineAnimeUrl = "https://9anime.to";
-  const jikanUrl = "https://api.jikan.moe/v3";
-  const malUrl = "https://myanimelist.net";
-
   const argument = args[0] ?? null;
   const usageMessage = trimStartingIndent(`
     **どうも ${tagUser}, サメです。**
@@ -158,12 +157,12 @@ export const execute = async (client, message, args, isWs = false) => {
           const animeLatest = await page.$$eval("ul.anime-list > li", (el) => {
             const list = [];
 
-            el.forEach(el => {
+            el.forEach(element => {
               list.push({
-                name: el.querySelector("a.name")?.innerText,
-                episode: el.querySelector("a.poster > div.tag.ep")?.innerText,
-                link: el.querySelector("a.name")?.href,
-                image: el.querySelector("a.poster > img")?.src
+                name: element.querySelector("a.name")?.innerText,
+                episode: element.querySelector("a.poster > div.tag.ep")?.innerText,
+                link: element.querySelector("a.name")?.href,
+                image: element.querySelector("a.poster > img")?.src
               });
             });
 
@@ -180,9 +179,7 @@ export const execute = async (client, message, args, isWs = false) => {
               .setDescription(trimStartingIndent(`
                 ${tagUser}, here are the latest episodes on 9Anime.
 
-                You can react with the reaction below to navigate through the list of latest episodes with an image of that anime.
-
-                **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
+                **Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.
               `))
               .addFields(animeLatest.map(anime => {
                 return {
@@ -201,17 +198,28 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setColor("#5a2e98")
                 .setTitle(anime.name)
                 .setURL(anime.link)
-                .setDescription(`[${anime.episode}](${anime.link})`)
                 .setImage(anime.image)
+                .addFields(
+                  {
+                  name: "Episode",
+                  value: `[${anime.episode}](${anime.link})`,
+                  inline: true
+                  },
+                  {
+                    name: "\u200b",
+                    value: `[Watch Now](${anime.link})`,
+                    inline: true
+                  }
+                )
                 .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${animeLatest.length + 1}`, client.user.avatarURL())
                 .setTimestamp()
             );
           });
 
-          if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
+          if (isWs) wsEditReplyPage(client, message, reactDuration, authorId, embedMsgs);
           else {
             message.channel.send(embedMsgs[0]).then(async msg => {
-              pageReaction(authorId, duration, embedMsgs, msg);
+              pageReaction(authorId, reactDuration, embedMsgs, msg);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));
@@ -235,7 +243,6 @@ export const execute = async (client, message, args, isWs = false) => {
       // Anime from that season
       case "season":
         if (args.length > 0) {
-          const duration = 300000;
           let year;
           let season;
 
@@ -249,7 +256,7 @@ export const execute = async (client, message, args, isWs = false) => {
           const data = res.data;
 
           if (data?.anime && data?.anime.length > 0) {
-            const maxSize = 12;
+            const maxSize = 15
             const fieldValMaxLen = 150;
             const descMaxLen = 900;
             const animeList = data.anime.slice(0, maxSize);
@@ -260,15 +267,12 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setTitle(`${maxSize} Anime for ${data?.season_name} ${data?.season_year}`)
                 .setURL(`${malUrl}/season/${data?.season_year}/${data?.season_name}`)
                 .setDescription(trimStartingIndent(`
-                  ${tagUser}, here are ${maxSize} **${data?.season_name} ${data?.season_year}** anime.
+                  [Full List of **${data?.season_name} ${data?.season_year}** Anime](${await shortenUrl(`${malUrl}/season/${data?.season_year}/${data?.season_name}`)})
 
-                  You can react with the reaction below to navigate through the list of anime with more information.
-
-                  **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
-                  
-                  [Full List of **${data?.season_name} ${data?.season_year}** Anime](${malUrl}/season/${data?.season_year}/${data?.season_name})
+                  **Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.
                 `))
-                .addFields(animeList.map(anime => {
+                .addFields(await Promise.all(animeList.map(async anime => {
+                  const url = await shortenUrl(anime.url);
                   const synopsis = anime.synopsis.length > fieldValMaxLen ?
                     anime.synopsis.replace(/(\r\n|\n|\r)/gm, " ").substring(0, fieldValMaxLen).trimEnd() + "..." :
                     anime.synopsis.replace(/\r\n\r\n.*/gmi, "");
@@ -287,11 +291,11 @@ export const execute = async (client, message, args, isWs = false) => {
                       **__Airing Start__**
                       ${moment(anime.airing_start).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)")}
 
-                      [Read More](${anime.url})
+                      [Read More](${url})
                     `),
                     inline: true
                   }
-                }))
+                })))
                 .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${maxSize + 1}`, client.user.avatarURL())
                 .setTimestamp()
             ];
@@ -340,11 +344,11 @@ export const execute = async (client, message, args, isWs = false) => {
             });
 
             if (isWs) {
-              wsEditReplyPage(client, message, duration, authorId, embedMsgs);
+              wsEditReplyPage(client, message, reactDuration, authorId, embedMsgs);
             }
             else {
               message.channel.send(embedMsgs[0]).then(async msg => {
-                pageReaction(authorId, duration, embedMsgs, msg);
+                pageReaction(authorId, reactDuration, embedMsgs, msg);
               }).catch(e => {
                 console.log(chalk.red("\nFailed to send message"));
                 console.log(chalk.red(`${e.name}: ${e.message}`));
@@ -371,111 +375,67 @@ export const execute = async (client, message, args, isWs = false) => {
       // Defaults to anime search
       default:
         if (args?.length > 1) {
-          const maxSize = 12;
-          const fieldValMaxLen = 200;
-          const descMaxLen = 150;
-
+          const descMaxLen = 2048;
           const searchQuery = encodeURI(args?.slice(1).join(" "));
           const res = await axios.get(`${jikanUrl}/search/anime?q=${searchQuery}&page=1`);
-          const data = res.data.results;
-          const animeList = data.slice(0, maxSize);
+          const animeList = res.data.results;
 
-          const embedMsgs = [
-            new MessageEmbed()
-              .setColor("#3552A4")
-              .setTitle(`${maxSize} Anime that Matched`)
-              .setURL(`${malUrl}`)
-              .setDescription(trimStartingIndent(`
-                ${tagUser}, here are ${maxSize} anime titles that matches.
-
-                You can react with the reaction below to navigate through the list of anime with more information.
-
-                **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
-              `))
-              .addFields(animeList.map(anime => {
-                const synopsis = anime.synopsis.length > fieldValMaxLen ?
-                  anime.synopsis.replace("...", " ").substring(0, fieldValMaxLen).trimEnd() + "..." :
-                  anime.synopsis;
-
-                return {
-                  name: `${anime.title}`,
-                  value: trimStartingIndent(`
-                    ${synopsis}
-
-                    **__Type__**
-                    ${anime.type}
-
-                    **__Episodes__**
-                    ${anime.episodes}
-                    
-                    **__Start Date__**
-                    ${moment(anime.start_date).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)")}
-
-                    **__End Date__**
-                    ${!anime.airing ? `${moment(anime.end_date).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)")}\n` : "*Still Airing*"}
-
-                    [Read More](${anime.url})
-                  `),
-                  inline: true
-                }
-              }))
-              .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${maxSize + 1}`, client.user.avatarURL())
-              .setTimestamp()
-          ];
-
-          animeList.forEach((anime, i) => {
+          const embedMsgs = animeList.map((anime, i) => {
             const synopsis = anime.synopsis.length > descMaxLen ?
               anime.synopsis.replace("...", " ").substring(0, descMaxLen).trimEnd() + "..." :
               anime.synopsis;
 
-            embedMsgs.push(
-              new MessageEmbed()
-                .setColor("#3552A4")
-                .setTitle(anime.title)
-                .setURL(anime.url)
-                .setImage(anime.image_url)
-                .setDescription(trimStartingIndent(`
-                  ${synopsis}
+            return new MessageEmbed()
+              .setColor("#3552A4")
+              .setTitle(anime.title)
+              .setURL(anime.url)
+              .setImage(anime.image_url)
+              .setDescription(trimStartingIndent(`
+                ${synopsis}
 
-                  [Read More](${anime.url})
-                `))
-                .addFields(
-                  {
-                    name: "Airing",
-                    value: anime.airing ? "Yes" : "No"
-                  },
-                  {
-                    name: "Type",
-                    value: anime.type
-                  },
-                  {
-                    name: "Episodes",
-                    value: anime.episodes
-                  },
-                  {
-                    name: "Start Date",
-                    value: moment(anime.start_date).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)")
-                  },
-                  {
-                    name: "End Date",
-                    value: !anime.airing ? moment(anime.end_date).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)") : "?"
-                  },
-                  {
-                    name: "Score",
-                    value: anime.score
-                  }
-                )
-                .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${maxSize + 1}`, client.user.avatarURL())
-                .setTimestamp()
-            );
+                [Read More](${anime.url})
+              `))
+              .addFields(
+                {
+                  name: "Airing",
+                  value: anime.airing ? "Yes" : "No",
+                  inline: true
+                },
+                {
+                  name: "Type",
+                  value: anime.type,
+                  inline: true
+                },
+                {
+                  name: "Episodes",
+                  value: anime.episodes,
+                  inline: true
+                },
+                {
+                  name: "Start Date",
+                  value: moment(anime.start_date).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)"),
+                  inline: true
+                },
+                {
+                  name: "End Date",
+                  value: !anime.airing ? moment(anime.end_date).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)") : "?",
+                  inline: true
+                },
+                {
+                  name: "Score",
+                  value: anime.score
+                }
+              )
+              .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${animeList.length + 1}`, client.user.avatarURL())
+              .setTimestamp();
           });
 
           if (isWs) {
-            wsEditReplyPage(client, message, duration, authorId, embedMsgs);
+            wsEditReplyPage(client, message, reactDuration, authorId, embedMsgs);
           }
           else {
             message.channel.send(embedMsgs[0]).then(async msg => {
-              pageReaction(authorId, duration, embedMsgs, msg);
+              pageReaction(authorId, reactDuration, embedMsgs, msg);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));

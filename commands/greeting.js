@@ -11,8 +11,7 @@ export const options = [
     type: 3,
     required: true
   }
-]
-
+];
 export const execute = async (client, message, args, isWs = false) => {
   console.log(message.id);
   const data = await getAllGreetings();

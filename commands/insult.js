@@ -9,8 +9,7 @@ export const options = [
     description: "Tag a user you want to insult, leaving it blank and I will insult you instead.",
     type: 6
   }
-]
-
+];
 export const execute = async (client, message, args, isWs = false) => {
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
 

@@ -14,8 +14,7 @@ export const options = [
     description: "Command detailed help information, leave it empty for all commands information.",
     type: 3
   }
-]
-
+];
 export const execute = async (client, message, args, isWs = false) => {
   const duration = 60000;
   const authorId = message.author?.id ?? message.member?.user?.id;

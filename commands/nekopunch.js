@@ -9,8 +9,7 @@ export const options = [
     description: "Tag a user you want to Neko Punch, leaving it blank and I will Neko Punch you instead.",
     type: 6
   }
-]
-
+];
 export const execute = async (client, message, args, isWs = false) => {
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
   const nekoPunchGif = "https://media.tenor.com/images/b03ee5ecf261c9073f62dfd9d7b9bb75/tenor.gif";

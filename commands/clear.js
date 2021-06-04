@@ -10,9 +10,8 @@ export const options = [
     type: 3,
     required: true
   }
-]
+];
 export const default_permission = false;
-
 export const execute = async (client, message, args, isWs = false) => {
   const channel = isWs? await client?.channels?.fetch(message.channel_id) : message.channel;
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;

@@ -36,8 +36,7 @@ export const options = [
       }
     ]
   }
-]
-
+];
 export const execute = async (client, message, args, isWs = false) => {
   const oxfordUrl = "https://od-api.oxforddictionaries.com/api/v2"
   const urbanUrl = "https://mashape-community-urban-dictionary.p.rapidapi.com"
@@ -78,10 +77,9 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setDescription(trimStartingIndent(`
                   ${definition.definition.replace(/\[|\]/gm, "")}
                   ${definition.example && definition.example.trim().length > 0 ? trimStartingIndent(`
-                    **__Example(s)__**
+                    **Example(s)**
                     ${trimStartingIndent(definition.example.replace(/\[|\]/gm, ""))}
                   `) : ""}
-                  
                   ${data.length > 1 ? trimStartingIndent(`
                     ***Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.*
                   `) : ""}
@@ -179,11 +177,10 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setDescription(trimStartingIndent(`
                   ${definition.definition.replace(/^\w/, (c) => c.toUpperCase())}
                   ${definition.examples?.length > 0 ? trimStartingIndent(`
-                      **__Example(s)__**
+                      **Example(s)**
                       ${definition.examples?.map(example => `\u2022\u2003${example.replace(/^\w/, (c) => c.toUpperCase())}`).join("\n")}
                     `) : ""
                   }
-                  
                   ${definitions[category].length > 1 || Object.keys(definitions).length > 1 ? trimStartingIndent(`
                     ***Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.*
                   `) : ""}
