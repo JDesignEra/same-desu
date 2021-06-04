@@ -51,9 +51,6 @@ export const init = async () => {
   try {
     await Insults.truncate();
     await Insults.bulkCreate([
-      { insult: "B <user>!" },
-    ]);
-    await Insults.bulkCreate([
       {
         insult: "Orae! Bitch! FAQ <user>!",
         attachment: "Miko/bitch_faq.mp3",
