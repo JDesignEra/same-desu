@@ -58,7 +58,7 @@ export const execute = async (client, message, args, isWs = false) => {
           ${cmd.description}
 
           **Usage**
-          \u2022 ${cmd.usage.join("\n\u2022")}
+          \u2022 ${cmd.usage.join("\n\u2022 ")}
         `))
     );
   });
@@ -88,7 +88,7 @@ export const execute = async (client, message, args, isWs = false) => {
         ${detailedHelpCmd.description}
 
         **Usage**
-        \u2022 ${detailedHelpCmd.usage.join("\n\u2022")}
+        \u2022 ${detailedHelpCmd.usage.join("\n\u2022 ")}
       `));
 
     if (isWs) {

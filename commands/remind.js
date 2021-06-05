@@ -4,6 +4,7 @@ import moment from 'moment';
 import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 import { createReminder, deleteReminder, getAllReminders } from "../databases/remindersDb.js";
+import momentFormats from "../data/moment/momentFormats.js";
 
 dotenv.config();
 
@@ -39,23 +40,6 @@ export const execute = async (client, message, args, isWs = false) => {
   `);
 
   if (isWs && args.length > 0 || !isWs && args.length > 1) {
-    const momentFormat = [
-      "DD/MM/YYYY HH:mm",
-      "DD/MM/YYYY hh:mm a",
-      "DD/MM/YYYY h:mm a",
-      "DD/M/YYYY HH:mm",
-      "DD/M/YYYY hh:mm a",
-      "DD/M/YYYY h:mm a",
-      "D/MM/YYYY HH:mm",
-      "D/MM/YYYY hh:mm a",
-      "D/MM/YYYY h:mm a",
-      "D/M/YYYY HH:mm",
-      "D/M/YYYY hh:mm a",
-      "D/M/YYYY h:mm a",
-      "HH:mm",
-      "hh:mm a",
-      "h:mm a"
-    ];
     const keywords = {
       "years": ["years", "year", "yrs", "yr"],
       "months": ["months", "month", "mths", "mth"],
@@ -65,21 +49,21 @@ export const execute = async (client, message, args, isWs = false) => {
     }
     const whenArgs = isWs ? args[0].split(" ") : args;
 
-    let momentReminder = moment(`${args[0]} ${args[1]} ${args[2]} ${args[3]}`, momentFormat, true);
+    let momentReminder = moment(`${args[0]} ${args[1]} ${args[2]} ${args[3]}`, momentFormats, true);
     let whenIdx = 3;
 
     if (!momentReminder.isValid()) {
-      momentReminder = moment(`${args[0]} ${args[1]} ${args[2]}`, momentFormat, true);
+      momentReminder = moment(`${args[0]} ${args[1]} ${args[2]}`, momentFormats, true);
       whenIdx = 2;
     }
 
     if (!momentReminder.isValid()) {
-      momentReminder = moment(`${args[0]} ${args[1]}`, momentFormat, true);
+      momentReminder = moment(`${args[0]} ${args[1]}`, momentFormats, true);
       whenIdx = 1;
     }
 
     if (!momentReminder.isValid()) {
-      momentReminder = moment(args[0], momentFormat, true);
+      momentReminder = moment(args[0], momentFormats, true);
       whenIdx = 0;
     }
 

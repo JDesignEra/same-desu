@@ -74,19 +74,34 @@ export default [
     command: "remind",
     description: trimStartingIndent(`I shall remind you or a role about something.
 
-      Some valid formats for \`when\` argument are:
-      \u2022 25/12/2022 01:00 pm
-      \u2022 25/12/2022 1:00 pm
-      \u2022 25/12/2022 24:00
-      \u2022 25/12/2022 1:00
+      Valid formats for \`when\` argument are:
+      \u2022 25/12/2021 01:00 pm
+      \u2022 25/12/2021 1:00 pm
+      \u2022 25/12/2021 24:00
+      \u2022 25/12/2021 1:00
+      \u2022 25 Jun 2021 01:00 pm
+      \u2022 25 Jun 2021 1:00 pm
+      \u2022 25 Jun 2021 24:00
+      \u2022 25 Jun 2021 1:00
+      \u2022 25 June 2021 01:00 pm
+      \u2022 25 June 2021 1:00 pm
+      \u2022 25 June 2021 24:00
+      \u2022 25 June 2021 1:00
+      \u2022 25/12/2021
+      \u2022 25 Jun 2021
+      \u2022 25 June 2021
       \u2022 1:00 pm
       \u2022 24:00
       \u2022 1:00
-      \u2022 1 year
-      \u2022 2 months
-      \u2022 2 days
-      \u2022 2 hours
-      \u2022 2 minutes
+      \u2022 2 year(s)
+      \u2022 2 yr(s)
+      \u2022 2 month(s)
+      \u2022 2 mth(s)
+      \u2022 2 day(s)
+      \u2022 2 hour(s)
+      \u2022 2 hr(s)
+      \u2022 2 minute(s)
+      \u2022 2 min(s)
       \u2022 1 year 2 months 2 days 2 hours 2 minutes`),
     admin: false,
     roles: null,

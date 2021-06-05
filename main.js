@@ -1,12 +1,16 @@
 import dotenv from "dotenv";
 import chalk from "chalk";
 import fs from "fs";
+import moment from "moment";
+import "moment/locale/en-sg.js";
 import { Client, Collection, MessageAttachment } from "discord.js";
 import trimStartingIndent from "./utils/trimStartingIndent.js";
 import wsReply from "./addons/wsReply.js";
 import commands from "./data/commands.js";
 
 dotenv.config();
+
+moment.locale("en-sg");
 
 const guildId = process.env.GUILD_ID;
 const client = new Client();
