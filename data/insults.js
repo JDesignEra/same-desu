@@ -66,8 +66,8 @@ export default [
     state: true
   },
   {
-    insult: "<user>何見てんだよ、ほらあああ。",
-    attachment: "Moona/What are you looking at, horaaaaa.mp3",
+    insult: "<user> 何見てんだよ、ほらあああ。",
+    attachment: "Moona/What are you looking at, horaaaaa.m4a",
     attachmentType: "audio",
     state: true
   },
