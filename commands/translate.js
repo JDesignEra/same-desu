@@ -1,9 +1,11 @@
 import dotenv from "dotenv";
 import axios from "axios";
 import chalk from "chalk";
+import puppeteer from 'puppeteer';
 import wsPatch from "../addons/wsPatch.js";
 import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
+import puppeteerOption from "../data/puppeteer/options.js";
 import deeplLanguages from "../data/translate/deeplLanguages.js";
 import googleLanguages from "../data/translate/googleLanguages.js";
 import microsoftLanguages from "../data/translate/microsoftLanguages.js";
@@ -49,11 +51,16 @@ export const execute = async (client, message, args, isWs = false) => {
         translation = await deeplTranslate(sentence, toLang);
 
         if (!translation && !translation?.trim()) {
-          translation = await microsoftTranslate(sentence, toLang);
+          translation = await deeplWebTranslate(sentence, toLang);
 
           if (!translation && !translation?.trim()) {
-            translation = await googleTranslate(sentence, toLang);
-            sendMsg = "This is embarrassing, it seems that I am having some trouble translating it, please try again later.";
+            translation = await microsoftTranslate(sentence, toLang);
+
+            if (!translation && !translation?.trim()) {
+              translation = await googleTranslate(sentence, toLang);
+              
+              if (!translation && !translation.trim()) sendMsg = "This is embarrassing, it seems that I am having some trouble translating it, please try again later.";
+            }
           }
         }
       }
@@ -100,6 +107,33 @@ const deeplTranslate = async (sentences, toLanguage) => {
   return res?.status === 200 ? res?.data?.translations?.map(translated => translated.text).join("\n") : undefined;
 }
 
+const deeplWebTranslate = async (sentences, toLanguage) => {
+  const fromLanguage = await detectLanguage(sentences);
+  const browser = await puppeteer.launch(puppeteerOption);
+  const page = await browser.newPage();
+  let translation;
+
+  try {
+    await page.goto(`https://www.deepl.com/translator#${fromLanguage}/${toLanguage}/${sentences}`);
+    await page.waitForNavigation();
+    await page.waitForTimeout(2500)
+    
+    translation = await page.$eval("div#target-dummydiv.lmt__textarea_dummydiv", (el) => {
+      const translated = el?.innerHTML;
+
+      return translated.trim().length > 0 ? translated : undefined;
+    });
+
+    await browser.close();
+  }
+  catch (e) {
+    console.log(chalk.red("\nFailed to scrape DeepL translation."));
+    console.log(chalk.red(`${e.name}: ${e.message}`));
+  }
+
+  return translation;
+}
+
 const microsoftTranslate = async (sentences, toLanguage) => {
   const res = await axios.request({
     url: `${microsoftUrl}/translate`,
@@ -127,5 +161,14 @@ const googleTranslate = async (sentences, toLanguage) => {
   const parameters = `?client=gtx&sl=auto&tl=${toLanguage}&dt=t&q=${encodeURI(sentences)}`;
   const res = await axios.get(`${googleUrl}/translate_a/single${parameters}`);
   
-  return res.status === 200 ? res?.data[0][0][0] : undefined;
+  return res.status === 200 && res?.data[0][0][0] && res?.data[0][0][0].trim().length > 0 ?
+    res?.data[0]?.map(s => s[0]).join("") :
+    undefined;
+}
+
+const detectLanguage = async (sentences) => {
+  const parameters = `?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURI(sentences)}`;
+  const res = await axios.get(`${googleUrl}/translate_a/single${parameters}`);
+
+  return res.status === 200 && res?.data && res?.data?.length > 0 ? res?.data?.slice(-1).flat(999).slice(-1)[0] : undefined;
 }
