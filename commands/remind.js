@@ -35,6 +35,7 @@ export const execute = async (client, message, args, isWs = false) => {
   const usageMessage = trimStartingIndent(`
     **どうも ${tagUser}, サメです。**
     \u2022 Use \`/remind <when> <message> <role?>\` or tag me with \`remind <when> <message> <role?>\` to set a reminder.
+    \u2022 Use \`/help remind\` or tag me with \`help remind\` for more information about **remind** command.
   `);
 
   if (isWs && args.length > 0 || !isWs && args.length > 1) {
