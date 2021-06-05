@@ -216,7 +216,7 @@ export const execute = async (client, message, args, isWs = false) => {
               new MessageEmbed()
                 .setColor("#3552A4")
                 .setTitle(`${maxSize} Anime for ${data?.season_name} ${data?.season_year}`)
-                .setURL(`${malUrl}/season/${data?.season_year}/${data?.season_name}`)
+                .setURL(`${malUrl}/anime/season/${data?.season_year}/${data?.season_name.toLowerCase()}`)
                 .setDescription(trimStartingIndent(`
                   [Full List of **${data?.season_name} ${data?.season_year}** Anime](${await shortenUrl(`${malUrl}/season/${data?.season_year}/${data?.season_name}`)})
 
