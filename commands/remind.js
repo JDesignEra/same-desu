@@ -115,7 +115,6 @@ export const execute = async (client, message, args, isWs = false) => {
         if (minuteIdx > whenIdx) whenIdx = minuteIdx;
       }
 
-
       if (addYears > 0 || addMonths > 0 || addDays > 0 || addHours > 0 || addMinutes > 0) {
         momentReminder = moment().add({
           years: addYears,

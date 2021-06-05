@@ -381,6 +381,7 @@ export const execute = async (client, message, args, isWs = false) => {
           const animeList = res.data.results;
 
           const embedMsgs = animeList.map((anime, i) => {
+            const status = moment().isBetween(anime.start_date, anime.end_date) ? "Airing" : anime.airing ? "Not yet aired" : "No";
             const synopsis = anime.synopsis.length > descMaxLen ?
               anime.synopsis.replace("...", " ").substring(0, descMaxLen).trimEnd() + "..." :
               anime.synopsis;
@@ -397,8 +398,8 @@ export const execute = async (client, message, args, isWs = false) => {
               `))
               .addFields(
                 {
-                  name: "Airing",
-                  value: anime.airing ? "Yes" : "No",
+                  name: "Status",
+                  value: status,
                   inline: true
                 },
                 {
