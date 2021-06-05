@@ -1,10 +1,10 @@
 import chalk from "chalk";
-import { getAllCommands } from "./../databases/commandsDb.js";
 import { MessageEmbed } from "discord.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 import pageReaction from "../addons/pageReaction.js";
 import wsReply from "../addons/wsReply.js";
 import wsEditReplyPage from "../addons/wsEditReplyPage.js";
+import commands from "../data/commands.js";
 
 export const name = "help";
 export const description = "I will tell you about what I can do.";
@@ -18,14 +18,13 @@ export const options = [
 export const execute = async (client, message, args, isWs = false) => {
   const duration = 60000;
   const authorId = message.author?.id ?? message.member?.user?.id;
-  const data = await getAllCommands();
   let detailedHelpCmd = false;
 
   const embedMsgs = [
     new MessageEmbed()
       .setColor("#2576A3")
       .setTitle("COMMANDS")
-      .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${data.length + 1}`, client.user.avatarURL())
+      .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${commands.length + 1}`, client.user.avatarURL())
       .setTimestamp()
       .setDescription(trimStartingIndent(`
         Use / or tag me with \`help <Command Name>\` for more information about that command.
@@ -37,13 +36,13 @@ export const execute = async (client, message, args, isWs = false) => {
         **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
 
         **Commands**
-        ${data.map(cmd => {
+        ${commands.map(cmd => {
           return `\u2022 ${cmd.command}`;
         }).join("\n")}
       `))
   ];
 
-  data.forEach((cmd, i) => {
+  commands.forEach((cmd, i) => {
     if (args[0] && args[0] === cmd.command && args[1] !== "help") {
       detailedHelpCmd = cmd;
       return;
@@ -53,13 +52,13 @@ export const execute = async (client, message, args, isWs = false) => {
       new MessageEmbed()
         .setColor("#2576A3")
         .setTitle(cmd.command.toUpperCase())
-        .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${data.length + 1}`, client.user.avatarURL())
+        .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${commands.length + 1}`, client.user.avatarURL())
         .setTimestamp()
         .setDescription(trimStartingIndent(`
           ${cmd.description}
 
           **Usage**
-          \u2022 ${cmd.usage.replace(/::/gm, "\n\u2022 ")}
+          \u2022 ${cmd.usage.join("\n\u2022")}
         `))
     );
   });
@@ -89,7 +88,7 @@ export const execute = async (client, message, args, isWs = false) => {
         ${detailedHelpCmd.description}
 
         **Usage**
-        \u2022 ${detailedHelpCmd.usage.replace(/::/gm, "\n\u2022 ")}
+        \u2022 ${detailedHelpCmd.usage.join("\n\u2022")}
       `));
 
     if (isWs) {

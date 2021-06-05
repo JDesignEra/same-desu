@@ -1,6 +1,6 @@
 import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
-import { getAllGreetings } from "./../databases/greetingsDb.js";
+import greetings from "../data/greetings.js";
 
 export const name = "hello";
 export const description = "I shall greet you.";
@@ -13,8 +13,7 @@ export const options = [
   }
 ];
 export const execute = async (client, message, args, isWs = false) => {
-  const data = await getAllGreetings();
-  const greetingWords = data?.filter(greeting => greeting.state);
+  const greetingWords = greetings?.filter(greeting => greeting.state);
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
 
   const messageContents = message?.content ?? args[0];
