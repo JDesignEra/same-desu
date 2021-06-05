@@ -286,7 +286,7 @@ export const execute = async (client, message, args, isWs = false) => {
                       value: `**Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.`
                     }
                   ])
-                  .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${videos.length + 1}`, client.user.avatarURL())
+                  .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 1} / ${videos.length}`, client.user.avatarURL())
                   .setTimestamp()
               });
 

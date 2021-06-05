@@ -378,7 +378,7 @@ export const execute = async (client, message, args, isWs = false) => {
                   value: anime.score
                 }
               )
-              .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${animeList.length + 1}`, client.user.avatarURL())
+              .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 1} / ${animeList.length}`, client.user.avatarURL())
               .setTimestamp();
           });
 
