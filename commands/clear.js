@@ -43,7 +43,7 @@ export const execute = async (client, message, args, isWs = false) => {
         console.log(chalk.red("Failed to bulk delete messages."));
         console.log(chalk.red(`${e.name}: ${e.message}\n`));
       }
-    } while (amt === "all" ? deleted.size < 1 : deletedCount < amt);
+    } while (amt === "all" ? deleted?.size < 1 : deletedCount < amt);
 
     channel.send(`${tagUser}, I have deleted ${isNaN(amt) ? amt : isWs ? amt - 1 : amt - 2} messages.`);
   }

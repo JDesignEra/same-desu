@@ -130,6 +130,7 @@ export const execute = async (client, message, args, isWs = false) => {
         if (minuteIdx > whenIdx) whenIdx = minuteIdx;
       }
 
+
       if (addYears > 0 || addMonths > 0 || addDays > 0 || addHours > 0 || addMinutes > 0) {
         momentReminder = moment().add({
           years: addYears,
@@ -139,15 +140,16 @@ export const execute = async (client, message, args, isWs = false) => {
           minutes: addMinutes
         });
       }
-      else {
-        if (isWs) wsReply(client, message, usageMessage);
-        else message.channel.send(usageMessage);
-      }
+      else momentReminder = undefined;
     }
 
     const momentNow = moment();
 
-    if (momentNow.isSameOrAfter(momentReminder.format())) {
+    if (momentReminder === undefined || momentReminder === null) {
+      if (isWs) wsReply(client, message, usageMessage);
+      else message.channel.send(usageMessage);
+    }
+    else if (momentNow.isSameOrAfter(momentReminder.format())) {
       if (isWs) wsReply(client, message, `\`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`)
       else message.channel.send(`${tagUser}, \`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`);
     }
