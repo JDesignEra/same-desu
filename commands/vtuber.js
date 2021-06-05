@@ -272,7 +272,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 if (vid.channel_url && vid.channel_name) fields.push({name: "YouTube Channel", value: `[${vid.channel_name}](${vid.channel_url})`});
 
                 return new MessageEmbed()
-                  .setColor("#2576A3")
+                  .setColor("#FF0000")
                   .setTitle(trimStartingIndent(vid.title))
                   .setURL(vid.url ? vid.url : "")
                   .setThumbnail(vid.photo)
