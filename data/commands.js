@@ -89,6 +89,7 @@ export default [
       \u2022 2 minutes
       \u2022 1 year 2 months 2 days 2 hours 2 minutes`),
     admin: false,
+    roles: null,
     usage: [
       "`remind <when> <message>` - I shall remind you about something with a DM.",
       "`remind <when> <message> <role>` - I shall remind a role about something."
