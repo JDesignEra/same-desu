@@ -67,27 +67,33 @@ export const execute = async (client, message, args, isWs = false) => {
     let momentReminder = moment(`${args[0]} ${args[1]} ${args[2]} ${args[3]}`, momentFormat, true);
     let whenIdx = 3;
 
+    console.log(`1 ${momentReminder.format()}: ${!momentReminder.isValid()}`);
     if (!momentReminder.isValid()) {
       momentReminder = moment(`${args[0]} ${args[1]} ${args[2]}`, momentFormat, true);
       whenIdx = 2;
     }
 
+    console.log(`2 ${momentReminder.format()}: ${!momentReminder.isValid()}`);
     if (!momentReminder.isValid()) {
       momentReminder = moment(`${args[0]} ${args[1]}`, momentFormat, true);
       whenIdx = 1;
     }
 
+    console.log(`3 ${momentReminder.format()}: ${!momentReminder.isValid()}`);
     if (!momentReminder.isValid()) {
       momentReminder = moment(args[0], momentFormat, true);
       whenIdx = 0;
     }
 
+    console.log(`4 ${momentReminder.format()}: ${!momentReminder.isValid()}`);
     if (!momentReminder.isValid()) {
       let addYears = 0;
       let addMonths = 0;
       let addDays = 0;
       let addHours = 0;
       let addMinutes = 0;
+
+      console.log(`5 ${momentReminder.format()}: ${!momentReminder.isValid()}`);
       
       const yearIdx = whenArgs.findIndex(arg => keywords.years?.filter(key => arg.includes(key)).length > 0);
       const monthIdx = whenArgs.findIndex(arg => keywords.months?.filter(key => arg.includes(key)).length > 0);
@@ -130,6 +136,13 @@ export const execute = async (client, message, args, isWs = false) => {
         if (minuteIdx > whenIdx) whenIdx = minuteIdx;
       }
 
+      console.log(`years: ${addYears}`);
+      console.log(`months: ${addMonths}`);
+      console.log(`days: ${addDays}`);
+      console.log(`hours: ${addHours}`);
+      console.log(`minutes: ${addMinutes}`);
+
+
       if (addYears > 0 || addMonths > 0 || addDays > 0 || addHours > 0 || addMinutes > 0) {
         momentReminder = moment().add({
           years: addYears,
@@ -139,19 +152,21 @@ export const execute = async (client, message, args, isWs = false) => {
           minutes: addMinutes
         });
       }
-      else {
-        if (isWs) wsReply(client, message, usageMessage);
-        else message.channel.send(usageMessage);
-      }
+      else momentReminder = undefined;
     }
 
     const momentNow = moment();
 
-    if (momentNow.isSameOrAfter(momentReminder.format())) {
+    if (momentReminder === undefined || momentReminder === null) {
+      if (isWs) wsReply(client, message, usageMessage);
+      else message.channel.send(usageMessage);
+    }
+    else if (momentNow.isSameOrAfter(momentReminder.format())) {
       if (isWs) wsReply(client, message, `\`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`)
       else message.channel.send(`${tagUser}, \`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`);
     }
     else {
+      console.log("else");
       const roleId = isWs ? args[2] ?? null : /^<@&\d+>$/g.test(whenArgs[whenArgs.length - 1]) ? whenArgs[whenArgs.length - 1].slice(3, -1) : null;
       const reminderMsg = isWs ? args[1] : whenArgs.slice(whenIdx + 1, roleId ? -1 : whenArgs.length).join(" ");
       const channelId = roleId ? isWs ? message.channel_id : message.channel.id : null;
