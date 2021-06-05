@@ -1,5 +1,11 @@
 export default [
   {
+    insult: "You're too small <user>.",
+    attachment: "Gura/You're too small.mp3",
+    attachmentType: "audio",
+    state: true
+  },
+  {
     insult: "Orae! Bitch! FAQ <user>!",
     attachment: "Miko/Bitch! FAQ!.mp3",
     attachmentType: "audio",
@@ -60,6 +66,12 @@ export default [
     state: true
   },
   {
+    insult: "<user>何見てんだよ、ほらあああ。",
+    attachment: "Moona/What are you looking at, horaaaaa.mp3",
+    attachmentType: "audio",
+    state: true
+  },
+  {
     insult: "ばか！おおおおおーうう、ばか、ばか <user>。",
     attachment: "Pekora/Idiot! Ohhhhhhh, idiot, idiot.wav",
     attachmentType: "audio",
@@ -86,12 +98,6 @@ export default [
   {
     insult: "<user> おまえあとで、体育館の裏に来いよ。ボコボコにしてやっからな。",
     attachment: "Pekora/You come to the back of the gym later. I'm gonna beat the shit out of you.mp3",
-    attachmentType: "audio",
-    state: true
-  },
-  {
-    insult: "You're too small <user>.",
-    attachment: "Gura/You're too small.mp3",
     attachmentType: "audio",
     state: true
   }
