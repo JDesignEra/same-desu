@@ -218,7 +218,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setTitle(`${maxSize} Anime for ${data?.season_name} ${data?.season_year}`)
                 .setURL(`${malUrl}/anime/season/${data?.season_year}/${data?.season_name.toLowerCase()}`)
                 .setDescription(trimStartingIndent(`
-                  [Full List of **${data?.season_name} ${data?.season_year}** Anime](${await shortenUrl(`${malUrl}/season/${data?.season_year}/${data?.season_name}`)})
+                  [Full List of **${data?.season_name} ${data?.season_year}** Anime](${await shortenUrl(`${malUrl}/anime/season/${data?.season_year}/${data?.season_name.toLowerCase()}`)})
 
                   **Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.
                 `))
