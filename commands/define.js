@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import axios from "axios";
 import chalk from "chalk";
 import { MessageEmbed } from "discord.js";
@@ -6,6 +7,8 @@ import wsEditReplyPage from "../addons/wsEditReplyPage.js";
 import wsPatch from "../addons/wsPatch.js";
 import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
+
+dotenv.config();
 
 export const name = "define";
 export const description = "I will get the definitions of that word.";
@@ -58,7 +61,7 @@ export const execute = async (client, message, args, isWs = false) => {
       const word = args[1];
       const res = await axios.get(`${urbanUrl}/define?term=${word}`, {
         headers: {
-          "x-rapidapi-key": "c323cf37afmsh6b084d8dec30f42p17981ajsne76728201303",
+          "x-rapidapi-key": process.env.RAPID_API_KEY,
           "useQueryString": true
         }
       });

@@ -4,7 +4,7 @@ import fs from "fs";
 import { Client, Collection, MessageAttachment } from "discord.js";
 import trimStartingIndent from "./utils/trimStartingIndent.js";
 import wsReply from "./addons/wsReply.js";
-import { getCommandAdmin, getCommandRoles } from "./databases/commandsDb.js";
+import commands from "./data/commands.js";
 
 dotenv.config();
 
@@ -106,11 +106,10 @@ client.ws.on("INTERACTION_CREATE", async interaction => {
     chalk.green.bold(`${member?.user?.username}#${member?.user?.discriminator}: `) +
     chalk.cyan(`\/${command} ${args.join(" ")}`)
   );
-
-  const reqAdmin = await getCommandAdmin(command);
+  
+  const reqAdmin = commands.find(cmd => cmd.command === command).admin;
   const userRoles = member?.roles ?? [];
-  let cmdRoles = await getCommandRoles(command);
-  cmdRoles = cmdRoles?.split("::") ?? cmdRoles;
+  const cmdRoles = commands.find(cmd => cmd.command === command).roles;
 
   if (!reqAdmin && cmdRoles == null ||
     !reqAdmin && cmdRoles && userRoles.length > 0 && userRoles.filter(roleId => cmdRoles?.indexOf(roleId) > -1) ||
@@ -130,7 +129,7 @@ client.on("message", async message => {
   if (message.author.bot || message.content.includes("@here") || message.content.includes("@everyone") || message.author.bot) return;
 
   if (message.mentions.has(client.user.id)) {
-    const commands = client.commands.map(cmd => cmd.name);
+    const cmds = client.commands.map(cmd => cmd.name);
     const msg = message.content.slice(client.user.id.length + 4);
     let command;
     let args = [];
@@ -141,7 +140,7 @@ client.on("message", async message => {
     let idx;
 
     for (let i = 0; i < possibleArgs.length && idx == null; i++) {
-      if (commands.indexOf(possibleArgs[i]) > -1) {
+      if (cmds.indexOf(possibleArgs[i]) > -1) {
         idx = i;
       }
     }
@@ -152,10 +151,8 @@ client.on("message", async message => {
     }
 
     if (command) {
-      const reqAdmin = await getCommandAdmin(command);
-
-      let cmdRoles = await getCommandRoles(command);
-      cmdRoles = cmdRoles?.split("::") ?? cmdRoles;
+      const reqAdmin = commands.find(cmd => cmd.command === command).admin;
+      const cmdRoles = commands.find(cmd => cmd.command === command).roles;
 
       let userRoles = message.member?.roles?.cache;
 

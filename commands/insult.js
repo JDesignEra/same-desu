@@ -1,7 +1,7 @@
 import { MessageAttachment } from "discord.js";
 import wsDelReply from "../addons/wsDelReply.js";
 import wsReply from "../addons/wsReply.js";
-import { getAllInsults } from "../databases/insultsDb.js";
+import insults from "../data/insults.js";
 
 export const name = "insult";
 export const description = "I shall insult someone for you or yourself.";
@@ -14,8 +14,6 @@ export const options = [
 ];
 export const execute = async (client, message, args, isWs = false) => {
   const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
-
-  const insults = await getAllInsults();
 
   const randomInt = Math.floor(Math.random() * insults.length);
   let insult;
@@ -32,13 +30,13 @@ export const execute = async (client, message, args, isWs = false) => {
 
   if (insults[randomInt]?.attachmentType === "audio") attachment = `./static/audios/${insults[randomInt]?.attachment}`
 
+  const filename = `${insult.replace(/<@\d+>/gm, "")}.${attachment.split(".").slice(-1)[0]}`
+
   if (isWs) {
     wsReply(client, message, insult, null, 5);
     wsDelReply(client, message);
 
-    client.channels.cache.get(message.channel_id).send(insult, new MessageAttachment(attachment));
+    client.channels.cache.get(message.channel_id).send(insult, new MessageAttachment(attachment, filename));
   }
-  else {
-    message.channel.send(insult, new MessageAttachment(attachment));
-  }
+  else message.channel.send(insult, new MessageAttachment(attachment, filename));
 }

@@ -13,4 +13,4 @@ export default {
   "ru": "Russian",
   "sb": "Swedish",
   "zh": "Chinese"
-}
+};

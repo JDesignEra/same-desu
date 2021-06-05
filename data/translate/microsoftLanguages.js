@@ -1,5 +1,4 @@
 export default {
-  "zh" : "Chinese",
   "nl" : "Dutch",
   "en" : "English",
   "fr" : "French",
@@ -16,7 +15,6 @@ export default {
   "ru" : "Russian",
   "es" : "Spanish",
   "sv" : "Swedish",
-  "tl" : "Tagalog",
   "ta" : "Tamil",
   "th" : "Thai",
   "vi" : "Vietnamese"
