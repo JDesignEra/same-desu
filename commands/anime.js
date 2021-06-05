@@ -240,7 +240,7 @@ export const execute = async (client, message, args, isWs = false) => {
                       ${anime.episodes}
                       
                       **__Airing Start__**
-                      ${moment(anime.airing_start).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)")}
+                      ${moment(anime.airing_start).utcOffset("+0800").format("D MMM YYYY [at] h:mm a (Z)")}
 
                       [Read More](${url})
                     `),
@@ -278,7 +278,7 @@ export const execute = async (client, message, args, isWs = false) => {
                     },
                     {
                       name: "Start Date",
-                      value: moment(anime.airing_start).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)")
+                      value: moment(anime.airing_start).utcOffset("+0800").format("D MMM YYYY [at] h:mm a (Z)")
                     },
                     {
                       name: "Genres",
@@ -365,12 +365,12 @@ export const execute = async (client, message, args, isWs = false) => {
                 },
                 {
                   name: "Start Date",
-                  value: moment(anime.start_date).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)"),
+                  value: moment(anime.start_date).utcOffset("+0800").format("D MMM YYYY [at] h:mm a (Z)"),
                   inline: true
                 },
                 {
                   name: "End Date",
-                  value: !anime.airing ? moment(anime.end_date).utcOffset("+0800").format("D/MMM/YYYY [at] h:mm a (Z)") : "?",
+                  value: !anime.airing ? moment(anime.end_date).utcOffset("+0800").format("D MMM YYYY [at] h:mm a (Z)") : "?",
                   inline: true
                 },
                 {
