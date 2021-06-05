@@ -207,13 +207,13 @@ const sendReminder = async (client, authorId, message, dateTime, roleId, channel
     .setDescription(roleId && channelId ? `<@&${roleId}>, ${message}` : message)
     .addFields({
       name: "Created by",
-      value: client.users.cache.get(authorId).toString()
+      value: client.users.cache.get(authorId)?.toString() ?? "\u200b"
     })
     .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
     .setTimestamp();
 
-  if (roleId && channelId) client.channels.cache.get(channelId).send(embedMsg);
-  else client.users.cache.get(authorId).send(embedMsg);
+  if (roleId && channelId) client.channels.cache.get(channelId)?.send(embedMsg);
+  else client.users.cache.get(authorId)?.send(embedMsg);
 
   deleteReminder(authorId, message, dateTime, roleId, channelId);
 }

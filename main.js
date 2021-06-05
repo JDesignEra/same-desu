@@ -111,7 +111,7 @@ client.ws.on("INTERACTION_CREATE", async interaction => {
   const userRoles = member?.roles ?? [];
   const cmdRoles = commands.find(cmd => cmd.command === command).roles;
 
-  if (!reqAdmin && cmdRoles == null ||
+  if (!reqAdmin && !cmdRoles ||
     !reqAdmin && cmdRoles && userRoles.length > 0 && userRoles.filter(roleId => cmdRoles?.indexOf(roleId) > -1) ||
     reqAdmin && client.guilds.cache.get(interaction.guild_id).member(interaction.member.user.id).hasPermission("ADMINISTRATOR")) {
     await client.commands.get(command).execute(client, interaction, args, true);
@@ -156,7 +156,7 @@ client.on("message", async message => {
 
       let userRoles = message.member?.roles?.cache;
 
-      if (!reqAdmin && cmdRoles === null ||
+      if (!reqAdmin && !cmdRoles ||
         !reqAdmin && cmdRoles && userRoles.size > 0 && userRoles.find(role => cmdRoles.indexOf(role.id) > -1) ||
         reqAdmin && message.member.hasPermission("ADMINISTRATOR")) {
         client.commands.get(command)?.execute(client, message, args);
