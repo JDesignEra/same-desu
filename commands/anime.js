@@ -237,7 +237,7 @@ export const execute = async (client, message, args, isWs = false) => {
                       ${anime.type}
 
                       **__Episodes__**
-                      ${anime.episodes}
+                      ${anime.episodes ?? "TBA"}
                       
                       **__Airing Start__**
                       ${moment(anime.airing_start).utcOffset("+0800").format("D MMM YYYY [at] h:mm a (Z)")}
@@ -274,7 +274,7 @@ export const execute = async (client, message, args, isWs = false) => {
                     },
                     {
                       name: "Episodes",
-                      value: anime.episodes
+                      value: anime.episodes ?? "TBD"
                     },
                     {
                       name: "Start Date",
@@ -360,7 +360,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 },
                 {
                   name: "Episodes",
-                  value: anime.episodes,
+                  value: anime.episodes === 0 && !moment().isBetween(anime.start_date, anime.end_date) ? "TBD" : anime.episode,
                   inline: true
                 },
                 {
