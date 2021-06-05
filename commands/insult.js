@@ -29,8 +29,8 @@ export const execute = async (client, message, args, isWs = false) => {
   }
 
   if (insults[randomInt]?.attachmentType === "audio") attachment = `./static/audios/${insults[randomInt]?.attachment}`
-
-  const filename = `${insult.replace(/<@\d+>/gm, "")}.${attachment.split(".").slice(-1)[0]}`
+  
+  const filename = `${insults[randomInt]?.attachment.split("/")[0]} ${insults[randomInt]?.attachment.split("/").slice(-1)[0]}`;
 
   if (isWs) {
     wsReply(client, message, insult, null, 5);
