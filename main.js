@@ -118,7 +118,7 @@ client.once("ready", async () => {
     client.setInterval(() => {
       // Rotate bot activity message 
       client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE })
-    })
+    }, 60000);
   });
 });
 
