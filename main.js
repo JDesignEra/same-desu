@@ -110,6 +110,15 @@ client.once("ready", async () => {
         command.setPermissions([...new Map([...permissionUsers, ...permissionRoles].map(permission => [permission.id, permission])).values()]);
       });
     }
+
+    // Check & send reminders Interval every 15 secs
+    client.commands.get("remind").initSendRemindersInterval(client);
+
+    // Interval every min
+    client.setInterval(() => {
+      // Rotate bot activity message 
+      client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE })
+    })
   });
 });
 
