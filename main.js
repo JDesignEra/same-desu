@@ -89,6 +89,12 @@ client.once("ready", async () => {
               });
             }
           });
+
+          permissionUsers.push({
+            id: client.guilds.cache.get(guildId).ownerID,
+            type: "USER",
+            permission: true
+          });
         }
 
         if (cmdRoles) {
@@ -100,8 +106,8 @@ client.once("ready", async () => {
             });
           });
         }
-
-        command.setPermissions([...permissionRoles, ...permissionUsers]);
+        
+        command.setPermissions([...new Map([...permissionUsers, ...permissionRoles].map(permission => [permission.id, permission])).values()]);
       });
     }
   });
