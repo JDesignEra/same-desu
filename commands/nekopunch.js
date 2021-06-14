@@ -1,6 +1,3 @@
-import { MessageAttachment, MessageEmbed } from "discord.js";
-import wsReply from "../addons/wsReply.js";
-
 export const name = "nekopunch";
 export const description = "I will Neko Punch you or someone.";
 export const options = [
@@ -10,29 +7,20 @@ export const options = [
     type: 6
   }
 ];
-export const execute = async (client, message, args, isWs = false) => {
-  const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
-  const nekoPunchGif = "https://i.imgur.com/YSw5ywc.gif";
+export const execute = async (client, interaction, args, isWs = false) => {
+  const tagUser = interaction.author?.toString() ?? `<@${interaction.member.user.id.toString()}>`;
+  const files = [{
+    attachment: `./static/images/Neko Punch.gif`,
+    name: "Neko Punch.gif"
+  }];
   let nekoPunchMsg = "**Neko Punch** <user>!";
   
-  if (message.mentions?.users?.size > 1) {
-    const users = message?.mentions?.users?.filter(user => user != client.user.id);
+  if (interaction.mentions?.users?.size > 1) {
+    const users = interaction?.mentions?.users?.filter(user => user != client.user.id);
     nekoPunchMsg = nekoPunchMsg.replace("<user>", users.map(u => u.toString()).join(" "));
   }
-  else {
-    nekoPunchMsg = nekoPunchMsg.replace("<user>", isWs && args[0] ? `<@${args[0]}>` : tagUser);
-  }
+  else nekoPunchMsg = nekoPunchMsg.replace("<user>", isWs && args[0] ? `<@${args[0]}>` : tagUser);
 
-  if (isWs) {
-    const attachment = new MessageEmbed()
-      .setColor("#2576A3")
-      .setImage(nekoPunchGif)
-      .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
-      .setTimestamp();
-
-    wsReply(client, message, nekoPunchMsg, attachment);
-  }
-  else {
-    message.channel.send(nekoPunchMsg, new MessageAttachment(nekoPunchGif));
-  }
+  if (isWs) interaction.reply({ content: nekoPunchMsg, files });
+  else interaction.channel.send({ content: nekoPunchMsg, files });
 }

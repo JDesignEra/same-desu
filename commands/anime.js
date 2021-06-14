@@ -5,11 +5,9 @@ import moment from "moment";
 import puppeteer from 'puppeteer';
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 import shortenUrl from "../utils/shortenUrl.js";
-import wsReply from "../addons/wsReply.js";
 import pageReaction from "../addons/pageReaction.js";
-import wsEditReplyPage from "../addons/wsEditReplyPage.js";
-import wsPatch from "../addons/wsPatch.js";
 import puppeteerOpt from "../data/puppeteer/options.js";
+import wsPageReaction from "../addons/wsPageReaction.js";
 
 const nineAnimeUrl = "https://9anime.to";
 const jikanUrl = "https://api.jikan.moe/v3";
@@ -73,9 +71,9 @@ export const options = [
     type: 1
   }
 ];
-export const execute = async (client, message, args, isWs = false) => {
-  const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
-  const authorId = message.author?.id ?? message.member?.user?.id;
+export const execute = async (client, interaction, args, isWs = false) => {
+  const tagUser = interaction.author?.toString() ?? `<@${interaction.member.user.id.toString()}>`;
+  const authorId = interaction.author?.id ?? interaction.member?.user?.id;
   const argument = args[0] ?? null;
   const usageMessage = trimStartingIndent(`
     **どうも ${tagUser}, サメです。**
@@ -85,13 +83,11 @@ export const execute = async (client, message, args, isWs = false) => {
   `);
 
   if (args.length > 0) {
-    if (isWs) {
-      await wsReply(client, message, `${tagUser} please wait, I am retrieving it now.`, null, 5);
-    }
+    if (isWs) interaction.defer();
     else {
-      message.delete();
+      interaction.delete();
 
-      message.channel.send(`${tagUser} please wait, I am retrieving it now.`).then(msg => {
+      interaction.channel.send(`${tagUser} please wait, I am retrieving it now.`).then(msg => {
         msg?.delete({ timeout: 30000 });
       });
     }
@@ -101,6 +97,8 @@ export const execute = async (client, message, args, isWs = false) => {
 
     switch (argument) {
       case "latest":
+        const retrieveErrorMsg = `${tagUser} this is embarrassing, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`;
+
         try {
           await page.goto(`${nineAnimeUrl}/updated`);
           await page.waitForNavigation();
@@ -167,14 +165,14 @@ export const execute = async (client, message, args, isWs = false) => {
             );
           });
 
-          if (isWs) wsEditReplyPage(client, message, reactDuration, authorId, embedMsgs);
+          if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
           else {
-            message.channel.send(embedMsgs[0]).then(async msg => {
-              pageReaction(authorId, reactDuration, embedMsgs, msg);
+            interaction.channel?.send({embeds: [embedMsgs[0]]}).then(async msg => {
+              pageReaction(msg, authorId, reactDuration, embedMsgs);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));
-              message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
+              interaction.channel.send(retrieveErrorMsg);
             });
           }
         }
@@ -182,12 +180,8 @@ export const execute = async (client, message, args, isWs = false) => {
           console.log(chalk.red("\nFailed to get latest anime."));
           console.log(chalk.red(`${e.name}: ${e.message}`));
 
-          if (isWs) {
-            wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
-          }
-          else {
-            message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the latest episodes of anime, please kindly try again later.`);
-          }
+          if (isWs) interaction.followUp(retrieveErrorMsg);
+          else interaction.channel.send(retrieveErrorMsg);
         }
         break;
 
@@ -205,6 +199,7 @@ export const execute = async (client, message, args, isWs = false) => {
           const parameter = year && season ? `/${year}/${season}` : "";
           const res = await axios.get(`${jikanUrl}/season${parameter}`);
           const data = res.data;
+          const retrieveErrorMsg = `${tagUser} this is embarrassing, it seems that I am having trouble getting anime from that season, please kindly try again later.`;
 
           if (data?.anime && data?.anime.length > 0) {
             const maxSize = 15
@@ -274,7 +269,7 @@ export const execute = async (client, message, args, isWs = false) => {
                     },
                     {
                       name: "Episodes",
-                      value: anime.episodes ?? "TBD"
+                      value: anime.episodes?.toString() ?? "TBD"
                     },
                     {
                       name: "Start Date",
@@ -282,11 +277,11 @@ export const execute = async (client, message, args, isWs = false) => {
                     },
                     {
                       name: "Genres",
-                      value: anime.episodes
+                      value: anime.genres.map(genre => genre.name).join(", ")
                     },
                     {
                       name: "Score",
-                      value: anime.score
+                      value: anime.score.toString()
                     }
                   )
                   .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${maxSize + 1}`, client.user.avatarURL())
@@ -294,28 +289,22 @@ export const execute = async (client, message, args, isWs = false) => {
               );
             });
 
-            if (isWs) {
-              wsEditReplyPage(client, message, reactDuration, authorId, embedMsgs);
-            }
+            if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
             else {
-              message.channel.send(embedMsgs[0]).then(async msg => {
-                pageReaction(authorId, reactDuration, embedMsgs, msg);
+              interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
+                pageReaction(msg, authorId, reactDuration, embedMsgs);
               }).catch(e => {
                 console.log(chalk.red("\nFailed to send message"));
                 console.log(chalk.red(`${e.name}: ${e.message}`));
-                message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
+                interaction.channel.send();
               });
             }
           }
-          else if (isWs) {
-            wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
-          }
-          else {
-            message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting anime from that season, please kindly try again later.`);
-          }
+          else if (isWs) interaction.followUp(retrieveErrorMsg);
+          else interaction.channel.send(retrieveErrorMsg);
         }
         else {
-          message.channel.send(trimStartingIndent(`
+          interaction.channel.send(trimStartingIndent(`
             **どうも ${tagUser}, サメです。**
             Use \`/anime season\` or me with \`anime season\` to get the current season of anime.
             To get a specific season's of anime use \`/anime season <year> <season>\` or tag me with \`anime season <year> <season>\`.
@@ -325,6 +314,11 @@ export const execute = async (client, message, args, isWs = false) => {
 
       // Defaults to anime search
       default:
+        const searchUsageMsg = trimStartingIndent(`
+          **どうも ${tagUser}, サメです。**
+          Use \`/anime <Anime Name>\` or tag me with \`anime <Anime Name>\` to search for an anime.
+        `);
+
         if (args?.length > 1) {
           const descMaxLen = 2048;
           const searchQuery = encodeURI(args?.slice(1).join(" "));
@@ -360,7 +354,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 },
                 {
                   name: "Episodes",
-                  value: anime.episodes === 0 && !moment().isBetween(anime.start_date, anime.end_date) ? "TBD" : anime.episode,
+                  value: anime.episodes === 0 && !moment().isBetween(anime.start_date, anime.end_date) ? "TBD" : anime.episodes?.toString(),
                   inline: true
                 },
                 {
@@ -375,41 +369,29 @@ export const execute = async (client, message, args, isWs = false) => {
                 },
                 {
                   name: "Score",
-                  value: anime.score
+                  value: anime.score?.toString()
                 }
               )
               .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 1} / ${animeList.length}`, client.user.avatarURL())
               .setTimestamp();
           });
 
-          if (isWs) {
-            wsEditReplyPage(client, message, reactDuration, authorId, embedMsgs);
-          }
+          if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
           else {
-            message.channel.send(embedMsgs[0]).then(async msg => {
-              pageReaction(authorId, reactDuration, embedMsgs, msg);
+            interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
+              pageReaction(msg, authorId, reactDuration, embedMsgs);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));
-              message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble finding an anime with that name, please kindly try again later.`);
+              interaction.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble finding an anime with that name, please kindly try again later.`);
             });
           }
         }
-        else if (isWs) {
-          wsPatch(client, message, trimStartingIndent(`
-            **どうも ${tagUser}, サメです。**
-            Use \`/anime <Anime Name>\` or tag me with \`anime <Anime Name>\` to search for an anime.
-          `));
-        }
-        else {
-          message.channel.send(trimStartingIndent(`
-            **どうも ${tagUser}, サメです。**
-            Use \`/anime <Anime Name>\` or tag me with \`anime <Anime Name>\` to search for an anime.
-          `));
-        }
+        else if (isWs) interaction.followUp(searchUsageMsg);
+        else interaction.channel.send(searchUsageMsg);
         break;
     }
   }
-  else if (isWs) wsPatch(client, message, usageMessage);
-  else message.channel.send(usageMessage);
+  else if (isWs) interaction.followUp(usageMessage);
+  else interaction.channel.send(usageMessage);
 }
