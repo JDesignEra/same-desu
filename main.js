@@ -1,11 +1,9 @@
-import dotenv from "dotenv";
+import { Client, Collection, Intents } from "discord.js";
 import chalk from "chalk";
+import dotenv from "dotenv"
 import fs from "fs";
-import moment from "moment";
-import "moment/locale/en-sg.js";
-import { Client, Collection, MessageAttachment } from "discord.js";
+import moment from "moment-timezone";
 import trimStartingIndent from "./utils/trimStartingIndent.js";
-import wsReply from "./addons/wsReply.js";
 import commands from "./data/commands.js";
 
 dotenv.config();
@@ -13,15 +11,8 @@ dotenv.config();
 moment.locale("en-sg");
 
 const guildId = process.env.GUILD_ID;
-const client = new Client();
+const client = new Client({ intents: Intents.ALL });
 client.commands = new Collection();
-
-const getApp = (guildId) => {
-  const app = client.api.applications(client.user.id)
-  if (guildId) app.guilds(guildId);
-
-  return app;
-}
 
 fs.readdir("./commands/", (e, files) => {
   if (e) console.log(chalk.red.bold(`${e.name}: `) + chalk.red(e.message));
@@ -63,37 +54,70 @@ client.once("ready", async () => {
     const data = {};
 
     if (cmd.name) {
+      const reqAdmin = commands.find(c => c.command === cmd.name).admin;
+      const cmdRoles = commands.find(c => c.command === cmd.name).roles;
+
       data.name = cmd.name;
       data.description = cmd.description ?? "サメです";
 
       if (cmd.options) data.options = cmd.options;
-      if (cmd.default_permission) data.default_permission = cmd.default_permission;
+      if (cmd.defaultPermission != null || reqAdmin || cmdRoles) data.defaultPermission = cmd.defaultPermission ?? false;
 
-      getApp(guildId).commands.post({ data: data });
+      const commandManger = guildId ? (await client.guilds.fetch(guildId)).commands : client.application.commands;
+      
+      commandManger.create(data).then(command => {
+        const permissionRoles = [];
+        const permissionUsers = [];
+
+        if (reqAdmin) {
+          client.guilds.cache.get(guildId).roles.cache.forEach(async role => {
+            if (role.permissions.has("ADMINISTRATOR")) {
+              permissionRoles.push({
+                id: role.id,
+                type: "ROLE",
+                permission: true
+              });
+            }
+          });
+
+          client.guilds.cache.get(guildId).members.cache.forEach(async user => {
+            if (user.permissions.has("ADMINISTRATOR")) {
+              permissionUsers.push({
+                id: user.id,
+                type: "USER",
+                permission: true
+              });
+            }
+          });
+        }
+
+        if (cmdRoles) {
+          cmdRoles.forEach(roleId => {
+            permissionRoles.push({
+              id: roleId,
+              type: "ROLE",
+              permission: true
+            });
+          });
+        }
+
+        command.setPermissions([...permissionRoles, ...permissionUsers]);
+      });
     }
   });
-
-  // Check & send reminders Interval every 15 secs
-  client.commands.get("remind").initSendRemindersInterval(client);
-
-  // Interval every min
-  client.setInterval(() => {
-    // Rotate bot activity message 
-    client.user.setActivity(activityStatuses[Math.floor(Math.random() * activityStatuses.length)], { type: process.env.STATUS_TYPE })
-  }, 60000);
 });
 
 // Slash Commands
-client.ws.on("INTERACTION_CREATE", async interaction => {
+client.on("interaction", async interaction => {
   const member = interaction.member;
-  const { name, options } = interaction.data
-  const command = name.toLowerCase();
+  const { commandName, options } = interaction;
+  const command = commandName.toLowerCase();
   var args = [];
 
   const buildArgs = (obj) => {
     if (obj?.name && !obj.value) args.push(obj.name);
     if (obj?.value) args.push(obj.value);
-    if (obj?.options?.length < 1) return;
+    if (obj?.options?.size < 1) return;
 
     if (Array.isArray(obj)) {
       obj.forEach(option => buildArgs(option));
@@ -103,7 +127,9 @@ client.ws.on("INTERACTION_CREATE", async interaction => {
     }
   }
 
-  buildArgs(options);
+  options.each(option => {
+    buildArgs(option);
+  });
 
   console.log(
     chalk.magenta.bold("WS > ") +
@@ -117,11 +143,11 @@ client.ws.on("INTERACTION_CREATE", async interaction => {
 
   if (!reqAdmin && !cmdRoles ||
     !reqAdmin && cmdRoles && userRoles.length > 0 && userRoles.filter(roleId => cmdRoles?.indexOf(roleId) > -1) ||
-    reqAdmin && client.guilds.cache.get(interaction.guild_id).member(interaction.member.user.id).hasPermission("ADMINISTRATOR")) {
+    reqAdmin && client.guilds.cache.get(interaction.guildID).members.cache.get(interaction.user.id).permissions.has("ADMINISTRATOR")) {
     await client.commands.get(command).execute(client, interaction, args, true);
   }
   else {
-    wsReply(client, interaction, trimStartingIndent(`
+    interaction.reply(trimStartingIndent(`
       <@${interaction.member.user.id.toString()}> 申し訳ありませんが、その許可はありません。
       Sorry, you do not have that permission.
     `));
@@ -175,10 +201,16 @@ client.on("message", async message => {
     else {
       if (!await client.commands.get("hello").execute(client, message, args)) {
         if (/good bot/gmi.test(message.content)) {
-          message.channel.send(trimStartingIndent(`
+          const complimentMsg = trimStartingIndent(`
             **どうも ${message.author?.toString()}, サメです。**
             Yeah! Yea you are right, thank you. I like the way you compliment me. ${client.emojis.cache.find(emoji => emoji.name === "guraShy")}
-          `), new MessageAttachment("./static/videos/compliment_reaction.mp4"));
+          `);
+          const files = [{
+            attachment: "./static/videos/compliment_reaction.mp4",
+            name: "Compliment Reaction.mp4"
+          }];
+
+          message.channel.send({ content: complimentMsg, files });
         }
         else {
           message.channel.send(trimStartingIndent(`

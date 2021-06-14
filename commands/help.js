@@ -2,9 +2,8 @@ import chalk from "chalk";
 import { MessageEmbed } from "discord.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 import pageReaction from "../addons/pageReaction.js";
-import wsReply from "../addons/wsReply.js";
-import wsEditReplyPage from "../addons/wsEditReplyPage.js";
 import commands from "../data/commands.js";
+import wsPageReaction from "../addons/wsPageReaction.js";
 
 export const name = "help";
 export const description = "I will tell you about what I can do.";
@@ -15,9 +14,9 @@ export const options = [
     type: 3
   }
 ];
-export const execute = async (client, message, args, isWs = false) => {
-  const duration = 60000;
-  const authorId = message.author?.id ?? message.member?.user?.id;
+export const execute = async (client, interaction, args, isWs = false) => {
+  const reactDuration = 60000;
+  const authorId = interaction.author?.id ?? interaction.member?.user?.id;
   let detailedHelpCmd = false;
 
   const embedMsgs = [
@@ -33,7 +32,7 @@ export const execute = async (client, message, args, isWs = false) => {
 
         You can react with the reaction below to navigate through the list of commands for more information.
 
-        **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
+        **Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.
 
         **Commands**
         ${commands.map(cmd => {
@@ -65,16 +64,16 @@ export const execute = async (client, message, args, isWs = false) => {
   
   if (!detailedHelpCmd) {
     if (isWs) {
-      await wsReply(client, message, "", embedMsgs[0], 5);
-      wsEditReplyPage(client, message, duration, authorId, embedMsgs);
+      interaction.defer();
+      wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
     }
     else {
-      message.channel.send(embedMsgs[0]).then(async msg => {
-        pageReaction(authorId, duration, embedMsgs, msg);
+      interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
+        pageReaction(msg, authorId, reactDuration, embedMsgs);
       }).catch(e => {
         console.log(chalk.red("\nFailed to send message"));
         console.log(chalk.red(`${e.name}: ${e.message}`));
-        message.channel.send(`${message.author?.toString()}, this is embarrassing. But it seems that you have stumble upon a bug. Please let <@156834654140235776> know so he can fix me up.`);
+        interaction.channel.send(`${interaction.author?.toString()}, this is embarrassing. But it seems that you have stumble upon a bug. Please let <@156834654140235776> know so he can fix me up.`);
       });
     }
   }
@@ -91,11 +90,7 @@ export const execute = async (client, message, args, isWs = false) => {
         \u2022 ${detailedHelpCmd.usage.join("\n\u2022 ")}
       `));
 
-    if (isWs) {
-      wsReply(client, message, "", embed);
-    }
-    else {
-      message.channel.send(embed);
-    }
+    if (isWs) interaction.reply({ embeds: [embed] });
+    else interaction.channel.send({ embeds: [embed] });
   }
 }

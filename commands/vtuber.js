@@ -2,12 +2,10 @@ import axios from "axios";
 import { MessageEmbed } from "discord.js";
 import moment from "moment-timezone";
 import pageReaction from "../addons/pageReaction.js";
-import wsEditReplyPage from "../addons/wsEditReplyPage.js";
-import wsPatch from "../addons/wsPatch.js";
-import wsReply from "../addons/wsReply.js";
 import channelIdExclude from "../data/vtuber/channelIdExclude.js";
 import organization from "../data/vtuber/organization.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
+import wsPageReaction from "../addons/wsPageReaction.js";
 
 const holodexUrl = "https://holodex.net/api/v2";
 
@@ -95,10 +93,10 @@ export const options = [
     ]
   }
 ];
-export const execute = async (client, message, args, isWs = false) => {
-  const duration = 300000;
-  const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
-  const authorId = message.author?.id ?? message.member?.user?.id;
+export const execute = async (client, interaction, args, isWs = false) => {
+  const reactDuration = 300000;
+  const tagUser = interaction.author?.toString() ?? `<@${interaction.member.user.id.toString()}>`;
+  const authorId = interaction.author?.id ?? interaction.member?.user?.id;
   const usageMessage = trimStartingIndent(`
     **どうも ${tagUser}, サメです。**
     \u2022 Use \`/vtuber list <organization>\` or tag me with \`anime <organization>\` for a list of vTuber's related information.
@@ -107,11 +105,11 @@ export const execute = async (client, message, args, isWs = false) => {
   `);
   
   if (args.length > 0) {
-    const org = organization.find(o => o.toLowerCase() === args[1].toLowerCase()) ?? "All";
+    const org = organization.find(o => o.toLowerCase() === args[1]?.toLowerCase()) ?? "All";
 
-    if (isWs) await wsReply(client, message, `${tagUser} please wait, I am retrieving it now.`, null, 5);
+    if (isWs) interaction.defer();
     else {
-      message.channel.send(`${tagUser} please wait, I am retrieving it now.`).then(msg => {
+      interaction.channel.send(`${tagUser} please wait, I am retrieving it now.`).then(msg => {
         msg?.delete({ timeout: 30000 });
       });
     }
@@ -128,7 +126,7 @@ export const execute = async (client, message, args, isWs = false) => {
                 .setTitle(`${org} vTubers`)
                 .setDescription(trimStartingIndent(`${vTubers.map(vTuber => vTuber?.name ? `\u2022 ${vTuber.name}` : "").join("\n")}
     
-                  **Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.
+                  **Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.
                 `))
                 .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page 1 / ${vTubers.length + 1}`, client.user.avatarURL())
                 .setTimestamp()
@@ -191,32 +189,34 @@ export const execute = async (client, message, args, isWs = false) => {
                   .setThumbnail(vTuber.photo)
                   .addFields([...fields, {
                     name: "\u200b",
-                    value: `**Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.`
+                    value: `**Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.`
                   }])
                   .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 2} / ${vTubers.length + 1}`, client.user.avatarURL())
                   .setTimestamp()
               );
             });
     
-            if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
+            if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
             else {
-              message.channel.send(embedMsgs[0]).then(async msg => {
-                pageReaction(authorId, duration, embedMsgs, msg);
+              interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
+                pageReaction(msg, authorId, reactDuration, embedMsgs);
               }).catch(e => {
                 console.log(chalk.red("\nFailed to send message"));
                 console.log(chalk.red(`${e.name}: ${e.message}`));
-                message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the list of vTubers, please kindly try again later.`);
+                interaction.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the list of vTubers, please kindly try again later.`);
               });
             }
           }
           else {
-            if (isWs) wsPatch(client, message, `${tagUser} it seems that there might not be any vTuber under that organization.`);
-            else message.channel.send(`${tagUser} it seems that there might not be any vTuber under that organization.`);
+            const orgNotFoundMsg = `${tagUser} it seems that there might not be any vTuber under that organization.`;
+
+            if (isWs) interaction.followUp(orgNotFoundMsg);
+            else interaction.channel.send(orgNotFoundMsg);
           }
         }
         else {
-          if (isWs) wsPatch(client, message, usageMessage);
-          else message.channel.send(usageMessage);
+          if (isWs) interaction.followUp(usageMessage);
+          else interaction.channel.send(usageMessage);
         }
         break;
       
@@ -232,8 +232,8 @@ export const execute = async (client, message, args, isWs = false) => {
             if (type === "previews") {
               const urlMsgs = data.map(vid => `https://www.youtube.com/watch?v=${vid.id}`).join("\n");
 
-              if (isWs) wsPatch(client, message, urlMsgs);
-              else message.channel.send(urlMsgs);
+              if (isWs) interaction.followUp(urlMsgs);
+              else interaction.channel.send(urlMsgs);
             }
             else {
               const videos = await Promise.all(data.filter(vid => vid.channel.type === "vtuber").map(async vid => {
@@ -265,9 +265,7 @@ export const execute = async (client, message, args, isWs = false) => {
                   else fields.push({name: "Starts At", value: moment(vid.live_on).utcOffset("+0800").format("DD/MM/YYYY hh:mm a (Z)"), inline: true});
                 }
                 
-                if (vid.viewers) {
-                  fields.push({name: "Viewers", value: vid.viewers, inline: true});
-                }
+                if (vid.viewers) fields.push({name: "Viewers", value: `${vid.viewers}`, inline: true});
 
                 if (vid.channel_url && vid.channel_name) fields.push({name: "YouTube Channel", value: `[${vid.channel_name}](${vid.channel_url})`});
 
@@ -283,33 +281,33 @@ export const execute = async (client, message, args, isWs = false) => {
                     },
                     {
                       name: "\u200b",
-                      value: `**Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.`
+                      value: `**Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.`
                     }
                   ])
                   .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 1} / ${videos.length}`, client.user.avatarURL())
                   .setTimestamp()
               });
 
-              if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
+              if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
               else {
-                message.channel.send(embedMsgs[0]).then(async msg => {
-                  pageReaction(authorId, duration, embedMsgs, msg);
+                interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
+                  pageReaction(msg, authorId, reactDuration, embedMsgs);
                 }).catch(e => {
                   console.log(chalk.red("\nFailed to send message"));
                   console.log(chalk.red(`${e.name}: ${e.message}`));
-                  message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the list of ${args[0]} channels, please kindly try again later.`);
+                  interaction.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the list of ${args[0]} channels, please kindly try again later.`);
                 });
               }
             }
           }
           else {
-            if (isWs) wsPatch(client, message, noLiveErrorMsg);
-            else message.channel.send(noLiveErrorMsg);
+            if (isWs) interaction.followUp(noLiveErrorMsg);
+            else interaction.channel.send(noLiveErrorMsg);
           }
         }
         else {
-          if (isWs) wsPatch(client, message, usageMessage);
-          else message.channel.send(usageMessage);
+          if (isWs) interaction.followUp(usageMessage);
+          else interaction.channel.send(usageMessage);
         }
         break;
 
@@ -317,8 +315,8 @@ export const execute = async (client, message, args, isWs = false) => {
         break;
     }
   }
-  else if (isWs) wsPatch(client, message, usageMessage);
-  else message.channel.send(usageMessage);
+  else if (isWs) interaction.followUp(usageMessage);
+  else interaction.channel.send(usageMessage);
 }
 
 export const getHolodexUpcoming = async (org = "All", durationHour = 24, limit = undefined) => {

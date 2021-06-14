@@ -1,6 +1,4 @@
 import { MessageAttachment } from "discord.js";
-import wsDelReply from "../addons/wsDelReply.js";
-import wsReply from "../addons/wsReply.js";
 import insults from "../data/insults.js";
 
 export const name = "insult";
@@ -12,15 +10,15 @@ export const options = [
     type: 6
   }
 ];
-export const execute = async (client, message, args, isWs = false) => {
-  const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
+export const execute = async (client, interaction, args, isWs = false) => {
+  const tagUser = interaction.author?.toString() ?? `<@${interaction.member.user.id.toString()}>`;
 
   const randomInt = Math.floor(Math.random() * insults.length);
   let insult;
-  let attachment;
+  let files;
   
-  if (message.mentions?.users?.size > 1) {
-    const users = message?.mentions?.users?.filter(user => user != client.user.id);
+  if (interaction.mentions?.users?.size > 1) {
+    const users = interaction?.mentions?.users?.filter(user => user != client.user.id);
 
     insult = insults[randomInt]?.insult?.replace("<user>", users.map(u => u.toString()).join(" "));
   }
@@ -28,15 +26,13 @@ export const execute = async (client, message, args, isWs = false) => {
     insult = insults[randomInt]?.insult?.replace("<user>", isWs && args[0] ? `<@${args[0]}>` : tagUser);
   }
 
-  if (insults[randomInt]?.attachmentType === "audio") attachment = `./static/audios/${insults[randomInt]?.attachment}`
-  
-  const filename = `${insults[randomInt]?.attachment.split("/")[0]} ${insults[randomInt]?.attachment.split("/").slice(-1)[0]}`;
-
-  if (isWs) {
-    wsReply(client, message, insult, null, 5);
-    wsDelReply(client, message);
-
-    client.channels.cache.get(message.channel_id).send(insult, new MessageAttachment(attachment, filename));
+  if (insults[randomInt]?.attachmentType === "audio") {
+    files = [{
+      attachment:  `./static/audios/${insults[randomInt]?.attachment}`,
+      name: `${insults[randomInt]?.attachment.split("/")[0]} ${insults[randomInt]?.attachment.split("/").slice(-1)[0]}`
+    }];
   }
-  else message.channel.send(insult, new MessageAttachment(attachment, filename));
+
+  if (isWs) interaction.reply({ content: insult, files });
+  else interaction.channel.send({ content: insult, files });
 }

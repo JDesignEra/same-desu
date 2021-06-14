@@ -1,10 +1,9 @@
 import { MessageEmbed } from "discord.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
-import wsReply from "../addons/wsReply.js";
 
 export const name = "about";
 export const description = "I will provide you with information about my creator.";
-export const execute = async (client, message, args, isWs = false) => {
+export const execute = async (client, interaction, args, isWs = false) => {
   const embed = new MessageEmbed()
     .setColor("#2576A3")
     .setTitle("サメです、here is more info about creator!")
@@ -29,10 +28,6 @@ export const execute = async (client, message, args, isWs = false) => {
     )
     .setFooter("</> with <3 by JDεꜱɪɢɴ™#1111");
 
-    if (isWs) {
-      wsReply(client, message, "", embed);
-    }
-    else {
-      message.channel?.send(embed);
-    }
+    if (isWs) interaction.reply({embeds: [embed]});
+    else interaction.channel?.send({embeds: [embed]});
 }

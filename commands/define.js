@@ -3,10 +3,8 @@ import axios from "axios";
 import chalk from "chalk";
 import { MessageEmbed } from "discord.js";
 import pageReaction from "../addons/pageReaction.js";
-import wsEditReplyPage from "../addons/wsEditReplyPage.js";
-import wsPatch from "../addons/wsPatch.js";
-import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
+import wsPageReaction from "../addons/wsPageReaction.js";
 
 dotenv.config();
 
@@ -40,21 +38,23 @@ export const options = [
     ]
   }
 ];
-export const execute = async (client, message, args, isWs = false) => {
+export const execute = async (client, interaction, args, isWs = false) => {
   const oxfordUrl = "https://od-api.oxforddictionaries.com/api/v2"
   const urbanUrl = "https://mashape-community-urban-dictionary.p.rapidapi.com"
 
-  const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
-  const authorId = message.author?.id ?? message.member?.user?.id;
-  const duration = 300000;
+  const tagUser = interaction.author?.toString() ?? `<@${interaction.member.user.id.toString()}>`;
+  const authorId = interaction.author?.id ?? interaction.member?.user?.id;
+  const reactDuration = 300000;
 
   const usageMessage = trimStartingIndent(`
     **どうも ${tagUser}, サメです。**
     \u2022 Use \`/define word <word>\`, or tag me with \`define word <word>\` or \`define <word>\` to search for a proper definition.
     \u2022 Use \`/define slang <word>\` or tag me with \`define slang <word>\` to search for a slang definition.
   `);
+  const retrieveErrorMsg = `${tagUser} this is embarrassing, it seems that I am having trouble getting the definitions for that word, please kindly try again later.`;
+  const limitErrorMsg = `${tagUser} this is embarrassing, it seems that I can't look up for any word definition for this month.`;
 
-  if (isWs) wsReply(client, message, "Please wait, I am getting the word definitions.", null, 5);
+  if (isWs) interaction.defer();
 
   if (args.length > 0) {
     if (args.length > 1 && args[0] === "urban") {
@@ -84,7 +84,7 @@ export const execute = async (client, message, args, isWs = false) => {
                     ${trimStartingIndent(definition.example.replace(/\[|\]/gm, ""))}
                   `) : ""}
                   ${data.length > 1 ? trimStartingIndent(`
-                    ***Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.*
+                    ***Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.*
                   `) : ""}
                 `))
                 .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 1} / ${data.length}`, client.user.avatarURL())
@@ -92,29 +92,32 @@ export const execute = async (client, message, args, isWs = false) => {
             )
           });
 
-          if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
+          if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
           else {
-            message.channel.send(embedMsgs[0]).then(async msg => {
-              if (embedMsgs.length > 1) pageReaction(authorId, duration, embedMsgs, msg);
+            interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
+              if (embedMsgs.length > 1) pageReaction(msg, authorId, reactDuration, embedMsgs);
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e?.name}: ${e?.message}`));
-              message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the definitions for that word, please kindly try again later.`);
+
+              interaction.channel.send(retrieveErrorMsg);
             });
           }
         }
         else {
+          const notFoundMsg = `${tagUser} it seems like that word does not exist.`;
+
           console.log(chalk.red("\nUrban Dictionary no such word."));
 
-          if (isWs) wsPatch(client, message, `${tagUser} it seems like that word does not exist.`);
-          else message.channel.send(`${tagUser} it seems like that word does not exist.`);
+          if (isWs) interaction.followUp(notFoundMsg);
+          else interaction.channel.send(notFoundMsg);
         }
       }
       else {
         console.log(chalk.red(`\n${res.status}: Failed to send message`));
         
-        if (isWs) wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble getting the definitions for that slang word, please kindly try again later.`);
-        else message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the definitions for that slang word, please kindly try again later.`);
+        if (isWs) interaction.followUp(retrieveErrorMsg);
+        else interaction.channel.send(retrieveErrorMsg);
       }
     }
     else {
@@ -185,7 +188,7 @@ export const execute = async (client, message, args, isWs = false) => {
                     `) : ""
                   }
                   ${definitions[category].length > 1 || Object.keys(definitions).length > 1 ? trimStartingIndent(`
-                    ***Note:** You will not be able to interact with this embed message after **${Math.floor(duration / 60000)}** minute.*
+                    ***Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.*
                   `) : ""}
                 `))
                 .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${idx + 1} / ${definitionCount}`, client.user.avatarURL())
@@ -196,39 +199,35 @@ export const execute = async (client, message, args, isWs = false) => {
           }
         }
 
-        if (isWs) wsEditReplyPage(client, message, duration, authorId, embedMsgs);
+        if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
         else {
-          message.channel.send(embedMsgs[0]).then(async msg => {
-            if (embedMsgs.length > 1) pageReaction(authorId, duration, embedMsgs, msg);
+          interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
+            if (embedMsgs.length > 1) pageReaction(interaction, authorId, reactDuration, embedMsgs);
           }).catch(e => {
             console.log(chalk.red("\nFailed to send message"));
             console.log(chalk.red(`${e.name}: ${e.message}`));
-            message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the definitions for that word, please kindly try again later.`);
+            interaction.channel.send(retrieveErrorMsg);
           });
         }
       }
       else if (res.status === 403) {
         console.log(chalk.red(`\n${res.status}: Oxford Dictionary API limit exceed.`));
 
-        if (isWs) wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I can't look up for any word definition for this month.`);
-        else message.channel.send(`${tagUser} this is embarrassing, it seems that I can't look up for any word definition for this month.`);
+        if (isWs) interaction.reply(limitErrorMsg);
+        else interaction.channel.send(limitErrorMsg);
       }
       else if (res.status === 404) {
-        if (isWs) wsPatch(client, message, `${tagUser} it seems like that word may not exist.`);
-        else message.channel.send(`${tagUser} it seems like that word may not exist`);
+        if (isWs) interaction.followUp( `${tagUser} it seems like that word may not exist.`);
+        else interaction.channel.send(`${tagUser} it seems like that word may not exist`);
       }
       else {
         console.log(chalk.red(`\n${res.status}: Oxford Dictionary failed to retrieve.`));
 
-        if (isWs) wsPatch(client, message, `${tagUser} this is embarrassing, it seems that I am having trouble defining that word. Please kindly try again later.`);
-        else message.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble defining that word. Please kindly try again later.`);
+        if (isWs) interaction.followUp(retrieveErrorMsg)
+        else interaction.channel.send(retrieveErrorMsg);
       }
     }
   }
-  else if (isWs) {
-    wsPatch(client, message, usageMessage);
-  }
-  else {
-    message.channel.send(usageMessage);
-  }
+  else if (isWs) interaction.followUp(usageMessage);
+  else interaction.channel.send(usageMessage);
 }

@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 import axios from "axios";
 import chalk from "chalk";
 import puppeteer from 'puppeteer';
-import wsPatch from "../addons/wsPatch.js";
-import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 import puppeteerOption from "../data/puppeteer/options.js";
 import deeplLanguages from "../data/translate/deeplLanguages.js";
@@ -33,9 +31,8 @@ export const options = [
     choices: Object.keys(languages).map(key => { return { name: languages[key], value: key } })
   }
 ]
-
-export const execute = async (client, message, args, isWs = false) => {
-  const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
+export const execute = async (client, interaction, args, isWs = false) => {
+  const tagUser = interaction.author?.toString() ?? `<@${interaction.member.user.id.toString()}>`;
   const toLang = Object.keys(languages).find(key => languages[key]?.toLowerCase() === args[args.length - 1]?.toLowerCase() || args[args.length - 1] === key) ?? "en";
   const sentence = Object.keys(languages).find(key => languages[key]?.toLowerCase() === args[args.length - 1]?.toLowerCase() || args[args.length - 1] === key)
     ? args.slice(0, -1).join(" ") : args.join(" ");
@@ -43,7 +40,7 @@ export const execute = async (client, message, args, isWs = false) => {
   let translation;
   let sendMsg;
 
-  if (isWs) wsReply(client, message, "Please wait, I am translating...", null, 5);
+  if (isWs) interaction.defer();
 
   if (args.length > 0) {
     if (sentence && sentence.trim()) {
@@ -93,8 +90,8 @@ export const execute = async (client, message, args, isWs = false) => {
     `);
   }
 
-  if (isWs) wsPatch(client, message, sendMsg);
-  else message.channel.send(sendMsg);
+  if (isWs) interaction.followUp(sendMsg);
+  else interaction.channel.send(sendMsg);
 }
 
 const deeplTranslate = async (sentences, toLanguage) => {

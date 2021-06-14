@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import { MessageEmbed } from 'discord.js';
 import moment from 'moment';
-import wsReply from "../addons/wsReply.js";
 import trimStartingIndent from "../utils/trimStartingIndent.js";
 import { createReminder, deleteReminder, getAllReminders } from "../databases/remindersDb.js";
 import momentFormats from "../data/moment/momentFormats.js";
@@ -29,10 +28,9 @@ export const options = [
     type: 8
   }
 ]
-
-export const execute = async (client, message, args, isWs = false) => {
-  const tagUser = message.author?.toString() ?? `<@${message.member.user.id.toString()}>`;
-  const authorId = message.author?.id ?? message.member?.user?.id;
+export const execute = async (client, interaction, args, isWs = false) => {
+  const tagUser = interaction.author?.toString() ?? `<@${interaction.member.user.id.toString()}>`;
+  const authorId = interaction.author?.id ?? interaction.member?.user?.id;
   const usageMessage = trimStartingIndent(`
     **どうも ${tagUser}, サメです。**
     \u2022 Use \`/remind <when> <message> <role?>\` or tag me with \`remind <when> <message> <role?>\` to set a reminder.
@@ -130,25 +128,27 @@ export const execute = async (client, message, args, isWs = false) => {
     const momentNow = moment();
 
     if (momentReminder === undefined || momentReminder === null) {
-      if (isWs) wsReply(client, message, usageMessage);
-      else message.channel.send(usageMessage);
+      if (isWs) interaction.reply(usageMessage);
+      else interaction.channel.send(usageMessage);
     }
     else if (momentNow.isSameOrAfter(momentReminder.format())) {
-      if (isWs) wsReply(client, message, `\`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`)
-      else message.channel.send(`${tagUser}, \`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`);
+      const whenErrorMsg = `\`<when>\` argument has to be later then **${moment().format("DD/MM/YYYY hh:mm a")}**.`;
+
+      if (isWs) interaction.reply(whenErrorMsg);
+      else interaction.channel.send(whenErrorMsg);
     }
     else {
       const roleId = isWs ? args[2] ?? null : /^<@&\d+>$/g.test(whenArgs[whenArgs.length - 1]) ? whenArgs[whenArgs.length - 1].slice(3, -1) : null;
       const reminderMsg = isWs ? args[1] : whenArgs.slice(whenIdx + 1, roleId ? -1 : whenArgs.length).join(" ");
-      const channelId = roleId ? isWs ? message.channel_id : message.channel.id : null;
+      const channelId = roleId ? isWs ? interaction.channel_id : interaction.channel.id : null;
       const sendMsg = `${tagUser}, ${roleId ? `<@&${roleId}>` : "you"} will be reminded about **${reminderMsg}** on **${momentReminder.format("DD/MM/YYYY hh:mm a")}**.`;
 
       const reminders = await getAllReminders();
 
       await createReminder(authorId, reminderMsg, momentReminder.format(), roleId, channelId);
 
-      if (isWs) wsReply(client, message, sendMsg);
-      else message.channel.send(sendMsg);
+      if (isWs) interaction.reply(sendMsg);
+      else interaction.channel.send(sendMsg);
 
       // Send reminder with interval or timeout
       const msDelay = momentReminder.diff(momentNow);
@@ -158,13 +158,11 @@ export const execute = async (client, message, args, isWs = false) => {
           sendReminder(client, authorId, reminderMsg, momentReminder.format(), roleId, channelId);
         }, msDelay);
       }
-      else if (reminders.length < 1) {
-        initSendRemindersInterval(client);
-      }
+      else if (reminders.length < 1) initSendRemindersInterval(client);
     }
   }
-  else if (isWs) wsReply(client, message, usageMessage);
-  else message.channel.send(usageMessage);
+  else if (isWs) interaction.reply(usageMessage);
+  else interaction.channel.send(usageMessage);
 }
 
 export const initSendRemindersInterval = async (client) => {
@@ -187,7 +185,7 @@ export const initSendRemindersInterval = async (client) => {
 }
 
 const sendReminder = async (client, authorId, message, dateTime, roleId, channelId) => {
-  const embedMsg = new MessageEmbed()
+  const embed = new MessageEmbed()
     .setColor("#2576A3")
     .setTitle("REMINDER")
     .setDescription(roleId && channelId ? `<@&${roleId}>, ${message}` : message)
@@ -198,8 +196,8 @@ const sendReminder = async (client, authorId, message, dateTime, roleId, channel
     .setFooter(process.env.EMBED_HOST_FOOTER, client.user.avatarURL())
     .setTimestamp();
 
-  if (roleId && channelId) client.channels.cache.get(channelId)?.send(embedMsg);
-  else client.users.cache.get(authorId)?.send(embedMsg);
+  if (roleId && channelId) client.channels.cache.get(channelId)?.send({ embeds: [embed] });
+  else client.users.cache.get(authorId)?.send({ embeds: [embed] });
 
   deleteReminder(authorId, message, dateTime, roleId, channelId);
 }
