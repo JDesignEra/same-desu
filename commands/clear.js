@@ -34,7 +34,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
 
     do {
       try {
-        deleted = await channel.bulkDelete(amt === "all" ? 100 : amt);
+        deleted = await channel.bulkDelete(amt === "all" ? 100 : amt, true);
         if (amt !== "all") deletedCount += amt;
       }
       catch (e) {
@@ -43,7 +43,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
       }
     } while (amt === "all" ? deleted?.size < 1 : deletedCount < amt);
 
-    channel.send(`${tagUser}, I have deleted ${isNaN(amt) ? amt : isWs ? amt - 1 : amt - 2} messages.`);
+    channel.send(`${tagUser}, I have deleted ${isNaN(amt) ? amt : isWs ? amt - 1 : amt - 2} messages that are less then 14 days old.`);
   }
   else if (isWs) interaction.reply(`${tagUser}, \`<amount>\` parameter only allows "all" or an Integer greater then 0.`);
   else channel.send(`${tagUser}, \`<amount>\` parameter only allows "all" or an Integer greater then 0.`);
