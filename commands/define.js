@@ -128,9 +128,23 @@ export const execute = async (client, interaction, args, isWs = false) => {
           app_id: process.env.OXFORD_DICT_ID,
           app_key: process.env.OXFORD_DICT_KEY
         }
+      }).catch(e => {
+        console.log(chalk.red("\nOxford Dictionary failed to retrieve."));
+        console.log(chalk.red(`${e.name}: ${e.message}`));
+
+        if (e.response.status === 403) {
+          console.log(chalk.red(`\n${res.status}: Oxford Dictionary API limit exceed.`));
+  
+          if (isWs) interaction.followUp(limitErrorMsg);
+          else interaction.channel.send(limitErrorMsg);
+        }
+        else if (e.response.status === 404) {
+          if (isWs) interaction.followUp(`${tagUser} it seems that **${word}** may not have a definition.`);
+          else interaction.channel.send(`${tagUser} it seems that **${word}** may not have a definition.`);
+        }
       });
       
-      if (res.status === 200) {
+      if (res?.status === 200) {
         let embedMsgs = [];
         const results = res?.data?.results;
         let definitionCount = 0;
@@ -209,22 +223,6 @@ export const execute = async (client, interaction, args, isWs = false) => {
             interaction.channel.send(retrieveErrorMsg);
           });
         }
-      }
-      else if (res.status === 403) {
-        console.log(chalk.red(`\n${res.status}: Oxford Dictionary API limit exceed.`));
-
-        if (isWs) interaction.reply(limitErrorMsg);
-        else interaction.channel.send(limitErrorMsg);
-      }
-      else if (res.status === 404) {
-        if (isWs) interaction.followUp( `${tagUser} it seems like that word may not exist.`);
-        else interaction.channel.send(`${tagUser} it seems like that word may not exist`);
-      }
-      else {
-        console.log(chalk.red(`\n${res.status}: Oxford Dictionary failed to retrieve.`));
-
-        if (isWs) interaction.followUp(retrieveErrorMsg)
-        else interaction.channel.send(retrieveErrorMsg);
       }
     }
   }
