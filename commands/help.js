@@ -65,7 +65,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
   if (!detailedHelpCmd) {
     if (isWs) {
       interaction.defer();
-      wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
+      wsPageReaction(interaction, authorId, reactDuration, embedMsgs);
     }
     else {
       interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
