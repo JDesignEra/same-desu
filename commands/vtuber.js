@@ -241,7 +241,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
 
                 if (vid.id) info.url = `https://www.youtube.com/watch?v=${vid.id}`;
                 if (vid.title) info.title = vid.title;
-                if (vid.topic_id) info.topic = vid.topic_id.replace(/^\w/, (c) => c.toUpperCase()).replace(/_/g, " ");
+                if (vid.topic_id) info.topic = vid.topic_id.replace(/^\w| \w|_\w/g, (c) => c.toUpperCase()).replace(/_/g, " ");
                 if (vid.start_scheduled) info.live_on = vid.start_scheduled;
                 if (vid.available_at) info.live_on = vid.available_at;
                 if (vid.live_viewers) info.viewers = vid.live_viewers;
@@ -258,7 +258,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
     
                 if (vid.name) fields.push({name: "Name", value: vid.name});
 
-                if (vid.topic_id) fields.push({name: "Topic", value: vid.topic_id, inline: true});
+                if (vid.topic) fields.push({name: "Topic", value: vid.topic, inline: true});
 
                 if (vid.live_on) {
                   if (args[0] === "live") fields.push({name: "Live Duration", value: moment(vid.live_on).fromNow(true), inline: true});
