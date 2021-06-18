@@ -165,7 +165,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
             );
           });
 
-          if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
+          if (isWs) wsPageReaction(interaction, authorId, reactDuration, embedMsgs);
           else {
             interaction.channel?.send({embeds: [embedMsgs[0]]}).then(async msg => {
               pageReaction(msg, authorId, reactDuration, embedMsgs);
@@ -289,7 +289,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
               );
             });
 
-            if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
+            if (isWs) wsPageReaction(interaction, authorId, reactDuration, embedMsgs);
             else {
               interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
                 pageReaction(msg, authorId, reactDuration, embedMsgs);
@@ -376,7 +376,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
               .setTimestamp();
           });
 
-          if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
+          if (isWs) wsPageReaction(interaction, authorId, reactDuration, embedMsgs);
           else {
             interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
               pageReaction(msg, authorId, reactDuration, embedMsgs);

@@ -196,7 +196,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
               );
             });
     
-            if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
+            if (isWs) wsPageReaction(interaction, authorId, reactDuration, embedMsgs);
             else {
               interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
                 pageReaction(msg, authorId, reactDuration, embedMsgs);
@@ -253,6 +253,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
                 return info;
               }));
 
+              const streamUrls = [];
               const embedMsgs = videos.map((vid, i) => {
                 const fields = [];
     
@@ -268,6 +269,8 @@ export const execute = async (client, interaction, args, isWs = false) => {
                 if (vid.viewers) fields.push({name: "Viewers", value: `${vid.viewers}`, inline: true});
 
                 if (vid.channel_url && vid.channel_name) fields.push({name: "YouTube Channel", value: `[${vid.channel_name}](${vid.channel_url})`});
+
+                streamUrls.push(vid.url);
 
                 return new MessageEmbed()
                   .setColor("#FF0000")
@@ -288,7 +291,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
                   .setTimestamp()
               });
 
-              if (isWs) wsPageReaction(client, interaction, authorId, reactDuration, embedMsgs);
+              if (isWs) wsPageReaction(interaction, authorId, reactDuration, embedMsgs);
               else {
                 interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
                   pageReaction(msg, authorId, reactDuration, embedMsgs);
