@@ -122,7 +122,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
           if (vTubers.length > 0) {
             const embedMsgs = [
               new MessageEmbed()
-                .setColor("#2576A3")
+                .setColor("#FF0000")
                 .setTitle(`${org} vTubers`)
                 .setDescription(trimStartingIndent(`${vTubers.map(vTuber => vTuber?.name ? `\u2022 ${vTuber.name}` : "").join("\n")}
     
@@ -183,7 +183,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
     
               embedMsgs.push(
                 new MessageEmbed()
-                  .setColor("#2576A3")
+                  .setColor("#FF0000")
                   .setTitle(vTuber.name)
                   .setURL(vTuber.id ? `https://www.youtube.com/channel/${vTuber.id}` : "")
                   .setThumbnail(vTuber.photo)
@@ -239,7 +239,10 @@ export const execute = async (client, interaction, args, isWs = false) => {
               const videos = await Promise.all(data.filter(vid => vid.channel.type === "vtuber").map(async vid => {
                 let info = {};
 
-                if (vid.id) info.url = `https://www.youtube.com/watch?v=${vid.id}`;
+                if (vid.id) {
+                  info.url = `https://www.youtube.com/watch?v=${vid.id}`;
+                  info.thumbnail = `https://i3.ytimg.com/vi/${vid.id}/maxresdefault.jpg`;
+                }
                 if (vid.title) info.title = vid.title;
                 if (vid.topic_id) info.topic = vid.topic_id.replace(/^\w| \w|_\w/g, (c) => c.toUpperCase()).replace(/_/g, " ");
                 if (vid.start_scheduled) info.live_on = vid.start_scheduled;
@@ -252,8 +255,7 @@ export const execute = async (client, interaction, args, isWs = false) => {
                 
                 return info;
               }));
-
-              const streamUrls = [];
+              
               const embedMsgs = videos.map((vid, i) => {
                 const fields = [];
     
@@ -270,13 +272,12 @@ export const execute = async (client, interaction, args, isWs = false) => {
 
                 if (vid.channel_url && vid.channel_name) fields.push({name: "YouTube Channel", value: `[${vid.channel_name}](${vid.channel_url})`});
 
-                streamUrls.push(vid.url);
-
                 return new MessageEmbed()
                   .setColor("#FF0000")
                   .setTitle(trimStartingIndent(vid.title))
                   .setURL(vid.url ? vid.url : "")
                   .setThumbnail(vid.photo)
+                  .setImage(vid.thumbnail)
                   .addFields([...fields,
                     {
                       name: "\u200b",
@@ -350,7 +351,7 @@ const getHolodexChannels = async (lists = [], offset = 0, org = "All", limit = u
 
       if (vtuber.id) info.id = vtuber.id;
       if (vtuber.name) info.channel_name = vtuber.name;
-      if (vtuber.name) info.name = vtuber.english_name;
+      if (vtuber.english_name) info.name = vtuber.english_name;
       if (vtuber.org) info.organization = vtuber.org;
       if (vtuber.group) info.group = vtuber.group;
       if (vtuber.photo) info.photo = vtuber.photo;
