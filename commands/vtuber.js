@@ -57,6 +57,19 @@ export const options = [
     ]
   },
   {
+    name: "search",
+    description: "I will search for vTuber's by name.",
+    type: 1,
+    options: [
+      {
+        name: "name",
+        description: "Name of the vTuber or partial name.",
+        type: 3,
+        required: true
+      }
+    ]
+  },
+  {
     name: "upcoming",
     description: "I will provide you a list of vTuber's upcoming streams that are not live yet.",
     type: 1,
@@ -217,6 +230,110 @@ export const execute = async (client, interaction, args, isWs = false) => {
           }
           else {
             const orgNotFoundMsg = `${tagUser} it seems that there might not be any vTuber under that organization.`;
+
+            if (isWs) interaction.followUp(orgNotFoundMsg);
+            else interaction.channel.send(orgNotFoundMsg);
+          }
+        }
+        else {
+          if (isWs) interaction.followUp(usageMessage);
+          else interaction.channel.send(usageMessage);
+        }
+        break;
+
+      case "search":
+        if (args[1]) {
+          let vTubers = await getHolodexChannels([], 0, "All");
+          vTubers = vTubers?.filter(vtuber => vtuber.name.toLowerCase().includes(args[1].toLowerCase()));
+          
+          if (vTubers.length > 0) {
+            let vTubersNameDesc = `${vTubers.map(vTuber => vTuber?.name ? `\u2022 ${vTuber.name}` : "").join("\n")}`;
+
+            if (vTubersNameDesc.length > 2048 - 100) {
+              vTubersNameDesc = vTubersNameDesc.substring(0, 2048 - 100);
+              vTubersNameDesc = vTubersNameDesc.substring(0, vTubersNameDesc.lastIndexOf("\n"));
+              vTubersNameDesc += "\n\u2022 And more..."
+            }
+
+            const embedMsgs = [];
+    
+            vTubers.forEach((vTuber, i) => {
+              const fields = [];
+    
+              if (vTuber.organization) fields.push({
+                name: "Organization",
+                value: vTuber.organization,
+                inline: true
+              });
+
+              if (vTuber.group) fields.push({
+                name: "Group",
+                value: vTuber.group,
+                inline: true
+              });
+              else fields.push({
+                name: "\u200b",
+                value: "\u200b",
+                inline: true
+              });
+
+              fields.push({
+                name: "\u200b",
+                value: "\u200b",
+                inline: true
+              });
+
+              if (vTuber.id && vTuber.channel_name) fields.push({
+                name: "YouTube",
+                value: `[${vTuber.channel_name}](https://www.youtube.com/channel/${vTuber.id})`,
+                inline: true
+              });
+
+              if (vTuber.subscriber_count) fields.push({
+                name: "Subscribers",
+                value: `${vTuber.subscriber_count}`,
+                inline: true
+              });
+
+              if (vTuber.video_count) fields.push({
+                name: "Video Counts",
+                value: `${vTuber.video_count}`,
+                inline: true
+              });
+
+              if (vTuber.twitter) fields.push({
+                name: "Twitter",
+                value: `[${vTuber.twitter}](https://twitter.com/${vTuber.twitter})`
+              });
+    
+              embedMsgs.push(
+                new MessageEmbed()
+                  .setColor("#FF0000")
+                  .setTitle(vTuber.name)
+                  .setURL(vTuber.id ? `https://www.youtube.com/channel/${vTuber.id}` : "")
+                  .setThumbnail(vTuber.photo)
+                  .addFields([...fields, {
+                    name: "\u200b",
+                    value: `**Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.`
+                  }])
+                  .setFooter(`${process.env.EMBED_HOST_FOOTER}  \u2022  Page ${i + 1} / ${vTubers.length}`, client.user.avatarURL())
+                  .setTimestamp()
+              );
+            });
+    
+            if (isWs) wsPageReaction(interaction, authorId, reactDuration, embedMsgs);
+            else {
+              interaction.channel.send({ embeds: [embedMsgs[0]] }).then(async msg => {
+                pageReaction(msg, authorId, reactDuration, embedMsgs);
+              }).catch(e => {
+                console.log(chalk.red("\nFailed to send message"));
+                console.log(chalk.red(`${e.name}: ${e.message}`));
+                interaction.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble getting the list of vTubers, please kindly try again later.`);
+              });
+            }
+          }
+          else {
+            const orgNotFoundMsg = `${tagUser} it seems that there might not be any vTuber with that name.`;
 
             if (isWs) interaction.followUp(orgNotFoundMsg);
             else interaction.channel.send(orgNotFoundMsg);
