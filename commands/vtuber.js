@@ -120,11 +120,19 @@ export const execute = async (client, interaction, args, isWs = false) => {
           const vTubers = await getHolodexChannels([], 0, org === "All" ? undefined : org);
           
           if (vTubers.length > 0) {
+            let vTubersNameDesc = `${vTubers.map(vTuber => vTuber?.name ? `\u2022 ${vTuber.name}` : "").join("\n")}`;
+
+            if (vTubersNameDesc.length > 2048 - 100) {
+              vTubersNameDesc = vTubersNameDesc.substring(0, 2048 - 100);
+              vTubersNameDesc = vTubersNameDesc.substring(0, vTubersNameDesc.lastIndexOf("\n"));
+              vTubersNameDesc += "\n\u2022 And more..."
+            }
+
             const embedMsgs = [
               new MessageEmbed()
                 .setColor("#FF0000")
                 .setTitle(`${org} vTubers`)
-                .setDescription(trimStartingIndent(`${vTubers.map(vTuber => vTuber?.name ? `\u2022 ${vTuber.name}` : "").join("\n")}
+                .setDescription(trimStartingIndent(`${vTubersNameDesc}
     
                   **Note:** You will not be able to interact with this embed message after **${Math.floor(reactDuration / 60000)}** minute.
                 `))
@@ -346,7 +354,7 @@ const getHolodexChannels = async (lists = [], offset = 0, org = "All", limit = u
   let vTubers = lists;
 
   if (res.status === 200 && data && data.length > 0) {
-    let infos = await data.filter(vTuber => vTuber !== "INACTIVE").map(vtuber => {
+    let infos = await data.filter(vTuber => vTuber !== "INACTIVE" && vTuber.english_name).map(vtuber => {
       let info = {};
 
       if (vtuber.id) info.id = vtuber.id;
@@ -365,7 +373,16 @@ const getHolodexChannels = async (lists = [], offset = 0, org = "All", limit = u
     vTubers = vTubers.concat(infos);
   }
 
-  if (data.length < limit || !limit && data.length >= sizeLimit) await getHolodexChannels(vTubers, offset + sizeLimit, org, limit);
+  if (res.data?.length < limit || !limit && res.data?.length >= sizeLimit) {
+    return getHolodexChannels(vTubers, offset + sizeLimit, org, limit);
+  }
+
+  vTubers.sort((a, b) => {
+    if(a.name < b.name) return -1;
+    if(a.name > b.name) return 1;
+
+    return 0;
+  });
 
   return vTubers;
 }

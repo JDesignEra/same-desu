@@ -1,6 +1,7 @@
 export default [
-  "UCfrWoRGlawPQDQxxeIDRP0Q",   // hololive Indonesia
-  "UCJFZiqLMntJufDCHc6bQixg",   // hololive ホロライブ - VTuber Group
-  "UCotXwY6s8pWmuWd_snKYjhg",   // hololive English
-  "UCWsfcksUUpoEvhia0_ut0bA"    // holostars ホロスターズ - VTuber Group
+  "UCfrWoRGlawPQDQxxeIDRP0Q",   // Hololive Indonesia
+  "UCJFZiqLMntJufDCHc6bQixg",   // Hololive ホロライブ - VTuber Group
+  "UCotXwY6s8pWmuWd_snKYjhg",   // Hololive English
+  "UCWsfcksUUpoEvhia0_ut0bA",   // Holostars ホロスターズ - VTuber Group
+  "UCX7YkU9nEeaoZbkVLVajcMg"    // にじさんじ [Nijisanji]
 ];
