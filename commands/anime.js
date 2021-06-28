@@ -322,7 +322,12 @@ export const execute = async (client, interaction, args, isWs = false) => {
         if (args?.length > 1) {
           const descMaxLen = 2048;
           const searchQuery = encodeURI(args?.slice(1).join(" "));
-          const res = await axios.get(`${jikanUrl}/search/anime?q=${searchQuery}&page=1`);
+          const res = await axios.get(`${jikanUrl}/search/anime?q=${searchQuery}&page=1`)
+            .catch(e => {
+              console.log(chalk.red("\nFailed to retrieve anime search."));
+              console.log(chalk.red(`${e.name}: ${e.message}`));
+              interaction.channel.send(`${tagUser} it seems that an anime with that name may not exist..`);
+            });
           const animeList = res.data.results;
 
           const embedMsgs = animeList.map((anime, i) => {
@@ -383,7 +388,6 @@ export const execute = async (client, interaction, args, isWs = false) => {
             }).catch(e => {
               console.log(chalk.red("\nFailed to send message"));
               console.log(chalk.red(`${e.name}: ${e.message}`));
-              interaction.channel.send(`${tagUser} this is embarrassing, it seems that I am having trouble finding an anime with that name, please kindly try again later.`);
             });
           }
         }
