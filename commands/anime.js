@@ -326,7 +326,9 @@ export const execute = async (client, interaction, args, isWs = false) => {
             .catch(e => {
               console.log(chalk.red("\nFailed to retrieve anime search."));
               console.log(chalk.red(`${e.name}: ${e.message}`));
-              interaction.channel.send(`${tagUser} it seems that an anime with that name may not exist..`);
+
+              if (isWs) interaction.followUp(`${tagUser} it seems that an anime with that name may not exist.`);
+              else interaction.channel.send(`${tagUser} it seems that an anime with that name may not exist.`);
             });
           const animeList = res.data.results;
 
